@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mural de Recados - GitHub + Firebase</title>
+    <style>
+        body { font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f4f4f9; }
+        h1 { text-align: center; color: #333; }
+        .input-group { display: flex; gap: 10px; margin-bottom: 20px; }
+        input { flex: 1; padding: 10px; border: 1px solid #ccc; border-radius: 4px; }
+        button { padding: 10px 20px; background-color: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer; }
+        button:hover { background-color: #218838; }
+        ul { list-style-type: none; padding: 0; }
+        li { background: white; border-bottom: 1px solid #ddd; padding: 10px; margin-bottom: 5px; border-radius: 4px; animation: fadeIn 0.5s; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body>
+
+    <h1>📌 Mural de Recados</h1>
+
+    <div class="input-group">
+        <input type="text" id="mensagemInput" placeholder="Digite uma mensagem..." autocomplete="off">
+        <button id="enviarBtn">Enviar</button>
+    </div>
+
+    <ul id="listaMensagens">
+        <li style="color: gray; font-style: italic;">Carregando mensagens...</li>
+    </ul>
+
+    <script type="module">
+        // Importa as funções que precisamos
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, serverTimestamp } 
+        from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        // --- COLE SUA CONFIGURAÇÃO DO FIREBASE ABAIXO ---
+        // (Substitua tudo entre as chaves {} pelos dados que o console do Firebase te deu)
+        const firebaseConfig = {
+            apiKey: "AIzaSyDsTWnP2cmsUIDeDlotoR1uELMAba_-dyw",
+            authDomain: "testegithub-e1ffb.firebaseapp.com",
+            projectId: "testegithub-e1ffb",
+            storageBucket: "testegithub-e1ffb.firebasestorage.app",
+            messagingSenderId: "508103458559",
+            appId: "1:508103458559:web:55bc2fe4dc61d7b5ee16ca"
+        };
+        // ------------------------------------------------
+
+        // 1. Inicializa o Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // Referências aos elementos da tela
+        const input = document.getElementById('mensagemInput');
+        const btn = document.getElementById('enviarBtn');
+        const lista = document.getElementById('listaMensagens');
+
+        // 2. Função para ENVIAR dados (Backend)
+        async function enviarMensagem() {
+            const texto = input.value;
+            if (texto.trim() === "") return;
+
+            try {
+                await addDoc(collection(db, "recados"), {
+                    texto: texto,
+                    data: serverTimestamp() // Pega a hora do servidor
+                });
+                input.value = ""; // Limpa o campo
+            } catch (e) {
+                console.error("Erro ao adicionar: ", e);
+                alert("Erro ao enviar. Verifique o console.");
+            }
+        }
+
+        // Evento de clique no botão e Enter
+        btn.addEventListener('click', enviarMensagem);
+        input.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') enviarMensagem();
+        });
+
+        // 3. Função para RECEBER dados em Tempo Real (Onde a mágica acontece)
+        // O "onSnapshot" fica escutando o banco de dados. Se algo mudar lá, ele roda aqui.
+        const q = query(collection(db, "recados"), orderBy("data", "desc"));
+        
+        onSnapshot(q, (snapshot) => {
+            lista.innerHTML = ""; // Limpa a lista atual
+            snapshot.forEach((doc) => {
+                const msg = doc.data();
+                const li = document.createElement('li');
+                li.textContent = msg.texto;
+                lista.appendChild(li);
+            });
+            
+            if(snapshot.empty) {
+                lista.innerHTML = "<li style='text-align:center'>Nenhuma mensagem ainda. Seja o primeiro!</li>";
+            }
+        });
+
+    </script>
+</body>
+</html>
