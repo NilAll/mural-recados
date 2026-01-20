@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detalhes do Local</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
+        
+        body { 
+            margin: 0; 
+            /* Fundo de segurança escuro */
+            background-color: #222;
+            background-size: cover; 
+            background-position: center; 
+            background-attachment: fixed;
+            min-height: 100vh;
+            padding-bottom: 80px; 
+            color: #333;
+        }
+        
+        /* Máscara escura para ler melhor o conteúdo sobre a foto de fundo */
+        .overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5); z-index: -1;
+        }
+
+        /* Capa do Estabelecimento */
+        .hero { 
+            width: 100%; height: 250px; object-fit: cover; display: block; 
+            background: #ddd; border-bottom: 4px solid #fff;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+        
+        .container { padding: 20px; max-width: 600px; margin: -40px auto 0; position: relative; }
+        
+        .info-card {
+            background: rgba(255, 255, 255, 0.95); /* Leve transparência */
+            backdrop-filter: blur(5px);
+            border-radius: 15px; padding: 25px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        h1 { margin: 0 0 10px 0; color: #222; font-size: 24px; }
+        .badge { background: #007bff; color: white; padding: 4px 12px; border-radius: 15px; font-size: 12px; font-weight: bold; text-transform: uppercase; }
+        
+        .detalhe-item { margin-top: 20px; display: flex; align-items: center; gap: 10px; color: #555; font-size: 16px; border-bottom: 1px solid #eee; padding-bottom: 15px; }
+        .detalhe-item:last-child { border: none; }
+        .icon { font-size: 20px; width: 30px; text-align: center; }
+
+        /* Botão Flutuante do WhatsApp */
+        .fab-zap {
+            position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+            background: #25D366; color: white; text-decoration: none;
+            padding: 15px 30px; border-radius: 30px; font-weight: bold; font-size: 18px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.4); display: flex; align-items: center; gap: 10px;
+            width: 90%; justify-content: center; max-width: 400px; transition: transform 0.2s;
+        }
+        .fab-zap:active { transform: translateX(-50%) scale(0.95); }
+
+        .btn-voltar {
+            position: absolute; top: 20px; left: 20px;
+            background: rgba(0,0,0,0.6); color: white; text-decoration: none;
+            padding: 8px 15px; border-radius: 20px; font-weight: bold; font-size: 14px;
+            backdrop-filter: blur(4px);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="overlay"></div> <a href="index.html" class="btn-voltar">⬅ Voltar</a>
+    
+    <img id="capa" class="hero" src="" alt="Capa">
+    
+    <div class="container">
+        <div class="info-card">
+            <div style="margin-bottom:15px"><span id="categoria" class="badge">Carregando...</span></div>
+            <h1 id="nome">...</h1>
+            
+            <div class="detalhe-item">
+                <span class="icon">📍</span> <span id="cidade">...</span>
+            </div>
+            
+            <div class="detalhe-item">
+                <span class="icon">📅</span> <span>Verificado recentemente</span>
+            </div>
+        </div>
+    </div>
+
+    <a id="btnZap" href="#" class="fab-zap">
+        📞 Chamar no WhatsApp
+    </a>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        // --- SUAS CHAVES JÁ CONFIGURADAS ---
+        const firebaseConfig = {
+          apiKey: "AIzaSyDsTWnP2cmsUIDeDlotoR1uELMAba_-dyw",
+          authDomain: "testegithub-e1ffb.firebaseapp.com",
+          projectId: "testegithub-e1ffb",
+          storageBucket: "testegithub-e1ffb.firebasestorage.app",
+          messagingSenderId: "508103458559",
+          appId: "1:508103458559:web:55bc2fe4dc61d7b5ee16ca"
+        };
+        // -----------------------------------
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // 1. CARREGAR FUNDO DA CIDADE (Para manter o padrão visual)
+        async function carregarTema() {
+            try {
+                const docSnap = await getDoc(doc(db, "config", "geral"));
+                if (docSnap.exists() && docSnap.data().fundo) {
+                    document.body.style.backgroundImage = `url('${docSnap.data().fundo}')`;
+                }
+            } catch(e) { console.log("Erro tema:", e); }
+        }
+        carregarTema();
+
+        // 2. CARREGAR DADOS DO LOCAL
+        const params = new URLSearchParams(window.location.search);
+        const id = params.get('id');
+
+        if(!id) {
+            alert("Local não especificado!");
+            window.location.href = "index.html";
+        }
+
+        async function carregarDetalhes() {
+            try {
+                const docRef = doc(db, "guia_cidades", id);
+                const docSnap = await getDoc(docRef);
+
+                if (docSnap.exists()) {
+                    const dados = docSnap.data();
+                    
+                    document.title = dados.nome;
+                    document.getElementById('nome').textContent = dados.nome;
+                    document.getElementById('categoria').textContent = dados.categoria;
+                    document.getElementById('cidade').textContent = dados.cidade;
+                    
+                    // Imagem da capa (com fallback se não tiver)
+                    if(dados.imagem) {
+                        document.getElementById('capa').src = dados.imagem;
+                    } else {
+                        document.getElementById('capa').src = "https://via.placeholder.com/800x400?text=Sem+Imagem";
+                    }
+
+                    // Botão Zap
+                    if(dados.contato) {
+                        const numLimpo = dados.contato.replace(/\D/g,'');
+                        document.getElementById('btnZap').href = `https://wa.me/55${numLimpo}`;
+                    } else {
+                        document.getElementById('btnZap').style.display = 'none';
+                    }
+
+                } else {
+                    document.getElementById('nome').textContent = "Local não encontrado.";
+                    document.getElementById('btnZap').style.display = 'none';
+                }
+            } catch (error) {
+                console.error("Erro ao carregar:", error);
+                alert("Erro de conexão.");
+            }
+        }
+
+        carregarDetalhes();
+    </script>
+</body>
+</html>

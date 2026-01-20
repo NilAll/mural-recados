@@ -5,155 +5,184 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Guia da Cidade</title>
     <style>
-        /* Reset e Estilo Básico */
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
         
         body {
-            /* Coloque a foto da cidade aqui */
-            background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.8)), url('https://as1.ftcdn.net/jpg/04/82/09/94/1000_F_482099416_EGkmL9vkQGmvy1QlR7gyfm0ZEWsVxPxX.jpg');
-            background-size: cover;
-            background-position: center;
+            /* COR DE FUNDO DE SEGURANÇA (Para não ficar branco no branco) */
+            background-color: #222; 
+            /* Configuração da Imagem Dinâmica */
+            background-size: cover; 
+            background-position: center; 
             background-attachment: fixed;
-            height: 100vh;
-            color: white;
-            display: flex;
-            flex-direction: column;
+            min-height: 100vh; 
+            color: white; 
+            padding: 20px 0;
+            display: flex; 
+            flex-direction: column; 
             align-items: center;
-            padding-top: 20vh;
+            transition: background-image 0.5s ease-in-out;
         }
 
-        h1 { margin-bottom: 20px; font-weight: 300; letter-spacing: 2px; text-transform: uppercase; text-align: center; }
-
-        /* Barra de Busca Estilosa */
-        .search-box {
-            width: 90%;
-            max-width: 500px;
-            position: relative;
-        }
-        
-        input {
-            width: 100%;
-            padding: 15px 20px;
-            font-size: 18px;
-            border-radius: 30px;
-            border: none;
-            outline: none;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-            background: rgba(255, 255, 255, 0.95);
-            transition: 0.3s;
-        }
-        input:focus { background: white; transform: scale(1.02); }
-
-        /* Lista de Resultados */
-        #resultados {
-            width: 90%;
-            max-width: 500px;
-            margin-top: 20px;
-            max-height: 50vh;
-            overflow-y: auto;
-        }
-
-        .item {
-            background: rgba(255,255,255,0.1);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255,255,255,0.2);
-            padding: 15px;
-            margin-bottom: 10px;
-            border-radius: 10px;
-            animation: slideUp 0.3s ease;
-        }
-
-        .item h3 { font-size: 18px; color: #fff; margin-bottom: 5px; }
-        .item p { font-size: 14px; color: #ddd; }
-        .tag { 
-            display: inline-block; 
-            background: #ff9800; 
-            color: black; 
-            padding: 2px 8px; 
-            border-radius: 4px; 
-            font-size: 10px; 
+        /* Título com fundo semitransparente para garantir leitura */
+        h1 { 
             text-transform: uppercase; 
-            font-weight: bold;
-            margin-top: 5px;
+            letter-spacing: 2px; 
+            text-align: center; 
+            margin-top: 15vh; 
+            text-shadow: 0 2px 5px rgba(0,0,0,0.8); 
+            background: rgba(0, 0, 0, 0.4); /* Fundo escuro suave atrás do texto */
+            padding: 10px 25px; 
+            border-radius: 8px;
+            backdrop-filter: blur(2px);
         }
 
-        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .search-box { width: 90%; max-width: 500px; margin-top: 20px; margin-bottom: 20px; }
+        input { width: 100%; padding: 15px 20px; font-size: 18px; border-radius: 30px; border: none; outline: none; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
+
+        #resultados { width: 90%; max-width: 500px; padding-bottom: 50px; }
+
+        /* Card */
+        .card {
+            background: rgba(255, 255, 255, 0.95); 
+            border-radius: 12px; 
+            overflow: hidden; 
+            margin-bottom: 15px;
+            color: #333; 
+            display: flex; 
+            align-items: center; 
+            padding: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2); 
+            position: relative;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .card:active { transform: scale(0.98); }
+        
+        .card-img { width: 70px; height: 70px; object-fit: cover; border-radius: 8px; margin-right: 15px; background: #ddd; }
+        .card-content { flex: 1; }
+        .card-content h3 { margin: 0 0 5px 0; font-size: 18px; color: #222; }
+        .card-content p { color: #666; font-size: 13px; margin: 0; }
+        .tag { background: #e0e0e0; padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: bold; text-transform: uppercase; color: #555; }
+
+        /* Botão Zap */
+        .btn-zap {
+            background: #25D366; color: white; width: 40px; height: 40px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center; text-decoration: none; font-size: 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2); margin-left: 10px; z-index: 10;
+        }
     </style>
 </head>
 <body>
 
-    <h1>Guia Comercial</h1>
+    <h1 id="appTitulo">Carregando...</h1>
 
     <div class="search-box">
-        <input type="text" id="busca" placeholder="O que você procura? (Ex: Pizza, Encanador...)" autocomplete="off">
+        <input type="text" id="busca" placeholder="🔍 O que você procura?" autocomplete="off">
     </div>
 
     <div id="resultados"></div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getFirestore, collection, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getFirestore, collection, getDocs, getDoc, doc, query, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-        // --- COLE SUA CONFIGURAÇÃO DO FIREBASE AQUI ---
+        // --- SUAS CHAVES JÁ CONFIGURADAS ---
         const firebaseConfig = {
-            apiKey: "AIzaSyDsTWnP2cmsUIDeDlotoR1uELMAba_-dyw",
-            authDomain: "testegithub-e1ffb.firebaseapp.com",
-            projectId: "testegithub-e1ffb",
-            storageBucket: "testegithub-e1ffb.firebasestorage.app",
-            messagingSenderId: "508103458559",
-            appId: "1:508103458559:web:55bc2fe4dc61d7b5ee16ca"
+          apiKey: "AIzaSyDsTWnP2cmsUIDeDlotoR1uELMAba_-dyw",
+          authDomain: "testegithub-e1ffb.firebaseapp.com",
+          projectId: "testegithub-e1ffb",
+          storageBucket: "testegithub-e1ffb.firebasestorage.app",
+          messagingSenderId: "508103458559",
+          appId: "1:508103458559:web:55bc2fe4dc61d7b5ee16ca"
         };
-        // ----------------------------------------------
+        // -----------------------------------
 
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        // Carregar dados na memória para busca instantânea
-        let todosLocais = [];
+        // 1. CARREGAR CONFIGURAÇÃO DA CIDADE (FUNDO E TÍTULO)
+        async function carregarTema() {
+            try {
+                // Busca o documento 'geral' na coleção 'config' (criado pelo novo Admin)
+                const docSnap = await getDoc(doc(db, "config", "geral"));
+                
+                if (docSnap.exists()) {
+                    const dados = docSnap.data();
+                    
+                    // Aplica o título
+                    if(dados.titulo) document.getElementById('appTitulo').textContent = dados.titulo;
+                    
+                    // Aplica o fundo dinâmico
+                    if(dados.fundo) {
+                        document.body.style.backgroundImage = `linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.8)), url('${dados.fundo}')`;
+                    }
+                } else {
+                    // Se ainda não tiver configurado no Admin, usa padrão
+                    document.getElementById('appTitulo').textContent = "Guia da Cidade";
+                }
+            } catch(e) { 
+                console.log("Erro ao carregar tema (pode ser o primeiro acesso):", e);
+                document.getElementById('appTitulo').textContent = "Guia Comercial";
+            }
+        }
+        carregarTema();
 
+        // 2. BUSCA DE LOCAIS
+        let todosLocais = [];
         async function carregarDados() {
-            const q = query(collection(db, "guia_cidades"), orderBy("nome"));
-            const snapshot = await getDocs(q);
-            
-            todosLocais = [];
-            snapshot.forEach(doc => {
-                todosLocais.push(doc.data());
-            });
-            console.log("Dados carregados:", todosLocais.length);
+            try {
+                const q = query(collection(db, "guia_cidades"), orderBy("nome"));
+                const snapshot = await getDocs(q);
+                todosLocais = [];
+                snapshot.forEach(doc => {
+                    todosLocais.push({ id: doc.id, ...doc.data() });
+                });
+                console.log("Locais carregados: " + todosLocais.length);
+            } catch (error) {
+                console.error("Erro ao buscar locais:", error);
+            }
         }
 
-        // Função de Busca em Tempo Real
-        const input = document.getElementById('busca');
         const divResultados = document.getElementById('resultados');
-
-        input.addEventListener('keyup', (e) => {
+        
+        document.getElementById('busca').addEventListener('keyup', (e) => {
             const termo = e.target.value.toLowerCase();
-            divResultados.innerHTML = ""; // Limpa a tela
+            divResultados.innerHTML = "";
+            if(termo.length < 1) return;
 
-            if(termo.length < 2) return; // Só busca se tiver 2 letras ou mais
-
-            // Filtra os locais que contém o termo no nome ou na categoria
-            const filtrados = todosLocais.filter(local => 
-                local.nomeBusca.includes(termo) || 
-                local.categoria.toLowerCase().includes(termo)
+            const filtrados = todosLocais.filter(l => 
+                l.nomeBusca.includes(termo) || l.categoria.toLowerCase().includes(termo)
             );
 
             filtrados.forEach(local => {
+                // Formatar WhatsApp
+                const zapLink = local.contato ? `https://wa.me/55${local.contato.replace(/\D/g,'')}` : '#';
+                // Imagem padrão caso não tenha
+                const imagem = local.imagem || "https://via.placeholder.com/150?text=Foto";
+
                 const div = document.createElement('div');
-                div.className = 'item';
+                div.className = 'card';
                 div.innerHTML = `
-                    <h3>${local.nome}</h3>
-                    <p>📍 ${local.cidade}</p>
-                    <p>📞 ${local.contato}</p>
-                    <span class="tag">${local.categoria}</span>
+                    <img src="${imagem}" class="card-img" alt="Foto">
+                    <div class="card-content">
+                        <h3>${local.nome}</h3>
+                        <span class="tag">${local.categoria}</span>
+                        <p>${local.cidade}</p>
+                    </div>
+                    <a href="${zapLink}" class="btn-zap" target="_blank" onclick="event.stopPropagation()">📞</a>
                 `;
+                
+                // Ao clicar no card, vai para detalhes
+                div.addEventListener('click', () => {
+                    window.location.href = `detalhes.html?id=${local.id}`;
+                });
+
                 divResultados.appendChild(div);
             });
         });
 
-        // Inicia o carregamento assim que abre o app
+        // Inicia tudo
         carregarDados();
-
     </script>
 </body>
 </html>
