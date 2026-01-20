@@ -9,35 +9,24 @@
         
         body {
             background-color: #222; 
-            /* MUDANÇA: Removido o filtro escuro, agora é apenas a url() */
             background-size: cover; background-position: center; background-attachment: fixed;
             min-height: 100vh; color: white; padding: 10px 0;
             display: flex; flex-direction: column; align-items: center;
         }
 
-        /* HEADER: Título e Busca mais compactos e no topo */
-        .header-container {
-            width: 100%;
-            max-width: 500px;
-            text-align: center;
-            margin-top: 20px; /* Sobe o conteúdo */
-            padding: 0 10px;
-        }
+        /* HEADER */
+        .header-container { width: 100%; max-width: 500px; text-align: center; margin-top: 20px; padding: 0 10px; }
 
         h1 { 
-            margin: 0 0 10px 0;
-            font-weight: bold;
-            font-size: 2em;
-            background: none; 
-            text-transform: none; 
-            /* Sombra forte para garantir leitura na foto real */
-            text-shadow: 2px 2px 4px #000000, 0 0 10px rgba(0,0,0,0.7);
+            margin: 0 0 10px 0; font-weight: bold; font-size: 2em; background: none; 
+            text-transform: none; text-shadow: 2px 2px 4px #000000, 0 0 10px rgba(0,0,0,0.7);
         }
 
-        .search-box { width: 100%; margin-bottom: 20px; }
+        .search-box { width: 100%; margin-bottom: 20px; position: relative; }
         input { width: 100%; padding: 12px 20px; font-size: 16px; border-radius: 30px; border: none; outline: none; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
 
-        #resultados { width: 90%; max-width: 500px; padding-bottom: 50px; }
+        /* ÁREA DE RESULTADOS (Cartões das lojas) */
+        #resultados { width: 90%; max-width: 500px; padding-bottom: 50px; display: none; /* Começa oculto */ }
 
         .card {
             background: rgba(255, 255, 255, 0.95); 
@@ -50,6 +39,49 @@
         .card-content h3 { margin: 0 0 5px 0; font-size: 18px; color: #222; }
         .tag { background: #e0e0e0; padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: bold; color: #555; }
         .badge-delivery { background: #ffc107; padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: bold; color: #000; margin-left: 5px; }
+
+        /* --- NOVO: PAINEL DE CATEGORIAS --- */
+        #painelNavegacao {
+            width: 90%; max-width: 500px;
+            display: none; /* Só aparece ao focar na busca */
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            color: #333;
+            margin-bottom: 20px;
+            animation: fadeIn 0.3s ease;
+        }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Grid de 3 Colunas */
+        .cat-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-top: 10px;
+        }
+
+        .cat-card {
+            display: flex; flex-direction: column; align-items: center; text-align: center;
+            padding: 10px; border-radius: 10px; cursor: pointer; transition: background 0.2s;
+            border: 1px solid #eee;
+        }
+        .cat-card:hover { background: #f0f0f0; }
+        
+        .cat-icon { font-size: 30px; margin-bottom: 5px; }
+        .cat-name { font-size: 12px; font-weight: bold; color: #555; }
+
+        /* Subcategorias */
+        .subcat-header { display: flex; align-items: center; margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 10px; }
+        .btn-voltar-cat { border: none; background: none; font-size: 20px; cursor: pointer; margin-right: 10px; }
+        .subcat-list { display: flex; flex-wrap: wrap; gap: 10px; }
+        .subcat-chip {
+            background: #e9ecef; padding: 8px 15px; border-radius: 20px; font-size: 14px;
+            color: #333; cursor: pointer; border: 1px solid #ddd;
+        }
+        .subcat-chip:hover { background: #007bff; color: white; border-color: #007bff; }
+
     </style>
 </head>
 <body>
@@ -59,6 +91,25 @@
         <div class="search-box">
             <input type="text" id="busca" placeholder="🔍 Buscar..." autocomplete="off">
         </div>
+    </div>
+
+    <div id="painelNavegacao">
+        
+        <div id="viewCategorias">
+            <h3 style="margin-bottom:10px; font-size:16px;">Categorias</h3>
+            <div id="gridCategorias" class="cat-grid">
+                </div>
+        </div>
+
+        <div id="viewSubcategorias" style="display: none;">
+            <div class="subcat-header">
+                <button class="btn-voltar-cat" onclick="voltarCategorias()">⬅</button>
+                <h3 id="tituloCatSelecionada" style="margin:0; font-size:16px;">...</h3>
+            </div>
+            <div id="listaSubcats" class="subcat-list">
+                </div>
+        </div>
+
     </div>
 
     <div id="resultados"></div>
@@ -79,38 +130,159 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        async function carregarTema() {
+        // Ícones para as categorias conhecidas
+        const ICONES_CAT = {
+            "Comercio": "🛍️",
+            "Alimentacao": "🍔",
+            "Servicos": "🛠️",
+            "Saude": "🏥",
+            "Publico": "🏛️",
+            "Profissionais": "👔",
+            "Delivery": "🛵",
+            "Classificados": "📢",
+            "Aluguel": "🏠"
+        };
+
+        let todosLocais = [];
+        let estruturaCategorias = {}; // Vai guardar o JSON das categorias/subcategorias
+
+        // 1. CARREGAR DADOS
+        async function carregarDados() {
+            // Locais
+            const q = query(collection(db, "guia_cidades"), orderBy("nome"));
+            const snapshot = await getDocs(q);
+            todosLocais = [];
+            snapshot.forEach(doc => todosLocais.push({ id: doc.id, ...doc.data() }));
+
+            // Configuração Visual (Tema)
             try {
                 const docSnap = await getDoc(doc(db, "config", "geral"));
                 if (docSnap.exists()) {
                     const dados = docSnap.data();
                     if(dados.titulo) document.getElementById('appTitulo').textContent = dados.titulo;
-                    // Apenas a URL, sem gradiente, conforme pedido
                     if(dados.fundo) document.body.style.backgroundImage = `url('${dados.fundo}')`;
                 }
             } catch(e) {}
-        }
-        carregarTema();
 
-        let todosLocais = [];
-        async function carregarDados() {
-            const q = query(collection(db, "guia_cidades"), orderBy("nome"));
-            const snapshot = await getDocs(q);
-            todosLocais = [];
-            snapshot.forEach(doc => todosLocais.push({ id: doc.id, ...doc.data() }));
+            // Categorias (Para o menu)
+            try {
+                const docCat = await getDoc(doc(db, "config", "categorias"));
+                if (docCat.exists()) {
+                    estruturaCategorias = docCat.data();
+                    renderizarCategorias();
+                }
+            } catch(e) {}
         }
 
+        // 2. RENDERIZAR O MENU DE CATEGORIAS
+        function renderizarCategorias() {
+            const grid = document.getElementById('gridCategorias');
+            grid.innerHTML = "";
+
+            // Pega as chaves (nomes das categorias)
+            const categorias = Object.keys(estruturaCategorias);
+
+            categorias.forEach(cat => {
+                const icone = ICONES_CAT[cat] || "📂"; // Ícone padrão se não achar
+                
+                // Cria o Card
+                const card = document.createElement('div');
+                card.className = 'cat-card';
+                card.innerHTML = `
+                    <div class="cat-icon">${icone}</div>
+                    <div class="cat-name">${cat}</div>
+                `;
+                
+                // Clique no Card -> Abre Subcategorias
+                card.addEventListener('click', () => abrirSubcategorias(cat));
+                grid.appendChild(card);
+            });
+        }
+
+        // 3. ABRIR SUBCATEGORIAS
+        window.abrirSubcategorias = (cat) => {
+            document.getElementById('viewCategorias').style.display = 'none';
+            document.getElementById('viewSubcategorias').style.display = 'block';
+            document.getElementById('tituloCatSelecionada').textContent = cat;
+
+            const lista = document.getElementById('listaSubcats');
+            lista.innerHTML = "";
+
+            const subs = estruturaCategorias[cat] || [];
+            
+            // Opção "Ver Tudo de X"
+            const chipTudo = document.createElement('div');
+            chipTudo.className = 'subcat-chip';
+            chipTudo.textContent = `Ver tudo de ${cat}`;
+            chipTudo.onclick = () => { pesquisarPorTermo(cat); };
+            lista.appendChild(chipTudo);
+
+            // Opções das Subcategorias
+            subs.forEach(sub => {
+                const chip = document.createElement('div');
+                chip.className = 'subcat-chip';
+                chip.textContent = sub;
+                chip.onclick = () => { pesquisarPorTermo(sub); };
+                lista.appendChild(chip);
+            });
+        }
+
+        window.voltarCategorias = () => {
+            document.getElementById('viewSubcategorias').style.display = 'none';
+            document.getElementById('viewCategorias').style.display = 'block';
+        }
+
+        // 4. LÓGICA DE EXIBIÇÃO DA BUSCA vs CATEGORIAS
+        const inputBusca = document.getElementById('busca');
+        const painelNav = document.getElementById('painelNavegacao');
         const divResultados = document.getElementById('resultados');
-        document.getElementById('busca').addEventListener('keyup', (e) => {
-            const termo = e.target.value.toLowerCase();
-            divResultados.innerHTML = "";
-            if(termo.length < 1) return;
 
+        // Quando clica/foca na busca
+        inputBusca.addEventListener('focus', () => {
+            if(inputBusca.value.trim() === "") {
+                painelNav.style.display = 'block';
+                divResultados.style.display = 'none';
+                voltarCategorias(); // Reseta para a tela principal
+            }
+        });
+
+        // Quando digita
+        inputBusca.addEventListener('keyup', (e) => {
+            const termo = e.target.value.toLowerCase();
+            
+            if(termo.length > 0) {
+                // Tem texto: Esconde categorias, mostra resultados
+                painelNav.style.display = 'none';
+                divResultados.style.display = 'block';
+                executarBusca(termo);
+            } else {
+                // Apagou tudo: Volta categorias
+                divResultados.style.display = 'none';
+                painelNav.style.display = 'block';
+            }
+        });
+
+        // Função que joga o termo na busca e roda
+        function pesquisarPorTermo(termo) {
+            inputBusca.value = termo; // Preenche o input visualmente
+            painelNav.style.display = 'none'; // Esconde menu
+            divResultados.style.display = 'block'; // Mostra lista
+            executarBusca(termo.toLowerCase()); // Filtra
+        }
+
+        function executarBusca(termo) {
+            divResultados.innerHTML = "";
+            
             const filtrados = todosLocais.filter(l => 
                 l.nomeBusca.includes(termo) || 
                 l.categoria.toLowerCase().includes(termo) ||
                 (l.subcategoria && l.subcategoria.toLowerCase().includes(termo))
             );
+
+            if(filtrados.length === 0) {
+                divResultados.innerHTML = "<p style='text-align:center; color:white; background:rgba(0,0,0,0.5); padding:10px; border-radius:10px;'>Nenhum local encontrado.</p>";
+                return;
+            }
 
             filtrados.forEach(local => {
                 const imagem = local.imagem || "https://via.placeholder.com/150";
@@ -129,7 +301,8 @@
                 div.addEventListener('click', () => window.location.href = `detalhes.html?id=${local.id}`);
                 divResultados.appendChild(div);
             });
-        });
+        }
+
         carregarDados();
     </script>
 </body>
