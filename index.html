@@ -8,32 +8,21 @@
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
         
         body {
-            /* COR DE FUNDO DE SEGURANÇA (Para não ficar branco no branco) */
             background-color: #222; 
-            /* Configuração da Imagem Dinâmica */
-            background-size: cover; 
-            background-position: center; 
-            background-attachment: fixed;
-            min-height: 100vh; 
-            color: white; 
-            padding: 20px 0;
-            display: flex; 
-            flex-direction: column; 
-            align-items: center;
-            transition: background-image 0.5s ease-in-out;
+            background-size: cover; background-position: center; background-attachment: fixed;
+            min-height: 100vh; color: white; padding: 20px 0;
+            display: flex; flex-direction: column; align-items: center;
         }
 
-        /* Título com fundo semitransparente para garantir leitura */
+        /* TÍTULO LIMPO COM SOMBRA */
         h1 { 
-            text-transform: uppercase; 
-            letter-spacing: 2px; 
-            text-align: center; 
             margin-top: 15vh; 
-            text-shadow: 0 2px 5px rgba(0,0,0,0.8); 
-            background: rgba(0, 0, 0, 0.4); /* Fundo escuro suave atrás do texto */
-            padding: 10px 25px; 
-            border-radius: 8px;
-            backdrop-filter: blur(2px);
+            text-align: center;
+            font-weight: bold;
+            font-size: 2.5em;
+            background: none; 
+            text-transform: none; 
+            text-shadow: 2px 2px 4px #000000;
         }
 
         .search-box { width: 90%; max-width: 500px; margin-top: 20px; margin-bottom: 20px; }
@@ -41,35 +30,17 @@
 
         #resultados { width: 90%; max-width: 500px; padding-bottom: 50px; }
 
-        /* Card */
         .card {
             background: rgba(255, 255, 255, 0.95); 
-            border-radius: 12px; 
-            overflow: hidden; 
-            margin-bottom: 15px;
-            color: #333; 
-            display: flex; 
-            align-items: center; 
-            padding: 10px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.2); 
-            position: relative;
-            cursor: pointer;
-            transition: transform 0.2s;
+            border-radius: 12px; overflow: hidden; margin-bottom: 15px;
+            color: #333; display: flex; align-items: center; padding: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2); position: relative; cursor: pointer;
         }
-        .card:active { transform: scale(0.98); }
         
         .card-img { width: 70px; height: 70px; object-fit: cover; border-radius: 8px; margin-right: 15px; background: #ddd; }
-        .card-content { flex: 1; }
         .card-content h3 { margin: 0 0 5px 0; font-size: 18px; color: #222; }
-        .card-content p { color: #666; font-size: 13px; margin: 0; }
-        .tag { background: #e0e0e0; padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: bold; text-transform: uppercase; color: #555; }
-
-        /* Botão Zap */
-        .btn-zap {
-            background: #25D366; color: white; width: 40px; height: 40px; border-radius: 50%;
-            display: flex; align-items: center; justify-content: center; text-decoration: none; font-size: 20px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2); margin-left: 10px; z-index: 10;
-        }
+        .tag { background: #e0e0e0; padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: bold; color: #555; }
+        .badge-delivery { background: #ffc107; padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: bold; color: #000; margin-left: 5px; }
     </style>
 </head>
 <body>
@@ -77,7 +48,7 @@
     <h1 id="appTitulo">Carregando...</h1>
 
     <div class="search-box">
-        <input type="text" id="busca" placeholder="🔍 O que você procura?" autocomplete="off">
+        <input type="text" id="busca" placeholder="🔍 Buscar..." autocomplete="off">
     </div>
 
     <div id="resultados"></div>
@@ -86,7 +57,7 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getFirestore, collection, getDocs, getDoc, doc, query, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-        // --- SUAS CHAVES JÁ CONFIGURADAS ---
+        // --- SUAS CHAVES JÁ PREENCHIDAS ---
         const firebaseConfig = {
           apiKey: "AIzaSyDsTWnP2cmsUIDeDlotoR1uELMAba_-dyw",
           authDomain: "testegithub-e1ffb.firebaseapp.com",
@@ -95,94 +66,60 @@
           messagingSenderId: "508103458559",
           appId: "1:508103458559:web:55bc2fe4dc61d7b5ee16ca"
         };
-        // -----------------------------------
+        // ----------------------------------
 
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        // 1. CARREGAR CONFIGURAÇÃO DA CIDADE (FUNDO E TÍTULO)
         async function carregarTema() {
             try {
-                // Busca o documento 'geral' na coleção 'config' (criado pelo novo Admin)
                 const docSnap = await getDoc(doc(db, "config", "geral"));
-                
                 if (docSnap.exists()) {
                     const dados = docSnap.data();
-                    
-                    // Aplica o título
                     if(dados.titulo) document.getElementById('appTitulo').textContent = dados.titulo;
-                    
-                    // Aplica o fundo dinâmico
-                    if(dados.fundo) {
-                        document.body.style.backgroundImage = `linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.8)), url('${dados.fundo}')`;
-                    }
-                } else {
-                    // Se ainda não tiver configurado no Admin, usa padrão
-                    document.getElementById('appTitulo').textContent = "Guia da Cidade";
+                    if(dados.fundo) document.body.style.backgroundImage = `linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.6)), url('${dados.fundo}')`;
                 }
-            } catch(e) { 
-                console.log("Erro ao carregar tema (pode ser o primeiro acesso):", e);
-                document.getElementById('appTitulo').textContent = "Guia Comercial";
-            }
+            } catch(e) {}
         }
         carregarTema();
 
-        // 2. BUSCA DE LOCAIS
         let todosLocais = [];
         async function carregarDados() {
-            try {
-                const q = query(collection(db, "guia_cidades"), orderBy("nome"));
-                const snapshot = await getDocs(q);
-                todosLocais = [];
-                snapshot.forEach(doc => {
-                    todosLocais.push({ id: doc.id, ...doc.data() });
-                });
-                console.log("Locais carregados: " + todosLocais.length);
-            } catch (error) {
-                console.error("Erro ao buscar locais:", error);
-            }
+            const q = query(collection(db, "guia_cidades"), orderBy("nome"));
+            const snapshot = await getDocs(q);
+            todosLocais = [];
+            snapshot.forEach(doc => todosLocais.push({ id: doc.id, ...doc.data() }));
         }
 
         const divResultados = document.getElementById('resultados');
-        
         document.getElementById('busca').addEventListener('keyup', (e) => {
             const termo = e.target.value.toLowerCase();
             divResultados.innerHTML = "";
             if(termo.length < 1) return;
 
+            // Busca agora inclui subcategoria
             const filtrados = todosLocais.filter(l => 
-                l.nomeBusca.includes(termo) || l.categoria.toLowerCase().includes(termo)
+                l.nomeBusca.includes(termo) || 
+                l.categoria.toLowerCase().includes(termo) ||
+                (l.subcategoria && l.subcategoria.toLowerCase().includes(termo))
             );
 
             filtrados.forEach(local => {
-                // Formatar WhatsApp
-                const zapLink = local.contato ? `https://wa.me/55${local.contato.replace(/\D/g,'')}` : '#';
-                // Imagem padrão caso não tenha
-                const imagem = local.imagem || "https://via.placeholder.com/150?text=Foto";
-
+                const imagem = local.imagem || "https://via.placeholder.com/150";
                 const div = document.createElement('div');
                 div.className = 'card';
                 div.innerHTML = `
-                    <img src="${imagem}" class="card-img" alt="Foto">
+                    <img src="${imagem}" class="card-img">
                     <div class="card-content">
                         <h3>${local.nome}</h3>
                         <span class="tag">${local.categoria}</span>
+                        ${local.subcategoria ? `<span class="tag">${local.subcategoria}</span>` : ''}
+                        ${local.temDelivery ? '<span class="badge-delivery">🛵 Delivery</span>' : ''}
                         <p>${local.cidade}</p>
                     </div>
-                    <a href="${zapLink}" class="btn-zap" target="_blank" onclick="event.stopPropagation()">📞</a>
                 `;
-                
-                // Ao clicar no card, vai para detalhes
-                div.addEventListener('click', () => {
-                    window.location.href = `detalhes.html?id=${local.id}`;
-                });
-
+                div.addEventListener('click', () => window.location.href = `detalhes.html?id=${local.id}`);
                 divResultados.appendChild(div);
             });
         });
-
-        // Inicia tudo
-        carregarDados();
-    </script>
-</body>
-</html>
+        carregar

@@ -3,32 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin - Controle Total</title>
+    <title>Admin - Gestão Completa</title>
     <style>
-        body { font-family: 'Segoe UI', sans-serif; padding: 20px; background: #e9ecef; max-width: 700px; margin: 0 auto; }
-        
-        /* Cartões */
+        body { font-family: 'Segoe UI', sans-serif; padding: 20px; background: #e9ecef; max-width: 800px; margin: 0 auto; }
         .card { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-bottom: 25px; }
+        h2 { margin-top: 0; color: #333; border-bottom: 2px solid #007bff; padding-bottom: 10px; }
         
-        h2 { margin-top: 0; color: #333; border-bottom: 2px solid #007bff; padding-bottom: 10px; font-size: 1.5em; }
+        input, select { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; }
         
-        input, select { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; font-size: 14px; }
-        input:focus { border-color: #007bff; outline: none; }
+        /* Área de Delivery */
+        .delivery-box { background: #fff3cd; padding: 15px; border-radius: 8px; border: 1px solid #ffeeba; display: none; margin-top: 15px; }
+        .item-cardapio { display: flex; justify-content: space-between; background: white; padding: 10px; margin: 5px 0; border-radius: 4px; border: 1px solid #ddd; }
 
-        /* Botões */
-        button { width: 100%; padding: 12px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; transition: 0.2s; color: white; margin-top: 10px; }
-        .btn-primary { background: #6f42c1; } /* Roxo para Config */
-        .btn-success { background: #28a745; } /* Verde para Salvar */
+        button { width: 100%; padding: 12px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; color: white; margin-top: 10px; }
+        .btn-primary { background: #6f42c1; }
+        .btn-success { background: #28a745; }
         .btn-warning { background: #ffc107; color: #333; display: none; }
         .btn-danger { background: #dc3545; display: none; }
-        
-        button:hover { opacity: 0.9; }
+        .btn-add { background: #17a2b8; width: auto; padding: 10px 20px; }
 
-        /* Lista */
-        .item-lista { display: flex; justify-content: space-between; align-items: center; background: #fff; padding: 15px; margin-bottom: 10px; border-radius: 8px; border-left: 5px solid #007bff; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-        .acoes button { width: auto; padding: 6px 12px; margin: 0 0 0 5px; font-size: 12px; display: inline-block; }
-        
-        .status { text-align: center; margin-top: 10px; font-weight: bold; font-size: 14px; color: #28a745; min-height: 20px; }
+        .item-lista { display: flex; justify-content: space-between; align-items: center; background: #fff; padding: 15px; margin-bottom: 10px; border-radius: 8px; border-left: 5px solid #007bff; }
     </style>
 </head>
 <body>
@@ -39,16 +33,10 @@
 
     <div class="card" style="border-top: 5px solid #6f42c1;">
         <h2>🏙️ Configurar Cidade</h2>
-        <p style="color:#666; font-size:14px;">Isso define a tela inicial do App.</p>
-        
-        <label>Nome do App (Cabeçalho)</label>
-        <input type="text" id="confNomeCidade" placeholder="Ex: Guia Ouro Preto">
-        
-        <label>Imagem de Fundo (Link URL)</label>
-        <input type="text" id="confImgFundo" placeholder="Cole o link da imagem aqui">
-        
+        <input type="text" id="confNomeCidade" placeholder="Nome do App">
+        <input type="text" id="confImgFundo" placeholder="Link da Imagem de Fundo (URL)">
         <button id="btnSalvarConfig" class="btn-primary">Salvar Aparência</button>
-        <div id="statusConfig" class="status"></div>
+        <div id="statusConfig" style="text-align: center; margin-top: 10px;"></div>
     </div>
 
     <div class="card">
@@ -56,164 +44,17 @@
         
         <input type="text" id="nome" placeholder="Nome do Local">
         <input type="text" id="cidade" placeholder="Endereço / Bairro">
-        <select id="categoria">
-            <option value="Comercio">Comércio</option>
-            <option value="Profissionais">Profissionais Liberais</option>
-            <option value="Delivery">Delivery</option>
-            <option value="Publico">Órgãos Públicos</option>
-            <option value="Classificados">Classificados</option>
-            <option value="Aluguel">Aluguel</option>
-        </select>
         <input type="text" id="contato" placeholder="WhatsApp (Ex: 11999999999)">
         <input type="text" id="imagem" placeholder="Link da Logo/Foto (URL)">
 
-        <button id="btnSalvar" class="btn-success">Cadastrar Local</button>
-        <button id="btnAtualizar" class="btn-warning">Confirmar Edição</button>
-        <button id="btnCancelar" class="btn-danger">Cancelar</button>
-        
-        <div id="statusLocal" class="status"></div>
-    </div>
+        <label>Categoria:</label>
+        <select id="categoria">
+            <option value="">Selecione...</option>
+            <option value="Comercio">Comércio</option>
+            <option value="Alimentacao">Alimentação</option>
+            <option value="Servicos">Serviços</option>
+            <option value="Saude">Saúde</option>
+        </select>
 
-    <div class="card" style="background: transparent; box-shadow: none; padding: 0;">
-        <h3>📋 Lista de Cadastros</h3>
-        <div id="lista-locais">Carregando...</div>
-    </div>
-
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getFirestore, collection, addDoc, deleteDoc, updateDoc, doc, getDoc, setDoc, onSnapshot, query, orderBy } 
-        from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-
-        // --- SUAS CHAVES JÁ CONFIGURADAS ---
-        const firebaseConfig = {
-          apiKey: "AIzaSyDsTWnP2cmsUIDeDlotoR1uELMAba_-dyw",
-          authDomain: "testegithub-e1ffb.firebaseapp.com",
-          projectId: "testegithub-e1ffb",
-          storageBucket: "testegithub-e1ffb.firebasestorage.app",
-          messagingSenderId: "508103458559",
-          appId: "1:508103458559:web:55bc2fe4dc61d7b5ee16ca"
-        };
-        // -----------------------------------
-
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
-        const el = (id) => document.getElementById(id);
-        let idEditando = null;
-
-        // --- 1. LÓGICA DA CIDADE (CONFIG) ---
-        async function carregarConfig() {
-            try {
-                // Busca o documento 'geral' na coleção 'config'
-                const docSnap = await getDoc(doc(db, "config", "geral"));
-                if (docSnap.exists()) {
-                    const dados = docSnap.data();
-                    el('confNomeCidade').value = dados.titulo || "";
-                    el('confImgFundo').value = dados.fundo || "";
-                }
-            } catch(e) { console.log("Config ainda não criada"); }
-        }
-        carregarConfig();
-
-        el('btnSalvarConfig').addEventListener('click', async () => {
-            el('statusConfig').textContent = "Salvando...";
-            try {
-                // setDoc com merge: true cria se não existir ou atualiza se existir
-                await setDoc(doc(db, "config", "geral"), {
-                    titulo: el('confNomeCidade').value,
-                    fundo: el('confImgFundo').value
-                }, { merge: true });
-                el('statusConfig').textContent = "✅ Aparência atualizada! Recarregue o App.";
-                setTimeout(() => el('statusConfig').textContent = "", 3000);
-            } catch (e) { alert("Erro: " + e); }
-        });
-
-
-        // --- 2. LÓGICA DE LOCAIS (CRUD) ---
-        function limparForm() {
-            idEditando = null;
-            el('nome').value = ""; el('cidade').value = ""; el('contato').value = ""; el('imagem').value = "";
-            el('btnSalvar').style.display = 'block';
-            el('btnAtualizar').style.display = 'none';
-            el('btnCancelar').style.display = 'none';
-            el('tituloForm').textContent = "🏪 Gerenciar Locais";
-        }
-        el('btnCancelar').addEventListener('click', limparForm);
-
-        // CREATE
-        el('btnSalvar').addEventListener('click', async () => {
-            if(!el('nome').value) return alert("Nome obrigatório");
-            el('statusLocal').textContent = "Salvando...";
-            try {
-                await addDoc(collection(db, "guia_cidades"), {
-                    nome: el('nome').value,
-                    nomeBusca: el('nome').value.toLowerCase(),
-                    cidade: el('cidade').value,
-                    categoria: el('categoria').value,
-                    contato: el('contato').value,
-                    imagem: el('imagem').value || "https://via.placeholder.com/150",
-                    dataCadastro: new Date()
-                });
-                el('statusLocal').textContent = "✅ Cadastrado!";
-                limparForm();
-            } catch (e) { alert("Erro: " + e); }
-        });
-
-        // UPDATE
-        el('btnAtualizar').addEventListener('click', async () => {
-            if(!idEditando) return;
-            try {
-                await updateDoc(doc(db, "guia_cidades", idEditando), {
-                    nome: el('nome').value,
-                    nomeBusca: el('nome').value.toLowerCase(),
-                    cidade: el('cidade').value,
-                    categoria: el('categoria').value,
-                    contato: el('contato').value,
-                    imagem: el('imagem').value
-                });
-                alert("Atualizado!");
-                limparForm();
-            } catch (e) { alert("Erro: " + e); }
-        });
-
-        // READ & DELETE
-        onSnapshot(query(collection(db, "guia_cidades"), orderBy("dataCadastro", "desc")), (snap) => {
-            const lista = el('lista-locais');
-            lista.innerHTML = "";
-            
-            if(snap.empty) {
-                lista.innerHTML = "<p style='text-align:center; color:gray'>Nenhum local cadastrado.</p>";
-                return;
-            }
-
-            snap.forEach((d) => {
-                const item = d.data();
-                const div = document.createElement('div');
-                div.className = "item-lista";
-                div.innerHTML = `
-                    <div><strong>${item.nome}</strong><br><small>${item.categoria}</small></div>
-                    <div class="acoes">
-                        <button class="btn-warning" style="display:inline-block" id="e-${d.id}">Editar</button>
-                        <button class="btn-danger" style="display:inline-block" id="d-${d.id}">Excluir</button>
-                    </div>`;
-                lista.appendChild(div);
-
-                el(`d-${d.id}`).addEventListener('click', () => { if(confirm("Apagar?")) deleteDoc(doc(db, "guia_cidades", d.id)); });
-                el(`e-${d.id}`).addEventListener('click', () => {
-                    idEditando = d.id;
-                    el('nome').value = item.nome;
-                    el('cidade').value = item.cidade;
-                    el('categoria').value = item.categoria;
-                    el('contato').value = item.contato;
-                    el('imagem').value = item.imagem || "";
-                    
-                    el('btnSalvar').style.display = 'none';
-                    el('btnAtualizar').style.display = 'inline-block';
-                    el('btnCancelar').style.display = 'inline-block';
-                    el('tituloForm').textContent = "✏️ Editando: " + item.nome;
-                    window.scrollTo({ top: 300, behavior: 'smooth' });
-                });
-            });
-        });
-    </script>
-</body>
-</html>
+        <label>Subcategoria:</label>
+        <div style="display: flex; gap: 10px;">

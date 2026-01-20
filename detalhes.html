@@ -3,100 +3,69 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Detalhes do Local</title>
+    <title>Detalhes</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
+        body { background: #eee; padding-bottom: 100px; }
         
-        body { 
-            margin: 0; 
-            /* Fundo de segurança escuro */
-            background-color: #222;
-            background-size: cover; 
-            background-position: center; 
-            background-attachment: fixed;
-            min-height: 100vh;
-            padding-bottom: 80px; 
-            color: #333;
-        }
+        .hero { width: 100%; height: 200px; object-fit: cover; background: #333; }
+        .container { padding: 20px; max-width: 600px; margin: -30px auto 0; position: relative; }
         
-        /* Máscara escura para ler melhor o conteúdo sobre a foto de fundo */
-        .overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.5); z-index: -1;
-        }
+        .info-card { background: white; border-radius: 15px; padding: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        h1 { margin: 0; font-size: 24px; color: #222; }
+        .sub-info { color: #666; margin-top: 5px; }
 
-        /* Capa do Estabelecimento */
-        .hero { 
-            width: 100%; height: 250px; object-fit: cover; display: block; 
-            background: #ddd; border-bottom: 4px solid #fff;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-        }
+        /* Cardápio */
+        .menu-section { margin-top: 20px; }
+        .menu-title { font-size: 18px; font-weight: bold; margin-bottom: 10px; color: #444; border-left: 4px solid #ffc107; padding-left: 10px; }
         
-        .container { padding: 20px; max-width: 600px; margin: -40px auto 0; position: relative; }
+        .menu-item { background: white; padding: 15px; border-radius: 8px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .menu-info h4 { margin: 0; font-size: 16px; }
+        .menu-info p { margin: 0; color: #777; font-size: 12px; }
+        .price { color: #28a745; font-weight: bold; margin-top: 5px; display: block; }
+
+        .btn-add { background: #28a745; color: white; border: none; width: 30px; height: 30px; border-radius: 50%; font-size: 18px; cursor: pointer; }
         
-        .info-card {
-            background: rgba(255, 255, 255, 0.95); /* Leve transparência */
-            backdrop-filter: blur(5px);
-            border-radius: 15px; padding: 25px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        /* Barra Carrinho */
+        .cart-bar { 
+            position: fixed; bottom: 0; left: 0; width: 100%; 
+            background: white; padding: 15px; box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+            display: none; justify-content: space-between; align-items: center; z-index: 100;
         }
-
-        h1 { margin: 0 0 10px 0; color: #222; font-size: 24px; }
-        .badge { background: #007bff; color: white; padding: 4px 12px; border-radius: 15px; font-size: 12px; font-weight: bold; text-transform: uppercase; }
-        
-        .detalhe-item { margin-top: 20px; display: flex; align-items: center; gap: 10px; color: #555; font-size: 16px; border-bottom: 1px solid #eee; padding-bottom: 15px; }
-        .detalhe-item:last-child { border: none; }
-        .icon { font-size: 20px; width: 30px; text-align: center; }
-
-        /* Botão Flutuante do WhatsApp */
-        .fab-zap {
-            position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
-            background: #25D366; color: white; text-decoration: none;
-            padding: 15px 30px; border-radius: 30px; font-weight: bold; font-size: 18px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.4); display: flex; align-items: center; gap: 10px;
-            width: 90%; justify-content: center; max-width: 400px; transition: transform 0.2s;
-        }
-        .fab-zap:active { transform: translateX(-50%) scale(0.95); }
-
-        .btn-voltar {
-            position: absolute; top: 20px; left: 20px;
-            background: rgba(0,0,0,0.6); color: white; text-decoration: none;
-            padding: 8px 15px; border-radius: 20px; font-weight: bold; font-size: 14px;
-            backdrop-filter: blur(4px);
-            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
-        }
+        .btn-finalizar { background: #25D366; color: white; border: none; padding: 10px 20px; border-radius: 20px; font-weight: bold; font-size: 16px; cursor: pointer; text-decoration: none; }
     </style>
 </head>
 <body>
 
-    <div class="overlay"></div> <a href="index.html" class="btn-voltar">⬅ Voltar</a>
-    
-    <img id="capa" class="hero" src="" alt="Capa">
+    <a href="index.html" style="position: absolute; top: 15px; left: 15px; background: rgba(0,0,0,0.5); color: white; padding: 5px 15px; border-radius: 20px; text-decoration: none; font-weight: bold;">⬅ Voltar</a>
+    <img id="capa" class="hero" src="">
     
     <div class="container">
         <div class="info-card">
-            <div style="margin-bottom:15px"><span id="categoria" class="badge">Carregando...</span></div>
             <h1 id="nome">...</h1>
-            
-            <div class="detalhe-item">
-                <span class="icon">📍</span> <span id="cidade">...</span>
-            </div>
-            
-            <div class="detalhe-item">
-                <span class="icon">📅</span> <span>Verificado recentemente</span>
-            </div>
+            <p class="sub-info" id="cats">...</p>
+            <p class="sub-info" id="endereco">...</p>
+        </div>
+
+        <div id="area-cardapio" class="menu-section" style="display: none;">
+            <div class="menu-title">🛵 Cardápio / Delivery</div>
+            <div id="lista-produtos"></div>
         </div>
     </div>
 
-    <a id="btnZap" href="#" class="fab-zap">
-        📞 Chamar no WhatsApp
-    </a>
+    <div id="cartBar" class="cart-bar">
+        <div>
+            <small>Total do Pedido:</small><br>
+            <strong id="totalValor" style="font-size: 18px;">R$ 0,00</strong>
+        </div>
+        <button id="btnZap" class="btn-finalizar">Enviar Pedido WhatsApp</button>
+    </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-        // --- SUAS CHAVES JÁ CONFIGURADAS ---
+        // --- SUAS CHAVES JÁ PREENCHIDAS ---
         const firebaseConfig = {
           apiKey: "AIzaSyDsTWnP2cmsUIDeDlotoR1uELMAba_-dyw",
           authDomain: "testegithub-e1ffb.firebaseapp.com",
@@ -105,68 +74,80 @@
           messagingSenderId: "508103458559",
           appId: "1:508103458559:web:55bc2fe4dc61d7b5ee16ca"
         };
-        // -----------------------------------
+        // ----------------------------------
 
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
-
-        // 1. CARREGAR FUNDO DA CIDADE (Para manter o padrão visual)
-        async function carregarTema() {
-            try {
-                const docSnap = await getDoc(doc(db, "config", "geral"));
-                if (docSnap.exists() && docSnap.data().fundo) {
-                    document.body.style.backgroundImage = `url('${docSnap.data().fundo}')`;
-                }
-            } catch(e) { console.log("Erro tema:", e); }
-        }
-        carregarTema();
-
-        // 2. CARREGAR DADOS DO LOCAL
         const params = new URLSearchParams(window.location.search);
         const id = params.get('id');
 
-        if(!id) {
-            alert("Local não especificado!");
-            window.location.href = "index.html";
-        }
+        let localData = null;
+        let carrinho = [];
 
         async function carregarDetalhes() {
-            try {
-                const docRef = doc(db, "guia_cidades", id);
-                const docSnap = await getDoc(docRef);
+            if(!id) return window.location.href = "index.html";
+            
+            const docRef = doc(db, "guia_cidades", id);
+            const docSnap = await getDoc(docRef);
 
-                if (docSnap.exists()) {
-                    const dados = docSnap.data();
+            if (docSnap.exists()) {
+                localData = docSnap.data();
+                
+                document.title = localData.nome;
+                document.getElementById('nome').textContent = localData.nome;
+                document.getElementById('cats').textContent = `${localData.categoria} > ${localData.subcategoria || ''}`;
+                document.getElementById('endereco').textContent = `📍 ${localData.cidade}`;
+                document.getElementById('capa').src = localData.imagem || "https://via.placeholder.com/400x200";
+
+                if(localData.temDelivery && localData.cardapio) {
+                    document.getElementById('area-cardapio').style.display = 'block';
+                    const lista = document.getElementById('lista-produtos');
                     
-                    document.title = dados.nome;
-                    document.getElementById('nome').textContent = dados.nome;
-                    document.getElementById('categoria').textContent = dados.categoria;
-                    document.getElementById('cidade').textContent = dados.cidade;
-                    
-                    // Imagem da capa (com fallback se não tiver)
-                    if(dados.imagem) {
-                        document.getElementById('capa').src = dados.imagem;
-                    } else {
-                        document.getElementById('capa').src = "https://via.placeholder.com/800x400?text=Sem+Imagem";
-                    }
-
-                    // Botão Zap
-                    if(dados.contato) {
-                        const numLimpo = dados.contato.replace(/\D/g,'');
-                        document.getElementById('btnZap').href = `https://wa.me/55${numLimpo}`;
-                    } else {
-                        document.getElementById('btnZap').style.display = 'none';
-                    }
-
-                } else {
-                    document.getElementById('nome').textContent = "Local não encontrado.";
-                    document.getElementById('btnZap').style.display = 'none';
+                    localData.cardapio.forEach((item, index) => {
+                        lista.innerHTML += `
+                            <div class="menu-item">
+                                <div class="menu-info">
+                                    <h4>${item.nome}</h4>
+                                    <p>${item.desc || ''}</p>
+                                    <span class="price">R$ ${parseFloat(item.preco).toFixed(2)}</span>
+                                </div>
+                                <button class="btn-add" onclick="addCarrinho(${index})">+</button>
+                            </div>`;
+                    });
                 }
-            } catch (error) {
-                console.error("Erro ao carregar:", error);
-                alert("Erro de conexão.");
             }
         }
+
+        window.addCarrinho = (index) => {
+            const item = localData.cardapio[index];
+            carrinho.push(item);
+            atualizarBarra();
+        }
+
+        function atualizarBarra() {
+            const bar = document.getElementById('cartBar');
+            if(carrinho.length > 0) {
+                bar.style.display = 'flex';
+                const total = carrinho.reduce((acc, item) => acc + parseFloat(item.preco), 0);
+                document.getElementById('totalValor').textContent = `R$ ${total.toFixed(2)}`;
+            }
+        }
+
+        document.getElementById('btnZap').addEventListener('click', () => {
+            if(carrinho.length === 0) return;
+            
+            let msg = `Olá *${localData.nome}*, gostaria de fazer um pedido:\n\n`;
+            carrinho.forEach(item => {
+                msg += `▪ 1x ${item.nome} (R$ ${item.preco})\n`;
+            });
+            
+            const total = carrinho.reduce((acc, item) => acc + parseFloat(item.preco), 0);
+            msg += `\n*TOTAL: R$ ${total.toFixed(2)}*`;
+            msg += `\n\nEndereço de entrega: (Digitar)`;
+
+            const num = localData.contato.replace(/\D/g,'');
+            window.open(`https://wa.me/55${num}?text=${encodeURIComponent(msg)}`, '_blank');
+        });
 
         carregarDetalhes();
     </script>
