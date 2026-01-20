@@ -21,6 +21,9 @@
         .btn-warning { background: #ffc107; color: #333; display: none; }
         .btn-danger { background: #dc3545; display: none; }
         .btn-add { background: #17a2b8; width: auto; padding: 10px 20px; }
+        
+        /* Botãozinho de adicionar subcategoria */
+        .btn-plus { background: #28a745; width: 50px; margin: 8px 0; font-size: 20px; line-height: 10px; display: flex; align-items: center; justify-content: center; }
 
         .item-lista { display: flex; justify-content: space-between; align-items: center; background: #fff; padding: 15px; margin-bottom: 10px; border-radius: 8px; border-left: 5px solid #007bff; }
     </style>
@@ -47,14 +50,342 @@
         <input type="text" id="contato" placeholder="WhatsApp (Ex: 11999999999)">
         <input type="text" id="imagem" placeholder="Link da Logo/Foto (URL)">
 
-        <label>Categoria:</label>
+        <label>Categoria Principal:</label>
         <select id="categoria">
             <option value="">Selecione...</option>
             <option value="Comercio">Comércio</option>
             <option value="Alimentacao">Alimentação</option>
             <option value="Servicos">Serviços</option>
             <option value="Saude">Saúde</option>
+            <option value="Publico">Órgãos Públicos</option>
         </select>
 
-        <label>Subcategoria:</label>
+        <label>Subcategoria (Específica):</label>
         <div style="display: flex; gap: 10px;">
+            <select id="subcategoria" disabled>
+                <option value="">Selecione uma categoria acima primeiro</option>
+            </select>
+            <button id="btnAddSub" class="btn-plus" title="Adicionar nova opção">+</button>
+        </div>
+
+        <div style="margin-top: 15px; display: flex; align-items: center; gap: 10px;">
+            <input type="checkbox" id="checkDelivery" style="width: 20px; height: 20px; margin: 0;">
+            <label for="checkDelivery" style="font-weight: bold;">Faz Delivery / Tem Cardápio?</label>
+        </div>
+
+        <div id="boxDelivery" class="delivery-box">
+            <h3>🍔 Montar Cardápio</h3>
+            <div style="display: flex; gap: 10px;">
+                <input type="text" id="prodNome" placeholder="Item (Ex: X-Bacon)">
+                <input type="number" id="prodPreco" placeholder="Preço (10.00)" style="width: 100px;">
+            </div>
+            <input type="text" id="prodDesc" placeholder="Descrição (Ex: Pão, carne, queijo...)">
+            <button id="btnAddItem" class="btn-add">Adicionar ao Cardápio</button>
+
+            <div id="lista-cardapio-preview" style="margin-top: 15px;"></div>
+        </div>
+
+        <button id="btnSalvar" class="btn-success">Cadastrar Local</button>
+        <button id="btnAtualizar" class="btn-warning">Confirmar Edição</button>
+        <button id="btnCancelar" class="btn-danger">Cancelar</button>
+        <div id="statusLocal" style="text-align: center; margin-top: 10px;"></div>
+    </div>
+
+    <div class="card" style="background: transparent; box-shadow: none; padding: 0;">
+        <h3>📋 Lista de Cadastros</h3>
+        <div id="lista-locais">Carregando...</div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getFirestore, collection, addDoc, deleteDoc, updateDoc, doc, getDoc, setDoc, onSnapshot, query, orderBy } 
+        from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        // --- SUAS CHAVES JÁ PREENCHIDAS ---
+        const firebaseConfig = {
+          apiKey: "AIzaSyDsTWnP2cmsUIDeDlotoR1uELMAba_-dyw",
+          authDomain: "testegithub-e1ffb.firebaseapp.com",
+          projectId: "testegithub-e1ffb",
+          storageBucket: "testegithub-e1ffb.firebasestorage.app",
+          messagingSenderId: "508103458559",
+          appId: "1:508103458559:web:55bc2fe4dc61d7b5ee16ca"
+        };
+        // ----------------------------------
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const el = (id) => document.getElementById(id);
+        
+        let idEditando = null;
+        let cardapioAtual = []; 
+        let listaSubs = {}; // Variável para guardar as subcategorias que vêm do banco
+
+        // =======================================================
+        // 1. SISTEMA DE SUBCATEGORIAS (PERSISTENTE)
+        // =======================================================
+        
+        // Carrega do banco ou cria padrão se for a primeira vez
+        async function carregarSubsDoBanco() {
+            try {
+                const docRef = doc(db, "config", "categorias");
+                const docSnap = await getDoc(docRef);
+
+                if (docSnap.exists()) {
+                    listaSubs = docSnap.data();
+                } else {
+                    // Se não existe, cria o padrão inicial e salva
+                    listaSubs = {
+                        "Comercio": ["Supermercado", "Farmácia", "Roupas", "PetShop"],
+                        "Alimentacao": ["Lanchonete", "Pizzaria", "Restaurante", "Açaí"],
+                        "Servicos": ["Mecânico", "Advogado", "Salão de Beleza"],
+                        "Saude": ["Clínica", "Dentista"],
+                        "Publico": ["Prefeitura", "Secretaria", "Escola"]
+                    };
+                    await setDoc(docRef, listaSubs); // Salva o padrão no banco
+                }
+            } catch (error) {
+                console.error("Erro ao carregar categorias:", error);
+            }
+        }
+        carregarSubsDoBanco();
+
+        // Quando mudar a Categoria Principal -> Carrega as opções na Subcategoria
+        el('categoria').addEventListener('change', () => {
+            atualizarSelectSub();
+        });
+
+        function atualizarSelectSub() {
+            const catPrincipal = el('categoria').value;
+            const subSelect = el('subcategoria');
+            
+            subSelect.innerHTML = '<option value="">Selecione...</option>';
+
+            if (!catPrincipal) {
+                subSelect.disabled = true;
+                return;
+            }
+
+            subSelect.disabled = false;
+
+            // Pega a lista do array (ou cria vazio se não tiver)
+            const opcoes = listaSubs[catPrincipal] || [];
+            
+            opcoes.forEach(op => {
+                subSelect.innerHTML += `<option value="${op}">${op}</option>`;
+            });
+        }
+
+        // Botão (+) Adicionar Nova Subcategoria
+        el('btnAddSub').addEventListener('click', async () => {
+            const catPrincipal = el('categoria').value;
+            
+            if(!catPrincipal) return alert("Selecione uma Categoria Principal primeiro (ex: Comércio).");
+
+            const novaSub = prompt(`Digite o nome da nova subcategoria para ${catPrincipal}:`);
+            if(!novaSub) return;
+
+            // Adiciona na memória local
+            if(!listaSubs[catPrincipal]) listaSubs[catPrincipal] = [];
+            
+            // Verifica se já existe para não duplicar
+            if(listaSubs[catPrincipal].includes(novaSub)) {
+                alert("Essa subcategoria já existe!");
+                return;
+            }
+
+            listaSubs[catPrincipal].push(novaSub);
+
+            // SALVA NO BANCO DE DADOS (Config)
+            try {
+                el('btnAddSub').textContent = "💾";
+                await setDoc(doc(db, "config", "categorias"), listaSubs);
+                el('btnAddSub').textContent = "+";
+                
+                // Atualiza a lista na tela e seleciona o novo item
+                atualizarSelectSub();
+                el('subcategoria').value = novaSub;
+                
+            } catch (e) {
+                alert("Erro ao salvar categoria: " + e);
+            }
+        });
+
+        // =======================================================
+        // 2. SISTEMA DE CARDÁPIO
+        // =======================================================
+        el('checkDelivery').addEventListener('change', (e) => {
+            el('boxDelivery').style.display = e.target.checked ? 'block' : 'none';
+        });
+
+        el('btnAddItem').addEventListener('click', () => {
+            const nome = el('prodNome').value;
+            const preco = parseFloat(el('prodPreco').value);
+            const desc = el('prodDesc').value;
+
+            if(!nome || !preco) return alert("Preencha nome e preço");
+
+            cardapioAtual.push({ nome, preco, desc });
+            renderCardapio();
+            
+            el('prodNome').value = ""; el('prodPreco').value = ""; el('prodDesc').value = "";
+            el('prodNome').focus();
+        });
+
+        function renderCardapio() {
+            const div = el('lista-cardapio-preview');
+            div.innerHTML = "";
+            cardapioAtual.forEach((item, index) => {
+                div.innerHTML += `
+                    <div class="item-cardapio">
+                        <div><strong>${item.nome}</strong> - R$ ${item.preco.toFixed(2)}</div>
+                        <button onclick="removeDoMenu(${index})" style="background:red; width:30px; margin:0; padding:5px;">X</button>
+                    </div>`;
+            });
+        }
+        
+        window.removeDoMenu = (index) => {
+            cardapioAtual.splice(index, 1);
+            renderCardapio();
+        }
+
+        // =======================================================
+        // 3. CRUD DE LOCAIS
+        // =======================================================
+        function limparForm() {
+            idEditando = null;
+            cardapioAtual = [];
+            el('nome').value = ""; el('cidade').value = ""; el('contato').value = ""; el('imagem').value = "";
+            el('checkDelivery').checked = false;
+            el('boxDelivery').style.display = 'none';
+            el('categoria').value = "";
+            el('subcategoria').innerHTML = "<option>Selecione a Categoria...</option>";
+            el('subcategoria').disabled = true;
+            renderCardapio();
+            
+            el('btnSalvar').style.display = 'block';
+            el('btnAtualizar').style.display = 'none';
+            el('btnCancelar').style.display = 'none';
+            el('tituloForm').textContent = "🏪 Gerenciar Locais";
+        }
+        el('btnCancelar').addEventListener('click', limparForm);
+
+        el('btnSalvar').addEventListener('click', async () => {
+            if(!el('nome').value) return alert("Nome obrigatório");
+            el('statusLocal').textContent = "Salvando...";
+            
+            try {
+                await addDoc(collection(db, "guia_cidades"), {
+                    nome: el('nome').value,
+                    nomeBusca: el('nome').value.toLowerCase(),
+                    cidade: el('cidade').value,
+                    categoria: el('categoria').value,
+                    subcategoria: el('subcategoria').value,
+                    contato: el('contato').value,
+                    imagem: el('imagem').value || "https://via.placeholder.com/150",
+                    temDelivery: el('checkDelivery').checked,
+                    cardapio: cardapioAtual,
+                    dataCadastro: new Date()
+                });
+                el('statusLocal').textContent = "✅ Cadastrado!";
+                limparForm();
+            } catch (e) { alert("Erro: " + e); }
+        });
+
+        el('btnAtualizar').addEventListener('click', async () => {
+            if(!idEditando) return;
+            try {
+                await updateDoc(doc(db, "guia_cidades", idEditando), {
+                    nome: el('nome').value,
+                    nomeBusca: el('nome').value.toLowerCase(),
+                    cidade: el('cidade').value,
+                    categoria: el('categoria').value,
+                    subcategoria: el('subcategoria').value,
+                    contato: el('contato').value,
+                    imagem: el('imagem').value,
+                    temDelivery: el('checkDelivery').checked,
+                    cardapio: cardapioAtual
+                });
+                alert("Atualizado!");
+                limparForm();
+            } catch (e) { alert("Erro: " + e); }
+        });
+
+        // LISTAR
+        onSnapshot(query(collection(db, "guia_cidades"), orderBy("dataCadastro", "desc")), (snap) => {
+            const lista = el('lista-locais');
+            lista.innerHTML = "";
+            
+            if(snap.empty) {
+                lista.innerHTML = "<p style='text-align:center; color:gray'>Nenhum local cadastrado.</p>";
+                return;
+            }
+
+            snap.forEach((d) => {
+                const item = d.data();
+                const div = document.createElement('div');
+                div.className = "item-lista";
+                div.innerHTML = `
+                    <div>
+                        <strong>${item.nome}</strong><br>
+                        <small>${item.categoria} > ${item.subcategoria || 'Geral'}</small>
+                        ${item.temDelivery ? '🛵' : ''}
+                    </div>
+                    <div class="acoes">
+                        <button class="btn-warning" style="display:inline-block" id="e-${d.id}">Editar</button>
+                        <button class="btn-danger" style="display:inline-block" id="d-${d.id}">Excluir</button>
+                    </div>`;
+                lista.appendChild(div);
+
+                el(`d-${d.id}`).addEventListener('click', () => { if(confirm("Apagar?")) deleteDoc(doc(db, "guia_cidades", d.id)); });
+                
+                // --- BOTÃO EDITAR ---
+                el(`e-${d.id}`).addEventListener('click', () => {
+                    idEditando = d.id;
+                    el('nome').value = item.nome;
+                    el('cidade').value = item.cidade;
+                    el('contato').value = item.contato;
+                    el('imagem').value = item.imagem || "";
+                    
+                    // Lógica especial para carregar os selects corretamente
+                    el('categoria').value = item.categoria;
+                    atualizarSelectSub(); // Recarrega as opções da subcategoria
+                    setTimeout(() => {
+                        el('subcategoria').value = item.subcategoria; // Seleciona a opção certa
+                    }, 200);
+
+                    el('checkDelivery').checked = item.temDelivery || false;
+                    el('boxDelivery').style.display = item.temDelivery ? 'block' : 'none';
+                    cardapioAtual = item.cardapio || [];
+                    renderCardapio();
+                    
+                    el('btnSalvar').style.display = 'none';
+                    el('btnAtualizar').style.display = 'inline-block';
+                    el('btnCancelar').style.display = 'inline-block';
+                    el('tituloForm').textContent = "✏️ Editando: " + item.nome;
+                    window.scrollTo({ top: 300, behavior: 'smooth' });
+                });
+            });
+        });
+
+        // --- CONFIGURAÇÃO DA CIDADE (APP) ---
+        async function carregarConfig() {
+            try {
+                const docSnap = await getDoc(doc(db, "config", "geral"));
+                if (docSnap.exists()) {
+                    el('confNomeCidade').value = docSnap.data().titulo || "";
+                    el('confImgFundo').value = docSnap.data().fundo || "";
+                }
+            } catch(e) {}
+        }
+        carregarConfig();
+        
+        el('btnSalvarConfig').addEventListener('click', async () => {
+            await setDoc(doc(db, "config", "geral"), {
+                titulo: el('confNomeCidade').value,
+                fundo: el('confImgFundo').value
+            }, { merge: true });
+            alert("Aparência Salva!");
+        });
+    </script>
+</body>
+</html>
