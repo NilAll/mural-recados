@@ -6,12 +6,31 @@
     <title>Detalhes</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
-        body { background: #eee; padding-bottom: 100px; }
         
-        .hero { width: 100%; height: 250px; object-fit: cover; background: #333; }
-        .container { padding: 20px; max-width: 600px; margin: -30px auto 0; position: relative; }
+        /* Ajuste para o Footer (Publi) ficar no final se a página for curta */
+        body { 
+            background: #eee; 
+            min-height: 100vh; 
+            display: flex; 
+            flex-direction: column; 
+            padding-bottom: 80px; /* Espaço para o carrinho flutuante não cobrir */
+        }
         
-        .info-card { background: white; border-radius: 15px; padding: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        .hero { width: 100%; height: 250px; object-fit: cover; background: #333; flex-shrink: 0; }
+        
+        /* Container flexível para empurrar a publi */
+        .container { 
+            padding: 20px; 
+            max-width: 600px; 
+            width: 100%;
+            margin: -30px auto 0; 
+            position: relative; 
+            flex: 1; /* Ocupa o espaço restante */
+            display: flex; 
+            flex-direction: column; 
+        }
+        
+        .info-card { background: white; border-radius: 15px; padding: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); margin-bottom: 20px; }
         h1 { margin: 0; font-size: 24px; color: #222; }
         .sub-info { color: #666; margin-top: 5px; }
 
@@ -25,7 +44,7 @@
         .btn-whats { background: #25D366; }
         .btn-insta { background: #E1306C; }
 
-        .menu-section { margin-top: 20px; padding-bottom: 60px; }
+        .menu-section { margin-bottom: 20px; }
         .menu-title { font-size: 18px; font-weight: bold; margin-bottom: 10px; color: #444; border-left: 4px solid #ffc107; padding-left: 10px; }
         
         .menu-item { background: white; padding: 10px; border-radius: 8px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
@@ -36,51 +55,55 @@
         .btn-add { background: #28a745; color: white; border: none; width: 35px; height: 35px; border-radius: 50%; font-size: 20px; cursor: pointer; transition: transform 0.1s; flex-shrink: 0; }
         .btn-add:active { transform: scale(0.9); }
 
-        .fab-cart {
-            position: fixed; bottom: 20px; right: 20px;
-            background: #ffc107; color: #333;
-            width: 60px; height: 60px; border-radius: 50%;
-            display: none; align-items: center; justify-content: center;
-            font-size: 24px; box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-            cursor: pointer; z-index: 100; transition: transform 0.2s;
+        /* --- PUBLICIDADE QUADRADA E FIXA NO FINAL --- */
+        .publi-container { 
+            margin-top: auto; /* Empurra para o fundo do container */
+            width: 100%; 
+            aspect-ratio: 1 / 1; /* Garante que seja quadrada */
+            background: #ddd; 
+            border-radius: 15px; 
+            overflow: hidden; 
+            position: relative; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1); 
+            display: none; /* Só aparece se tiver publi */
         }
+        
+        .publi-img { 
+            width: 100%; 
+            height: 100%; 
+            object-fit: cover; 
+            cursor: pointer;
+        }
+        
+        .publi-label { 
+            position: absolute; 
+            top: 10px; 
+            right: 10px; 
+            background: rgba(0,0,0,0.6); 
+            color: white; 
+            padding: 2px 8px; 
+            border-radius: 4px; 
+            font-size: 10px; 
+            text-transform: uppercase; 
+        }
+
+        /* FAB, MODAL, ETC */
+        .fab-cart { position: fixed; bottom: 20px; right: 20px; background: #ffc107; color: #333; width: 60px; height: 60px; border-radius: 50%; display: none; align-items: center; justify-content: center; font-size: 24px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); cursor: pointer; z-index: 100; transition: transform 0.2s; }
         .fab-cart:active { transform: scale(0.95); }
-        .cart-badge {
-            position: absolute; top: -5px; right: -5px;
-            background: red; color: white;
-            width: 25px; height: 25px; border-radius: 50%;
-            font-size: 12px; font-weight: bold;
-            display: flex; align-items: center; justify-content: center;
-            border: 2px solid white;
-        }
+        .cart-badge { position: absolute; top: -5px; right: -5px; background: red; color: white; width: 25px; height: 25px; border-radius: 50%; font-size: 12px; font-weight: bold; display: flex; align-items: center; justify-content: center; border: 2px solid white; }
 
-        .modal-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.6); z-index: 200;
-            display: none; align-items: flex-end; justify-content: center;
-            backdrop-filter: blur(3px);
-        }
-        .modal-content {
-            background: white; width: 100%; max-width: 600px;
-            border-radius: 20px 20px 0 0; padding: 25px;
-            box-shadow: 0 -5px 20px rgba(0,0,0,0.2);
-            animation: slideUp 0.3s ease;
-            max-height: 85vh; display: flex; flex-direction: column;
-        }
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 200; display: none; align-items: flex-end; justify-content: center; backdrop-filter: blur(3px); }
+        .modal-content { background: white; width: 100%; max-width: 600px; border-radius: 20px 20px 0 0; padding: 25px; box-shadow: 0 -5px 20px rgba(0,0,0,0.2); animation: slideUp 0.3s ease; max-height: 85vh; display: flex; flex-direction: column; }
         @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
-
         .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 10px; }
         .modal-title { font-size: 20px; font-weight: bold; }
         .btn-close { background: none; border: none; font-size: 24px; cursor: pointer; color: #666; }
-
         .cart-list { overflow-y: auto; margin-bottom: 10px; flex: 1; }
         .cart-item { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #f0f0f0; padding: 10px 0; }
         .btn-remove { background: #ffdede; color: #d63031; border: none; width: 30px; height: 30px; border-radius: 50%; cursor: pointer; font-weight: bold; display: flex; align-items: center; justify-content: center; }
-
         .cart-summary { border-top: 1px solid #eee; padding-top: 10px; margin-bottom: 15px; }
         .summary-row { display: flex; justify-content: space-between; font-size: 14px; margin-bottom: 5px; color: #555; }
         .summary-total { display: flex; justify-content: space-between; font-size: 18px; font-weight: bold; color: #222; margin-top: 10px; border-top: 1px dashed #ccc; padding-top: 10px; }
-
         .btn-finalizar { background: #25D366; color: white; width: 100%; padding: 15px; border: none; border-radius: 10px; font-size: 18px; font-weight: bold; cursor: pointer; }
     </style>
 </head>
@@ -106,44 +129,31 @@
             <div class="menu-title">🍔 Cardápio</div>
             <div id="lista-produtos"></div>
         </div>
+
+        <div id="area-publi" class="publi-container">
+            <div class="publi-label">Patrocinado</div>
+            <img id="imgPubli" class="publi-img" src="" alt="Publicidade">
+        </div>
     </div>
 
-    <div id="btnCart" class="fab-cart" onclick="abrirCarrinho()">
-        🛒
-        <div id="cartCount" class="cart-badge">0</div>
-    </div>
+    <div id="btnCart" class="fab-cart" onclick="abrirCarrinho()">🛒<div id="cartCount" class="cart-badge">0</div></div>
 
     <div id="cartModal" class="modal-overlay" onclick="fecharCarrinho(event)">
         <div class="modal-content" onclick="event.stopPropagation()">
-            <div class="modal-header">
-                <span class="modal-title">Seu Pedido</span>
-                <button class="btn-close" onclick="fecharCarrinho()">×</button>
-            </div>
-
+            <div class="modal-header"><span class="modal-title">Seu Pedido</span><button class="btn-close" onclick="fecharCarrinho()">×</button></div>
             <div id="cartItemsList" class="cart-list"></div>
-
             <div class="cart-summary">
-                <div class="summary-row">
-                    <span>Subtotal:</span>
-                    <span id="cartSubtotal">R$ 0,00</span>
-                </div>
-                <div class="summary-row">
-                    <span>Taxa de Entrega:</span>
-                    <span id="cartDeliveryFee">R$ 0,00</span>
-                </div>
-                <div class="summary-total">
-                    <span>TOTAL:</span>
-                    <span id="cartTotalFinal">R$ 0,00</span>
-                </div>
+                <div class="summary-row"><span>Subtotal:</span><span id="cartSubtotal">R$ 0,00</span></div>
+                <div class="summary-row"><span>Taxa de Entrega:</span><span id="cartDeliveryFee">R$ 0,00</span></div>
+                <div class="summary-total"><span>TOTAL:</span><span id="cartTotalFinal">R$ 0,00</span></div>
             </div>
-
             <button id="btnFinalizarZap" class="btn-finalizar">✅ Enviar Pedido no WhatsApp</button>
         </div>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getFirestore, doc, getDoc, collection, getDocs, query } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
         const firebaseConfig = {
           apiKey: "AIzaSyDsTWnP2cmsUIDeDlotoR1uELMAba_-dyw",
@@ -164,120 +174,94 @@
 
         async function carregarDetalhes() {
             if(!id) return window.location.href = "index.html";
-            
             const docRef = doc(db, "guia_cidades", id);
             const docSnap = await getDoc(docRef);
 
             if (docSnap.exists()) {
                 localData = docSnap.data();
-                
                 document.title = localData.nome;
                 document.getElementById('nome').textContent = localData.nome;
                 document.getElementById('cats').textContent = `${localData.categoria} > ${localData.subcategoria || ''}`;
                 document.getElementById('endereco').textContent = `📍 ${localData.cidade}`;
                 document.getElementById('capa').src = localData.imagem || "https://via.placeholder.com/400x200";
 
-                if(localData.telFixo) {
-                    const btn = document.getElementById('btnLigar');
-                    btn.href = `tel:${localData.telFixo.replace(/\D/g,'')}`;
-                    btn.style.display = 'flex';
-                }
-                if(localData.contato) {
-                    const btn = document.getElementById('btnZapPerfil');
-                    btn.href = `https://wa.me/55${localData.contato.replace(/\D/g,'')}`;
-                    btn.style.display = 'flex';
-                }
-                if(localData.instagram) {
-                    const btn = document.getElementById('btnInsta');
-                    btn.href = localData.instagram;
-                    btn.style.display = 'flex';
-                }
+                if(localData.telFixo) { const btn = document.getElementById('btnLigar'); btn.href = `tel:${localData.telFixo.replace(/\D/g,'')}`; btn.style.display = 'flex'; }
+                if(localData.contato) { const btn = document.getElementById('btnZapPerfil'); btn.href = `https://wa.me/55${localData.contato.replace(/\D/g,'')}`; btn.style.display = 'flex'; }
+                if(localData.instagram) { const btn = document.getElementById('btnInsta'); btn.href = localData.instagram; btn.style.display = 'flex'; }
 
                 if(localData.temDelivery && localData.cardapio) {
                     document.getElementById('area-cardapio').style.display = 'block';
                     const lista = document.getElementById('lista-produtos');
-                    
                     localData.cardapio.forEach((item, index) => {
                         const imgHtml = item.img ? `<img src="${item.img}" class="menu-thumb">` : '';
-                        lista.innerHTML += `
-                            <div class="menu-item">
-                                <div style="display:flex; align-items:center">
-                                    ${imgHtml}
-                                    <div class="menu-info">
-                                        <h4>${item.nome}</h4>
-                                        <p>${item.desc || ''}</p>
-                                        <span class="price">R$ ${parseFloat(item.preco).toFixed(2)}</span>
-                                    </div>
-                                </div>
-                                <button class="btn-add" onclick="addAoCarrinho(${index})">+</button>
-                            </div>`;
+                        lista.innerHTML += `<div class="menu-item"><div style="display:flex; align-items:center">${imgHtml}<div class="menu-info"><h4>${item.nome}</h4><p>${item.desc || ''}</p><span class="price">R$ ${parseFloat(item.preco).toFixed(2)}</span></div></div><button class="btn-add" onclick="addAoCarrinho(${index})">+</button></div>`;
                     });
                 }
             }
+            carregarPublis(); 
+        }
+
+        // --- SISTEMA DE PUBLI ESTÁTICA ---
+        async function carregarPublis() {
+            try {
+                // Busca todos os locais
+                const q = collection(db, "guia_cidades");
+                const snapshot = await getDocs(q);
+                
+                const banners = [];
+                const hoje = new Date();
+
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    if(data.publi && data.publi.ativa && data.publi.img) {
+                        let dataFim = data.publi.dataFim;
+                        if(dataFim && dataFim.seconds) dataFim = new Date(dataFim.seconds * 1000);
+                        else if(typeof dataFim === 'string') dataFim = new Date(dataFim);
+
+                        if(dataFim && dataFim > hoje) {
+                            banners.push({ img: data.publi.img, id: doc.id });
+                        }
+                    }
+                });
+
+                if(banners.length > 0) {
+                    document.getElementById('area-publi').style.display = 'block';
+                    
+                    // ESCOLHE UM ALEATÓRIO
+                    const randomAd = banners[Math.floor(Math.random() * banners.length)];
+                    
+                    const imgEl = document.getElementById('imgPubli');
+                    imgEl.src = randomAd.img;
+                    
+                    // Clicar leva para a loja do anúncio
+                    imgEl.onclick = () => { window.location.href = `detalhes.html?id=${randomAd.id}`; };
+                }
+
+            } catch(e) { console.error("Erro publi", e); }
         }
 
         window.addAoCarrinho = (index) => {
-            const item = localData.cardapio[index];
-            carrinho.push(item);
-            
-            const btnCart = document.getElementById('btnCart');
-            btnCart.style.transform = "scale(1.2)";
-            setTimeout(() => btnCart.style.transform = "scale(1)", 200);
-
+            const item = localData.cardapio[index]; carrinho.push(item);
+            const btnCart = document.getElementById('btnCart'); btnCart.style.transform = "scale(1.2)"; setTimeout(() => btnCart.style.transform = "scale(1)", 200);
             atualizarContador();
         }
-
-        window.removerDoCarrinho = (indexNoCarrinho) => {
-            carrinho.splice(indexNoCarrinho, 1);
-            renderizarListaCarrinho();
-            atualizarContador();
-        }
-
+        window.removerDoCarrinho = (idx) => { carrinho.splice(idx, 1); renderizarListaCarrinho(); atualizarContador(); }
         function atualizarContador() {
-            const count = carrinho.length;
-            document.getElementById('cartCount').textContent = count;
+            const count = carrinho.length; document.getElementById('cartCount').textContent = count;
             const btnCart = document.getElementById('btnCart');
-            if(count > 0) btnCart.style.display = 'flex';
-            else {
-                btnCart.style.display = 'none';
-                fecharCarrinho();
-            }
+            if(count > 0) btnCart.style.display = 'flex'; else { btnCart.style.display = 'none'; fecharCarrinho(); }
         }
-
-        window.abrirCarrinho = () => {
-            document.getElementById('cartModal').style.display = 'flex';
-            renderizarListaCarrinho();
-        }
-
-        window.fecharCarrinho = (e) => {
-            if(e && e.target.id !== 'cartModal' && e.target.className !== 'btn-close') return;
-            document.getElementById('cartModal').style.display = 'none';
-        }
+        window.abrirCarrinho = () => { document.getElementById('cartModal').style.display = 'flex'; renderizarListaCarrinho(); }
+        window.fecharCarrinho = (e) => { if(e && e.target.id !== 'cartModal' && e.target.className !== 'btn-close') return; document.getElementById('cartModal').style.display = 'none'; }
 
         function renderizarListaCarrinho() {
-            const listaDiv = document.getElementById('cartItemsList');
-            listaDiv.innerHTML = "";
-            let subtotal = 0;
-
+            const listaDiv = document.getElementById('cartItemsList'); listaDiv.innerHTML = ""; let subtotal = 0;
             if(carrinho.length === 0) listaDiv.innerHTML = "<p style='text-align: center; color: #999;'>Carrinho vazio.</p>";
-
             carrinho.forEach((item, index) => {
                 subtotal += parseFloat(item.preco);
-                listaDiv.innerHTML += `
-                    <div class="cart-item">
-                        <div>
-                            <strong>${item.nome}</strong><br>
-                            <small>R$ ${item.preco.toFixed(2)}</small>
-                        </div>
-                        <button class="btn-remove" onclick="removerDoCarrinho(${index})">✕</button>
-                    </div>
-                `;
+                listaDiv.innerHTML += `<div class="cart-item"><div><strong>${item.nome}</strong><br><small>R$ ${item.preco.toFixed(2)}</small></div><button class="btn-remove" onclick="removerDoCarrinho(${index})">✕</button></div>`;
             });
-
-            // CÁLCULOS
-            const taxa = localData.taxaEntrega || 0;
-            const totalFinal = subtotal + taxa;
-
+            const taxa = localData.taxaEntrega || 0; const totalFinal = subtotal + taxa;
             document.getElementById('cartSubtotal').textContent = `R$ ${subtotal.toFixed(2)}`;
             document.getElementById('cartDeliveryFee').textContent = `R$ ${taxa.toFixed(2)}`;
             document.getElementById('cartTotalFinal').textContent = `R$ ${totalFinal.toFixed(2)}`;
@@ -285,27 +269,13 @@
 
         document.getElementById('btnFinalizarZap').addEventListener('click', () => {
             if(carrinho.length === 0) return;
-            
-            let msg = `Olá *${localData.nome}*, gostaria de fazer um pedido:\n\n`;
-            let subtotal = 0;
-            
-            carrinho.forEach(item => {
-                subtotal += parseFloat(item.preco);
-                msg += `▪ 1x ${item.nome} (R$ ${parseFloat(item.preco).toFixed(2)})\n`;
-            });
-            
-            const taxa = localData.taxaEntrega || 0;
-            const total = subtotal + taxa;
-
-            msg += `\nSubtotal: R$ ${subtotal.toFixed(2)}`;
-            msg += `\n🛵 Taxa de Entrega: R$ ${taxa.toFixed(2)}`;
-            msg += `\n*TOTAL: R$ ${total.toFixed(2)}*`;
-            msg += `\n\n📍 Endereço de entrega: (Digitar)`;
-            msg += `\n💳 Forma de Pagamento: (Digitar)`;
-
+            let msg = `Olá *${localData.nome}*, gostaria de fazer um pedido:\n\n`; let subtotal = 0;
+            carrinho.forEach(item => { subtotal += parseFloat(item.preco); msg += `▪ 1x ${item.nome} (R$ ${parseFloat(item.preco).toFixed(2)})\n`; });
+            const taxa = localData.taxaEntrega || 0; const total = subtotal + taxa;
+            msg += `\nSubtotal: R$ ${subtotal.toFixed(2)}`; msg += `\n🛵 Taxa de Entrega: R$ ${taxa.toFixed(2)}`; msg += `\n*TOTAL: R$ ${total.toFixed(2)}*`;
+            msg += `\n\n📍 Endereço de entrega: (Digitar)`; msg += `\n💳 Forma de Pagamento: (Digitar)`;
             const num = localData.contato ? localData.contato.replace(/\D/g,'') : '';
-            if(num) window.open(`https://wa.me/55${num}?text=${encodeURIComponent(msg)}`, '_blank');
-            else alert("Erro: WhatsApp não configurado.");
+            if(num) window.open(`https://wa.me/55${num}?text=${encodeURIComponent(msg)}`, '_blank'); else alert("Erro: WhatsApp não configurado.");
         });
 
         carregarDetalhes();
