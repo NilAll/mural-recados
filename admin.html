@@ -8,9 +8,14 @@
         body { font-family: 'Segoe UI', sans-serif; padding: 20px; background: #e9ecef; max-width: 800px; margin: 0 auto; }
         .card { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-bottom: 25px; }
         h2 { margin-top: 0; color: #333; border-bottom: 2px solid #007bff; padding-bottom: 10px; }
+        h3 { color: #555; font-size: 16px; margin-bottom: 10px; border-left: 4px solid #6f42c1; padding-left: 8px; }
         
         input, select { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; }
         
+        /* Layout de colunas para controles pequenos */
+        .row { display: flex; gap: 10px; }
+        .col { flex: 1; }
+
         /* Área de Delivery e Publi */
         .box-highlight { padding: 15px; border-radius: 8px; display: none; margin-top: 15px; }
         .delivery-box { background: #fff3cd; border: 1px solid #ffeeba; }
@@ -43,10 +48,42 @@
     </script>
 
     <div class="card" style="border-top: 5px solid #6f42c1;">
-        <h2>🏙️ Configurar Cidade</h2>
+        <h2>⚙️ Configurações Gerais</h2>
+        
+        <h3>🏙️ Identidade</h3>
         <input type="text" id="confNomeCidade" placeholder="Nome do App">
         <input type="text" id="confImgFundo" placeholder="Link da Imagem de Fundo (URL)">
-        <button id="btnSalvarConfig" class="btn-primary">Salvar Aparência</button>
+
+        <h3>🎨 Visual & Patrocínio</h3>
+        
+        <label>Degradê Superior (Azul):</label>
+        <div class="row">
+            <input type="range" id="opacAzul" min="0" max="100" value="80" class="col" oninput="this.nextElementSibling.value = this.value + '%'">
+            <output style="width: 50px; padding-top:15px;">80%</output>
+        </div>
+
+        <label>Degradê Inferior (Preto):</label>
+        <div class="row">
+            <input type="range" id="opacPreto" min="0" max="100" value="50" class="col" oninput="this.nextElementSibling.value = this.value + '%'">
+            <output style="width: 50px; padding-top:15px;">50%</output>
+        </div>
+
+        <label>Patrocinador Oficial (Logo PNG):</label>
+        <input type="text" id="confLogoPatra" placeholder="Link da Logo (URL)">
+        
+        <div class="row">
+            <div class="col">
+                <label>Tamanho (%):</label>
+                <input type="number" id="confSizePatra" placeholder="Ex: 30" value="30">
+            </div>
+            <div class="col">
+                <label>Posição Baixo (px):</label>
+                <input type="number" id="confPosPatra" placeholder="Ex: 20" value="20">
+            </div>
+        </div>
+
+        <button id="btnSalvarConfig" class="btn-primary">Salvar Configurações</button>
+        <div id="statusConfig" style="text-align: center; margin-top: 10px;"></div>
     </div>
 
     <div class="card">
@@ -109,18 +146,16 @@
         <div id="boxPubli" class="box-highlight publi-box">
             <h3 style="border-bottom: 1px solid #8fad96; padding-bottom: 5px; color: #155724;">📢 Configurar Publicidade</h3>
             <input type="text" id="imgPubli" placeholder="Link da Imagem do Banner (URL)">
-            
-            <label>Validade da Publicidade:</label>
+            <label>Validade:</label>
             <div style="display: flex; gap: 10px;">
                 <select id="tipoValidade" style="width: 40%;">
                     <option value="dias">Dias</option>
                     <option value="meses">Meses</option>
-                    <option value="data">Até data específica</option>
+                    <option value="data">Até data</option>
                 </select>
                 <input type="number" id="valorValidade" placeholder="Qtd" style="width: 30%;">
                 <input type="date" id="dataEspecifica" style="width: 30%; display: none;">
             </div>
-            <p id="previewDataFim" style="font-size: 12px; color: #155724; font-weight: bold; text-align: right; margin-top: 5px;">...</p>
         </div>
 
         <button id="btnSalvar" class="btn-success">Cadastrar Local</button>
@@ -157,19 +192,46 @@
         let listaSubs = {};
         let itemMenuEditandoIndex = -1; 
 
-        // 1. CARREGAR SUBCATEGORIAS
-        async function carregarSubsDoBanco() {
+        // 1. CARREGAR CONFIGS E CATEGORIAS
+        async function carregarDadosIniciais() {
             try {
+                // Subs
                 const docSnap = await getDoc(doc(db, "config", "categorias"));
                 if (docSnap.exists()) listaSubs = docSnap.data();
-                else {
-                    listaSubs = { "Comercio": ["Supermercado"], "Alimentacao": ["Lanchonete"] };
-                    await setDoc(doc(db, "config", "categorias"), listaSubs);
+                else { listaSubs = { "Comercio": ["Supermercado"], "Alimentacao": ["Lanchonete"] }; await setDoc(doc(db, "config", "categorias"), listaSubs); }
+
+                // Config Geral (Agora inclui Patrocinador e Cores)
+                const confSnap = await getDoc(doc(db, "config", "geral"));
+                if(confSnap.exists()) {
+                    const d = confSnap.data();
+                    el('confNomeCidade').value = d.titulo || "";
+                    el('confImgFundo').value = d.fundo || "";
+                    // Patrocínio e Cores
+                    el('opacAzul').value = d.opacAzul || 80;
+                    el('opacPreto').value = d.opacPreto || 50;
+                    el('confLogoPatra').value = d.logoPatra || "";
+                    el('confSizePatra').value = d.sizePatra || 30;
+                    el('confPosPatra').value = d.posPatra || 20;
                 }
             } catch (error) {}
         }
-        carregarSubsDoBanco();
+        carregarDadosIniciais();
 
+        // 2. SALVAR CONFIGURAÇÕES (INCLUINDO VISUAL)
+        el('btnSalvarConfig').addEventListener('click', async () => {
+            await setDoc(doc(db, "config", "geral"), {
+                titulo: el('confNomeCidade').value,
+                fundo: el('confImgFundo').value,
+                opacAzul: el('opacAzul').value,
+                opacPreto: el('opacPreto').value,
+                logoPatra: el('confLogoPatra').value,
+                sizePatra: el('confSizePatra').value,
+                posPatra: el('confPosPatra').value
+            }, { merge: true });
+            alert("Configurações Salvas! Atualize o App.");
+        });
+
+        // 3. RESTO DA LÓGICA (Categorias, Delivery, Publi, CRUD)
         el('categoria').addEventListener('change', () => {
             const cat = el('categoria').value;
             const sub = el('subcategoria');
@@ -192,124 +254,60 @@
             el('subcategoria').value = nova;
         });
 
-        // 2. LOGICA DE PUBLICIDADE (DATA)
-        el('checkPubli').addEventListener('change', (e) => {
-            el('boxPubli').style.display = e.target.checked ? 'block' : 'none';
-        });
-
-        el('tipoValidade').addEventListener('change', (e) => {
-            if(e.target.value === 'data') {
-                el('valorValidade').style.display = 'none';
-                el('dataEspecifica').style.display = 'block';
-            } else {
-                el('valorValidade').style.display = 'block';
-                el('dataEspecifica').style.display = 'none';
-            }
-        });
-
-        function calcularDataFimPubli() {
-            if(!el('checkPubli').checked) return null;
-            
-            const tipo = el('tipoValidade').value;
-            const dataAtual = new Date();
-            
-            if(tipo === 'data') {
-                const d = new Date(el('dataEspecifica').value);
-                // Adiciona 23h:59m para valer até o final do dia
-                d.setHours(23,59,59);
-                return d;
-            } else {
-                const qtd = parseInt(el('valorValidade').value) || 0;
-                if(tipo === 'dias') dataAtual.setDate(dataAtual.getDate() + qtd);
-                if(tipo === 'meses') dataAtual.setMonth(dataAtual.getMonth() + qtd);
-                return dataAtual;
-            }
-        }
-
-        // 3. MENU / CARDÁPIO
+        // Toggle Boxes
         el('checkDelivery').addEventListener('change', (e) => {
             el('boxDelivery').style.display = e.target.checked ? 'block' : 'none';
             el('taxaEntrega').style.display = e.target.checked ? 'block' : 'none';
         });
+        el('checkPubli').addEventListener('change', (e) => { el('boxPubli').style.display = e.target.checked ? 'block' : 'none'; });
+        el('tipoValidade').addEventListener('change', (e) => {
+            el('valorValidade').style.display = e.target.value === 'data' ? 'none' : 'block';
+            el('dataEspecifica').style.display = e.target.value === 'data' ? 'block' : 'none';
+        });
 
+        // Menu Logic
         el('btnLimparItem').addEventListener('click', () => {
-            el('prodNome').value = ""; el('prodPreco').value = ""; 
-            el('prodDesc').value = ""; el('prodImg').value = "";
-            itemMenuEditandoIndex = -1;
-            el('btnAddItem').textContent = "Adicionar +";
-            el('btnAddItem').className = "btn-add";
+            el('prodNome').value = ""; el('prodPreco').value = ""; el('prodDesc').value = ""; el('prodImg').value = "";
+            itemMenuEditandoIndex = -1; el('btnAddItem').textContent = "Adicionar +"; el('btnAddItem').className = "btn-add";
         });
-
         el('btnAddItem').addEventListener('click', () => {
-            const nome = el('prodNome').value;
-            const preco = parseFloat(el('prodPreco').value);
-            const desc = el('prodDesc').value;
-            const img = el('prodImg').value;
-
+            const nome = el('prodNome').value; const preco = parseFloat(el('prodPreco').value); 
+            const desc = el('prodDesc').value; const img = el('prodImg').value;
             if(!nome || !preco) return alert("Preencha nome e preço");
-
             const itemObj = { nome, preco, desc, img };
-
             if (itemMenuEditandoIndex === -1) cardapioAtual.push(itemObj);
-            else {
-                cardapioAtual[itemMenuEditandoIndex] = itemObj;
-                el('btnLimparItem').click();
-            }
-            renderCardapio();
-            if(itemMenuEditandoIndex === -1) el('btnLimparItem').click();
+            else { cardapioAtual[itemMenuEditandoIndex] = itemObj; el('btnLimparItem').click(); }
+            renderCardapio(); if(itemMenuEditandoIndex === -1) el('btnLimparItem').click();
         });
-
         function renderCardapio() {
-            const div = el('lista-cardapio-preview');
-            div.innerHTML = "";
+            const div = el('lista-cardapio-preview'); div.innerHTML = "";
             cardapioAtual.forEach((item, index) => {
                 const imgTag = item.img ? `<img src="${item.img}" class="thumb-preview">` : `<div class="thumb-preview"></div>`;
-                div.innerHTML += `
-                    <div class="item-cardapio">
-                        <div style="display:flex; align-items:center; flex:1;">
-                            ${imgTag}
-                            <div>
-                                <div style="font-weight:bold; font-size:15px;">${item.nome}</div>
-                                <div style="font-size:13px; color:#666;">R$ ${item.preco.toFixed(2)}</div>
-                            </div>
-                        </div>
-                        <div style="display:flex; gap:5px;">
-                            <button class="btn-mini btn-mini-edit" onclick="editarItemMenu(${index})">EDITAR</button>
-                            <button class="btn-mini btn-mini-del" onclick="removeDoMenu(${index})">X</button>
-                        </div>
-                    </div>`;
+                div.innerHTML += `<div class="item-cardapio"><div style="display:flex; align-items:center; flex:1;">${imgTag}<div><div style="font-weight:bold; font-size:15px;">${item.nome}</div><div style="font-size:13px; color:#666;">R$ ${item.preco.toFixed(2)}</div></div></div><div style="display:flex; gap:5px;"><button class="btn-mini btn-mini-edit" onclick="editarItemMenu(${index})">EDITAR</button><button class="btn-mini btn-mini-del" onclick="removeDoMenu(${index})">X</button></div></div>`;
             });
         }
-        
-        window.removeDoMenu = (index) => { if(confirm("Remover?")) { cardapioAtual.splice(index, 1); renderCardapio(); } }
-        window.editarItemMenu = (index) => {
-            const item = cardapioAtual[index];
-            el('prodNome').value = item.nome; el('prodPreco').value = item.preco;
-            el('prodDesc').value = item.desc || ""; el('prodImg').value = item.img || "";
-            itemMenuEditandoIndex = index;
-            el('btnAddItem').textContent = "✓ Salvar Alteração";
-            el('btnAddItem').className = "btn-update-item";
-            el('prodNome').focus();
-            el('boxDelivery').scrollIntoView({ behavior: 'smooth' });
+        window.removeDoMenu = (idx) => { if(confirm("Remover?")) { cardapioAtual.splice(idx, 1); renderCardapio(); } }
+        window.editarItemMenu = (idx) => {
+            const item = cardapioAtual[idx]; el('prodNome').value = item.nome; el('prodPreco').value = item.preco; el('prodDesc').value = item.desc || ""; el('prodImg').value = item.img || "";
+            itemMenuEditandoIndex = idx; el('btnAddItem').textContent = "✓ Salvar"; el('btnAddItem').className = "btn-update-item"; el('prodNome').focus(); el('boxDelivery').scrollIntoView({behavior:'smooth'});
         }
 
-        // 4. CRUD
+        // CRUD Helpers
+        function calcularDataFimPubli() {
+            if(!el('checkPubli').checked) return null;
+            const tipo = el('tipoValidade').value; const dataAtual = new Date();
+            if(tipo === 'data') { const d = new Date(el('dataEspecifica').value); d.setHours(23,59,59); return d; } 
+            else { const qtd = parseInt(el('valorValidade').value) || 0; if(tipo === 'dias') dataAtual.setDate(dataAtual.getDate() + qtd); if(tipo === 'meses') dataAtual.setMonth(dataAtual.getMonth() + qtd); return dataAtual; }
+        }
+
         function limparForm() {
             idEditando = null; cardapioAtual = [];
             el('nome').value = ""; el('cidade').value = ""; el('imagem').value = "";
             el('contato').value = ""; el('telFixo').value = ""; el('instagram').value = "";
-            
-            el('checkDelivery').checked = false;
-            el('taxaEntrega').value = ""; el('taxaEntrega').style.display = 'none';
-            el('boxDelivery').style.display = 'none';
-            
-            el('checkPubli').checked = false;
-            el('imgPubli').value = ""; el('valorValidade').value = "";
-            el('boxPubli').style.display = 'none';
-
+            el('checkDelivery').checked = false; el('taxaEntrega').value = ""; el('taxaEntrega').style.display = 'none'; el('boxDelivery').style.display = 'none';
+            el('checkPubli').checked = false; el('imgPubli').value = ""; el('valorValidade').value = ""; el('boxPubli').style.display = 'none';
             el('categoria').value = ""; el('subcategoria').innerHTML = "<option>Selecione...</option>"; el('subcategoria').disabled = true;
             el('btnLimparItem').click(); renderCardapio();
-            
             el('btnSalvar').style.display = 'block'; el('btnAtualizar').style.display = 'none'; el('btnCancelar').style.display = 'none';
             el('tituloForm').textContent = "🏪 Gerenciar Locais";
         }
@@ -318,74 +316,44 @@
         el('btnSalvar').addEventListener('click', async () => {
             if(!el('nome').value) return alert("Nome obrigatório");
             el('statusLocal').textContent = "Salvando...";
-            
             try {
-                const dataFimPubli = calcularDataFimPubli();
-                
                 await addDoc(collection(db, "guia_cidades"), {
-                    nome: el('nome').value, nomeBusca: el('nome').value.toLowerCase(),
-                    cidade: el('cidade').value, categoria: el('categoria').value, subcategoria: el('subcategoria').value,
+                    nome: el('nome').value, nomeBusca: el('nome').value.toLowerCase(), cidade: el('cidade').value,
+                    categoria: el('categoria').value, subcategoria: el('subcategoria').value,
                     contato: el('contato').value, telFixo: el('telFixo').value, instagram: el('instagram').value,
                     imagem: el('imagem').value || "https://via.placeholder.com/150",
                     temDelivery: el('checkDelivery').checked, taxaEntrega: parseFloat(el('taxaEntrega').value) || 0,
                     cardapio: cardapioAtual,
-                    // DADOS DE PUBLI
-                    publi: {
-                        ativa: el('checkPubli').checked,
-                        img: el('imgPubli').value,
-                        dataFim: dataFimPubli
-                    },
+                    publi: { ativa: el('checkPubli').checked, img: el('imgPubli').value, dataFim: calcularDataFimPubli() },
                     dataCadastro: new Date()
                 });
-                el('statusLocal').textContent = "✅ Cadastrado!";
-                limparForm();
+                el('statusLocal').textContent = "✅ Cadastrado!"; limparForm();
             } catch (e) { alert("Erro: " + e); }
         });
 
         el('btnAtualizar').addEventListener('click', async () => {
             if(!idEditando) return;
             try {
-                const dataFimPubli = calcularDataFimPubli();
-                
-                // Monta objeto de atualização
-                const dadosAtualizar = {
-                    nome: el('nome').value, nomeBusca: el('nome').value.toLowerCase(),
-                    cidade: el('cidade').value, categoria: el('categoria').value, subcategoria: el('subcategoria').value,
+                await updateDoc(doc(db, "guia_cidades", idEditando), {
+                    nome: el('nome').value, nomeBusca: el('nome').value.toLowerCase(), cidade: el('cidade').value,
+                    categoria: el('categoria').value, subcategoria: el('subcategoria').value,
                     contato: el('contato').value, telFixo: el('telFixo').value, instagram: el('instagram').value,
-                    imagem: el('imagem').value,
-                    temDelivery: el('checkDelivery').checked, taxaEntrega: parseFloat(el('taxaEntrega').value) || 0,
+                    imagem: el('imagem').value, temDelivery: el('checkDelivery').checked, taxaEntrega: parseFloat(el('taxaEntrega').value) || 0,
                     cardapio: cardapioAtual,
-                    publi: {
-                        ativa: el('checkPubli').checked,
-                        img: el('imgPubli').value,
-                        dataFim: dataFimPubli
-                    }
-                };
-                
-                await updateDoc(doc(db, "guia_cidades", idEditando), dadosAtualizar);
-                alert("Atualizado!");
-                limparForm();
+                    publi: { ativa: el('checkPubli').checked, img: el('imgPubli').value, dataFim: calcularDataFimPubli() }
+                });
+                alert("Atualizado!"); limparForm();
             } catch (e) { alert("Erro: " + e); }
         });
 
         onSnapshot(query(collection(db, "guia_cidades"), orderBy("dataCadastro", "desc")), (snap) => {
-            const lista = el('lista-locais');
-            lista.innerHTML = "";
+            const lista = el('lista-locais'); lista.innerHTML = "";
             snap.forEach((d) => {
                 const item = d.data();
-                // ATUALIZAÇÃO 2: MOSTRAR SUBCATEGORIA NA LISTA
                 const subTxt = item.subcategoria ? ` > ${item.subcategoria}` : '';
-                
-                const div = document.createElement('div');
-                div.className = "item-lista";
-                div.innerHTML = `
-                    <div><strong>${item.nome}</strong><br><small>${item.categoria}${subTxt}</small></div>
-                    <div class="acoes">
-                        <button class="btn-mini btn-mini-edit" id="e-${d.id}">EDITAR</button>
-                        <button class="btn-mini btn-mini-del" id="d-${d.id}">EXCLUIR</button>
-                    </div>`;
+                const div = document.createElement('div'); div.className = "item-lista";
+                div.innerHTML = `<div><strong>${item.nome}</strong><br><small>${item.categoria}${subTxt}</small></div><div class="acoes"><button class="btn-mini btn-mini-edit" id="e-${d.id}">EDITAR</button><button class="btn-mini btn-mini-del" id="d-${d.id}">EXCLUIR</button></div>`;
                 lista.appendChild(div);
-
                 el(`d-${d.id}`).addEventListener('click', () => { if(confirm("Apagar?")) deleteDoc(doc(db, "guia_cidades", d.id)); });
                 el(`e-${d.id}`).addEventListener('click', () => {
                     idEditando = d.id;
@@ -393,40 +361,15 @@
                     el('contato').value = item.contato || ""; el('telFixo').value = item.telFixo || ""; el('instagram').value = item.instagram || "";
                     el('categoria').value = item.categoria; el('categoria').dispatchEvent(new Event('change'));
                     setTimeout(() => { el('subcategoria').value = item.subcategoria; }, 200);
-
-                    el('checkDelivery').checked = item.temDelivery || false;
-                    el('taxaEntrega').value = item.taxaEntrega || "";
-                    el('taxaEntrega').style.display = item.temDelivery ? 'block' : 'none';
-                    el('boxDelivery').style.display = item.temDelivery ? 'block' : 'none';
+                    el('checkDelivery').checked = item.temDelivery || false; el('taxaEntrega').value = item.taxaEntrega || "";
+                    el('taxaEntrega').style.display = item.temDelivery ? 'block' : 'none'; el('boxDelivery').style.display = item.temDelivery ? 'block' : 'none';
                     cardapioAtual = item.cardapio || [];
-
-                    // Carrega Publi
-                    if(item.publi) {
-                        el('checkPubli').checked = item.publi.ativa;
-                        el('boxPubli').style.display = item.publi.ativa ? 'block' : 'none';
-                        el('imgPubli').value = item.publi.img || "";
-                        // Obs: Não carregamos a "configuração" de dias (difícil reverter data para dias), 
-                        // mas se o usuário salvar de novo, ele redefine.
-                    }
-
+                    if(item.publi) { el('checkPubli').checked = item.publi.ativa; el('boxPubli').style.display = item.publi.ativa ? 'block' : 'none'; el('imgPubli').value = item.publi.img || ""; }
                     renderCardapio();
                     el('btnSalvar').style.display = 'none'; el('btnAtualizar').style.display = 'inline-block'; el('btnCancelar').style.display = 'inline-block';
-                    el('tituloForm').textContent = "✏️ Editando: " + item.nome;
-                    window.scrollTo({ top: 300, behavior: 'smooth' });
+                    el('tituloForm').textContent = "✏️ Editando: " + item.nome; window.scrollTo({ top: 300, behavior: 'smooth' });
                 });
             });
-        });
-
-        async function carregarConfig() {
-            try {
-                const docSnap = await getDoc(doc(db, "config", "geral"));
-                if(docSnap.exists()) { el('confNomeCidade').value = docSnap.data().titulo || ""; el('confImgFundo').value = docSnap.data().fundo || ""; }
-            } catch(e) {}
-        }
-        carregarConfig();
-        el('btnSalvarConfig').addEventListener('click', async () => {
-            await setDoc(doc(db, "config", "geral"), { titulo: el('confNomeCidade').value, fundo: el('confImgFundo').value }, { merge: true });
-            alert("Aparência Salva!");
         });
     </script>
 </body>

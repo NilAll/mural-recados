@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Guia da Cidade</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
@@ -12,73 +12,77 @@
             background-size: cover; background-position: center; background-attachment: fixed;
             min-height: 100vh; color: white; padding: 10px 0;
             display: flex; flex-direction: column; align-items: center;
+            overflow-x: hidden;
         }
 
-        /* HEADER COM SETA */
-        .header-container { width: 100%; max-width: 500px; text-align: center; margin-top: 20px; padding: 0 10px; position: relative; }
-        
+        /* 1. DEGRADÊS (CONTROLADOS NO ADMIN) */
+        .grad-top {
+            position: fixed; top: 0; left: 0; width: 100%; height: 25%;
+            pointer-events: none; z-index: 1; /* Fica acima do fundo, abaixo do conteúdo */
+        }
+        .grad-bottom {
+            position: fixed; bottom: 0; left: 0; width: 100%; height: 20%;
+            pointer-events: none; z-index: 1;
+        }
+
+        /* 2. LOGO PATROCINADOR (CONTROLADO NO ADMIN) */
+        .sponsor-logo {
+            position: fixed; left: 50%; transform: translateX(-50%);
+            z-index: 5; pointer-events: none; display: none;
+        }
+
+        /* HEADER */
+        .header-container { width: 100%; max-width: 500px; text-align: center; margin-top: 20px; padding: 0 10px; position: relative; z-index: 10; }
         .header-top { display: flex; align-items: center; justify-content: center; position: relative; margin-bottom: 10px; }
-        
-        /* ATUALIZAÇÃO 1: Botão Voltar */
-        .btn-voltar-home {
-            position: absolute; left: 0; top: 50%; transform: translateY(-50%);
-            background: none; border: none; color: white; font-size: 24px; cursor: pointer;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.8);
-            display: none; /* Começa escondido */
-        }
+        .btn-voltar-home { position: absolute; left: 0; top: 50%; transform: translateY(-50%); background: none; border: none; color: white; font-size: 24px; cursor: pointer; text-shadow: 0 2px 4px rgba(0,0,0,0.8); display: none; }
+        h1 { font-weight: bold; font-size: 2em; background: none; margin: 0; text-transform: none; text-shadow: 2px 2px 4px #000000, 0 0 10px rgba(0,0,0,0.7); }
 
-        h1 { 
-            font-weight: bold; font-size: 2em; background: none; margin: 0;
-            text-transform: none; text-shadow: 2px 2px 4px #000000, 0 0 10px rgba(0,0,0,0.7);
-        }
-
-        .search-box { width: 100%; margin-bottom: 20px; position: relative; }
+        .search-box { width: 100%; margin-bottom: 20px; position: relative; z-index: 10; }
         input { width: 100%; padding: 12px 20px; font-size: 16px; border-radius: 30px; border: none; outline: none; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
 
+        /* LISTAS (Z-INDEX ALTO PARA FICAR ACIMA DO DEGRADE) */
+        #resultados, #painelNavegacao { position: relative; z-index: 10; }
         #resultados { width: 90%; max-width: 500px; padding-bottom: 50px; display: none; }
 
-        .card {
-            background: rgba(255, 255, 255, 0.95); 
-            border-radius: 12px; overflow: hidden; margin-bottom: 15px;
-            color: #333; display: flex; align-items: center; padding: 10px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.2); position: relative; cursor: pointer;
-            height: 90px; /* ATUALIZAÇÃO 3: Altura fixa */
-        }
-        
+        .card { background: rgba(255, 255, 255, 0.95); border-radius: 12px; overflow: hidden; margin-bottom: 15px; color: #333; display: flex; align-items: center; padding: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.2); position: relative; cursor: pointer; height: 90px; }
         .card-img { width: 70px; height: 70px; object-fit: cover; border-radius: 8px; margin-right: 15px; background: #ddd; flex-shrink: 0; }
-        .card-content { flex: 1; min-width: 0; /* Importante para o ellipsis funcionar */ }
+        .card-content { flex: 1; min-width: 0; }
         .card-content h3 { margin: 0 0 5px 0; font-size: 18px; color: #222; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .tag { background: #e0e0e0; padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: bold; color: #555; }
         .badge-delivery { background: #ffc107; padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: bold; color: #000; margin-left: 5px; }
-        
-        /* ATUALIZAÇÃO 3: Endereço com ... */
-        .card-content p { 
-            color: #666; font-size: 13px; margin: 5px 0 0 0; 
-            white-space: nowrap; overflow: hidden; text-overflow: ellipsis; 
-        }
+        .card-content p { color: #666; font-size: 13px; margin: 5px 0 0 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-        /* PAINEL DE NAVEGAÇÃO */
-        #painelNavegacao {
-            width: 90%; max-width: 500px; display: none;
-            background: rgba(255, 255, 255, 0.95); border-radius: 15px; padding: 20px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.5); color: #333; margin-bottom: 20px; animation: fadeIn 0.3s ease;
-        }
+        /* PAINEL NAVEGAÇÃO */
+        #painelNavegacao { width: 90%; max-width: 500px; display: none; background: rgba(255, 255, 255, 0.95); border-radius: 15px; padding: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); color: #333; margin-bottom: 20px; animation: fadeIn 0.3s ease; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
-
         .cat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-top: 10px; }
         .cat-card { display: flex; flex-direction: column; align-items: center; text-align: center; padding: 10px; border-radius: 10px; cursor: pointer; border: 1px solid #eee; }
         .cat-card:hover { background: #f0f0f0; }
         .cat-icon { font-size: 30px; margin-bottom: 5px; }
         .cat-name { font-size: 12px; font-weight: bold; color: #555; }
-
         .subcat-header { display: flex; align-items: center; margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 10px; }
         .btn-voltar-cat { border: none; background: none; font-size: 20px; cursor: pointer; margin-right: 10px; }
         .subcat-list { display: flex; flex-wrap: wrap; gap: 10px; }
         .subcat-chip { background: #e9ecef; padding: 8px 15px; border-radius: 20px; font-size: 14px; color: #333; cursor: pointer; border: 1px solid #ddd; }
-        .subcat-chip:hover { background: #007bff; color: white; border-color: #007bff; }
+
+        /* ADMIN BAR SECRETA */
+        .admin-bar-secret {
+            position: fixed; bottom: 0; left: 0; width: 100%; height: 60px;
+            background: rgba(0,0,0,0.85); backdrop-filter: blur(5px);
+            display: flex; justify-content: center; align-items: center;
+            z-index: 999; transform: translateY(100%); transition: transform 0.3s;
+            border-top: 2px solid #333;
+        }
+        .admin-bar-secret.visible { transform: translateY(0); }
+        .btn-admin-gear { font-size: 24px; color: white; text-decoration: none; padding: 10px; border: 1px solid #555; border-radius: 50%; background: #222; }
     </style>
 </head>
 <body>
+
+    <div id="gradTop" class="grad-top"></div>
+    <div id="gradBottom" class="grad-bottom"></div>
+
+    <img id="logoPatra" class="sponsor-logo" src="">
 
     <div class="header-container">
         <div class="header-top">
@@ -106,6 +110,10 @@
 
     <div id="resultados"></div>
 
+    <div id="adminBar" class="admin-bar-secret">
+        <a href="admin.html" class="btn-admin-gear">⚙️</a>
+    </div>
+
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getFirestore, collection, getDocs, getDoc, doc, query, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
@@ -123,7 +131,6 @@
         const db = getFirestore(app);
 
         const ICONES_CAT = { "Comercio": "🛍️", "Alimentacao": "🍔", "Servicos": "🛠️", "Saude": "🏥", "Publico": "🏛️", "Profissionais": "👔", "Delivery": "🛵", "Classificados": "📢", "Aluguel": "🏠" };
-
         let todosLocais = [];
         let estruturaCategorias = {};
 
@@ -133,31 +140,61 @@
             todosLocais = [];
             snapshot.forEach(doc => todosLocais.push({ id: doc.id, ...doc.data() }));
 
+            // Config Geral
             try {
                 const docSnap = await getDoc(doc(db, "config", "geral"));
                 if (docSnap.exists()) {
-                    const dados = docSnap.data();
-                    if(dados.titulo) document.getElementById('appTitulo').textContent = dados.titulo;
-                    if(dados.fundo) document.body.style.backgroundImage = `url('${dados.fundo}')`;
+                    const d = docSnap.data();
+                    if(d.titulo) document.getElementById('appTitulo').textContent = d.titulo;
+                    if(d.fundo) document.body.style.backgroundImage = `url('${d.fundo}')`;
+                    
+                    // DEGRADÊS
+                    const opAzul = (d.opacAzul !== undefined) ? d.opacAzul / 100 : 0.8;
+                    const opPreto = (d.opacPreto !== undefined) ? d.opacPreto / 100 : 0.5;
+                    
+                    // Azul no topo
+                    document.getElementById('gradTop').style.background = `linear-gradient(to bottom, rgba(0,0,255, ${opAzul}), transparent)`;
+                    // Preto embaixo
+                    document.getElementById('gradBottom').style.background = `linear-gradient(to top, rgba(0,0,0, ${opPreto}), transparent)`;
+
+                    // LOGO PATROCINADOR
+                    if(d.logoPatra) {
+                        const img = document.getElementById('logoPatra');
+                        img.src = d.logoPatra;
+                        img.style.display = 'block';
+                        img.style.width = (d.sizePatra || 30) + '%';
+                        img.style.bottom = (d.posPatra || 20) + 'px';
+                    }
                 }
             } catch(e) {}
 
             try {
                 const docCat = await getDoc(doc(db, "config", "categorias"));
-                if (docCat.exists()) {
-                    estruturaCategorias = docCat.data();
-                    renderizarCategorias();
-                }
+                if (docCat.exists()) { estruturaCategorias = docCat.data(); renderizarCategorias(); }
             } catch(e) {}
         }
 
+        // FUNÇÃO GESTO ADMIN
+        let startY = 0;
+        document.addEventListener('touchstart', (e) => { startY = e.touches[0].clientY; }, { passive: true });
+        document.addEventListener('touchend', (e) => {
+            const endY = e.changedTouches[0].clientY;
+            // Se puxou de baixo (80% da tela) pra cima
+            if(startY > window.innerHeight * 0.8 && startY - endY > 50) {
+                document.getElementById('adminBar').classList.add('visible');
+            }
+        }, { passive: true });
+        document.addEventListener('click', (e) => {
+            const bar = document.getElementById('adminBar');
+            if(bar.classList.contains('visible') && !bar.contains(e.target)) bar.classList.remove('visible');
+        });
+
+        // (Restante da lógica de busca e categorias igual ao anterior...)
         function renderizarCategorias() {
-            const grid = document.getElementById('gridCategorias');
-            grid.innerHTML = "";
+            const grid = document.getElementById('gridCategorias'); grid.innerHTML = "";
             Object.keys(estruturaCategorias).forEach(cat => {
                 const icone = ICONES_CAT[cat] || "📂";
-                const card = document.createElement('div');
-                card.className = 'cat-card';
+                const card = document.createElement('div'); card.className = 'cat-card';
                 card.innerHTML = `<div class=\"cat-icon\">${icone}</div><div class=\"cat-name\">${cat}</div>`;
                 card.addEventListener('click', () => abrirSubcategorias(cat));
                 grid.appendChild(card);
@@ -168,112 +205,49 @@
             document.getElementById('viewCategorias').style.display = 'none';
             document.getElementById('viewSubcategorias').style.display = 'block';
             document.getElementById('tituloCatSelecionada').textContent = cat;
-            mostrarBotaoVoltar(true); // Mostra seta no topo
-
-            const lista = document.getElementById('listaSubcats');
-            lista.innerHTML = "";
+            mostrarBotaoVoltar(true);
+            const lista = document.getElementById('listaSubcats'); lista.innerHTML = "";
             const subs = estruturaCategorias[cat] || [];
-            
-            const chipTudo = document.createElement('div');
-            chipTudo.className = 'subcat-chip';
-            chipTudo.textContent = `Ver tudo de ${cat}`;
-            chipTudo.onclick = () => { pesquisarPorTermo(cat); };
-            lista.appendChild(chipTudo);
-
+            const chipTudo = document.createElement('div'); chipTudo.className = 'subcat-chip'; chipTudo.textContent = `Ver tudo de ${cat}`;
+            chipTudo.onclick = () => { pesquisarPorTermo(cat); }; lista.appendChild(chipTudo);
             subs.forEach(sub => {
-                const chip = document.createElement('div');
-                chip.className = 'subcat-chip';
-                chip.textContent = sub;
-                chip.onclick = () => { pesquisarPorTermo(sub); };
-                lista.appendChild(chip);
+                const chip = document.createElement('div'); chip.className = 'subcat-chip'; chip.textContent = sub;
+                chip.onclick = () => { pesquisarPorTermo(sub); }; lista.appendChild(chip);
             });
         }
 
-        window.voltarCategorias = () => {
-            document.getElementById('viewSubcategorias').style.display = 'none';
-            document.getElementById('viewCategorias').style.display = 'block';
-            // Se voltou para categorias, ainda estamos "navegando", então seta fica?
-            // Depende da UX. Vamos manter a seta pois ele ainda está no menu.
-        }
-
-        // Função do botão ⬅ no topo (reseta tudo)
-        window.resetarApp = () => {
-            document.getElementById('busca').value = "";
-            document.getElementById('resultados').style.display = 'none';
-            document.getElementById('painelNavegacao').style.display = 'none';
-            mostrarBotaoVoltar(false);
-            voltarCategorias(); // Reseta estado do menu
-        }
-
-        function mostrarBotaoVoltar(mostrar) {
-            document.getElementById('btnVoltarInicio').style.display = mostrar ? 'block' : 'none';
-        }
+        window.voltarCategorias = () => { document.getElementById('viewSubcategorias').style.display = 'none'; document.getElementById('viewCategorias').style.display = 'block'; }
+        window.resetarApp = () => { document.getElementById('busca').value = ""; document.getElementById('resultados').style.display = 'none'; document.getElementById('painelNavegacao').style.display = 'none'; mostrarBotaoVoltar(false); voltarCategorias(); }
+        function mostrarBotaoVoltar(mostrar) { document.getElementById('btnVoltarInicio').style.display = mostrar ? 'block' : 'none'; }
 
         const inputBusca = document.getElementById('busca');
         const painelNav = document.getElementById('painelNavegacao');
         const divResultados = document.getElementById('resultados');
 
         inputBusca.addEventListener('focus', () => {
-            if(inputBusca.value.trim() === "") {
-                painelNav.style.display = 'block';
-                divResultados.style.display = 'none';
-                mostrarBotaoVoltar(true);
-                voltarCategorias();
-            }
+            if(inputBusca.value.trim() === "") { painelNav.style.display = 'block'; divResultados.style.display = 'none'; mostrarBotaoVoltar(true); voltarCategorias(); }
         });
 
         inputBusca.addEventListener('keyup', (e) => {
             const termo = e.target.value.toLowerCase();
-            if(termo.length > 0) {
-                painelNav.style.display = 'none';
-                divResultados.style.display = 'block';
-                mostrarBotaoVoltar(true);
-                executarBusca(termo);
-            } else {
-                divResultados.style.display = 'none';
-                painelNav.style.display = 'block';
-            }
+            if(termo.length > 0) { painelNav.style.display = 'none'; divResultados.style.display = 'block'; mostrarBotaoVoltar(true); executarBusca(termo); } 
+            else { divResultados.style.display = 'none'; painelNav.style.display = 'block'; }
         });
 
-        function pesquisarPorTermo(termo) {
-            inputBusca.value = termo; 
-            painelNav.style.display = 'none'; 
-            divResultados.style.display = 'block'; 
-            executarBusca(termo.toLowerCase()); 
-        }
+        function pesquisarPorTermo(termo) { inputBusca.value = termo; painelNav.style.display = 'none'; divResultados.style.display = 'block'; executarBusca(termo.toLowerCase()); }
 
         function executarBusca(termo) {
             divResultados.innerHTML = "";
-            const filtrados = todosLocais.filter(l => 
-                l.nomeBusca.includes(termo) || 
-                l.categoria.toLowerCase().includes(termo) ||
-                (l.subcategoria && l.subcategoria.toLowerCase().includes(termo))
-            );
-
-            if(filtrados.length === 0) {
-                divResultados.innerHTML = "<p style='text-align:center; color:white; background:rgba(0,0,0,0.5); padding:10px; border-radius:10px;'>Nenhum local encontrado.</p>";
-                return;
-            }
-
+            const filtrados = todosLocais.filter(l => l.nomeBusca.includes(termo) || l.categoria.toLowerCase().includes(termo) || (l.subcategoria && l.subcategoria.toLowerCase().includes(termo)));
+            if(filtrados.length === 0) { divResultados.innerHTML = "<p style='text-align:center; color:white; background:rgba(0,0,0,0.5); padding:10px; border-radius:10px;'>Nenhum local encontrado.</p>"; return; }
             filtrados.forEach(local => {
                 const imagem = local.imagem || "https://via.placeholder.com/150";
-                const div = document.createElement('div');
-                div.className = 'card';
-                div.innerHTML = `
-                    <img src="${imagem}" class="card-img">
-                    <div class="card-content">
-                        <h3>${local.nome}</h3>
-                        <span class="tag">${local.categoria}</span>
-                        ${local.subcategoria ? `<span class="tag">${local.subcategoria}</span>` : ''}
-                        ${local.temDelivery ? '<span class="badge-delivery">🛵 Delivery</span>' : ''}
-                        <p>${local.cidade}</p>
-                    </div>
-                `;
+                const div = document.createElement('div'); div.className = 'card';
+                div.innerHTML = `<img src="${imagem}" class="card-img"><div class="card-content"><h3>${local.nome}</h3><span class="tag">${local.categoria}</span>${local.subcategoria ? `<span class="tag">${local.subcategoria}</span>` : ''}${local.temDelivery ? '<span class="badge-delivery">🛵 Delivery</span>' : ''}<p>${local.cidade}</p></div>`;
                 div.addEventListener('click', () => window.location.href = `detalhes.html?id=${local.id}`);
                 divResultados.appendChild(div);
             });
         }
-
         carregarDados();
     </script>
 </body>
