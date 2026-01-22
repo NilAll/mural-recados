@@ -15,23 +15,10 @@
             overflow-x: hidden;
         }
 
-        /* 1. DEGRADÊS (CONTROLADOS NO ADMIN) */
-        .grad-top {
-            position: fixed; top: 0; left: 0; width: 100%; height: 25%;
-            pointer-events: none; z-index: 1; /* Fica acima do fundo, abaixo do conteúdo */
-        }
-        .grad-bottom {
-            position: fixed; bottom: 0; left: 0; width: 100%; height: 20%;
-            pointer-events: none; z-index: 1;
-        }
+        .grad-top { position: fixed; top: 0; left: 0; width: 100%; height: 25%; pointer-events: none; z-index: 1; }
+        .grad-bottom { position: fixed; bottom: 0; left: 0; width: 100%; height: 20%; pointer-events: none; z-index: 1; }
+        .sponsor-logo { position: fixed; left: 50%; transform: translateX(-50%); z-index: 5; pointer-events: none; display: none; }
 
-        /* 2. LOGO PATROCINADOR (CONTROLADO NO ADMIN) */
-        .sponsor-logo {
-            position: fixed; left: 50%; transform: translateX(-50%);
-            z-index: 5; pointer-events: none; display: none;
-        }
-
-        /* HEADER */
         .header-container { width: 100%; max-width: 500px; text-align: center; margin-top: 20px; padding: 0 10px; position: relative; z-index: 10; }
         .header-top { display: flex; align-items: center; justify-content: center; position: relative; margin-bottom: 10px; }
         .btn-voltar-home { position: absolute; left: 0; top: 50%; transform: translateY(-50%); background: none; border: none; color: white; font-size: 24px; cursor: pointer; text-shadow: 0 2px 4px rgba(0,0,0,0.8); display: none; }
@@ -40,10 +27,7 @@
         .search-box { width: 100%; margin-bottom: 20px; position: relative; z-index: 10; }
         input { width: 100%; padding: 12px 20px; font-size: 16px; border-radius: 30px; border: none; outline: none; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
 
-        /* LISTAS (Z-INDEX ALTO PARA FICAR ACIMA DO DEGRADE) */
-        #resultados, #painelNavegacao { position: relative; z-index: 10; }
-        #resultados { width: 90%; max-width: 500px; padding-bottom: 50px; display: none; }
-
+        #resultados { width: 90%; max-width: 500px; padding-bottom: 50px; display: none; position: relative; z-index: 10; }
         .card { background: rgba(255, 255, 255, 0.95); border-radius: 12px; overflow: hidden; margin-bottom: 15px; color: #333; display: flex; align-items: center; padding: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.2); position: relative; cursor: pointer; height: 90px; }
         .card-img { width: 70px; height: 70px; object-fit: cover; border-radius: 8px; margin-right: 15px; background: #ddd; flex-shrink: 0; }
         .card-content { flex: 1; min-width: 0; }
@@ -52,8 +36,7 @@
         .badge-delivery { background: #ffc107; padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: bold; color: #000; margin-left: 5px; }
         .card-content p { color: #666; font-size: 13px; margin: 5px 0 0 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-        /* PAINEL NAVEGAÇÃO */
-        #painelNavegacao { width: 90%; max-width: 500px; display: none; background: rgba(255, 255, 255, 0.95); border-radius: 15px; padding: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); color: #333; margin-bottom: 20px; animation: fadeIn 0.3s ease; }
+        #painelNavegacao { width: 90%; max-width: 500px; display: none; background: rgba(255, 255, 255, 0.95); border-radius: 15px; padding: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); color: #333; margin-bottom: 20px; animation: fadeIn 0.3s ease; position: relative; z-index: 10; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
         .cat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-top: 10px; }
         .cat-card { display: flex; flex-direction: column; align-items: center; text-align: center; padding: 10px; border-radius: 10px; cursor: pointer; border: 1px solid #eee; }
@@ -65,14 +48,7 @@
         .subcat-list { display: flex; flex-wrap: wrap; gap: 10px; }
         .subcat-chip { background: #e9ecef; padding: 8px 15px; border-radius: 20px; font-size: 14px; color: #333; cursor: pointer; border: 1px solid #ddd; }
 
-        /* ADMIN BAR SECRETA */
-        .admin-bar-secret {
-            position: fixed; bottom: 0; left: 0; width: 100%; height: 60px;
-            background: rgba(0,0,0,0.85); backdrop-filter: blur(5px);
-            display: flex; justify-content: center; align-items: center;
-            z-index: 999; transform: translateY(100%); transition: transform 0.3s;
-            border-top: 2px solid #333;
-        }
+        .admin-bar-secret { position: fixed; bottom: 0; left: 0; width: 100%; height: 60px; background: rgba(0,0,0,0.85); backdrop-filter: blur(5px); display: flex; justify-content: center; align-items: center; z-index: 999; transform: translateY(100%); transition: transform 0.3s; border-top: 2px solid #333; }
         .admin-bar-secret.visible { transform: translateY(0); }
         .btn-admin-gear { font-size: 24px; color: white; text-decoration: none; padding: 10px; border: 1px solid #555; border-radius: 50%; background: #222; }
     </style>
@@ -81,7 +57,6 @@
 
     <div id="gradTop" class="grad-top"></div>
     <div id="gradBottom" class="grad-bottom"></div>
-
     <img id="logoPatra" class="sponsor-logo" src="">
 
     <div class="header-container">
@@ -140,7 +115,6 @@
             todosLocais = [];
             snapshot.forEach(doc => todosLocais.push({ id: doc.id, ...doc.data() }));
 
-            // Config Geral
             try {
                 const docSnap = await getDoc(doc(db, "config", "geral"));
                 if (docSnap.exists()) {
@@ -148,16 +122,11 @@
                     if(d.titulo) document.getElementById('appTitulo').textContent = d.titulo;
                     if(d.fundo) document.body.style.backgroundImage = `url('${d.fundo}')`;
                     
-                    // DEGRADÊS
                     const opAzul = (d.opacAzul !== undefined) ? d.opacAzul / 100 : 0.8;
                     const opPreto = (d.opacPreto !== undefined) ? d.opacPreto / 100 : 0.5;
-                    
-                    // Azul no topo
                     document.getElementById('gradTop').style.background = `linear-gradient(to bottom, rgba(0,0,255, ${opAzul}), transparent)`;
-                    // Preto embaixo
                     document.getElementById('gradBottom').style.background = `linear-gradient(to top, rgba(0,0,0, ${opPreto}), transparent)`;
 
-                    // LOGO PATROCINADOR
                     if(d.logoPatra) {
                         const img = document.getElementById('logoPatra');
                         img.src = d.logoPatra;
@@ -174,27 +143,24 @@
             } catch(e) {}
         }
 
-        // FUNÇÃO GESTO ADMIN
-        let startY = 0;
-        document.addEventListener('touchstart', (e) => { startY = e.touches[0].clientY; }, { passive: true });
-        document.addEventListener('touchend', (e) => {
-            const endY = e.changedTouches[0].clientY;
-            // Se puxou de baixo (80% da tela) pra cima
-            if(startY > window.innerHeight * 0.8 && startY - endY > 50) {
-                document.getElementById('adminBar').classList.add('visible');
-            }
-        }, { passive: true });
-        document.addEventListener('click', (e) => {
-            const bar = document.getElementById('adminBar');
-            if(bar.classList.contains('visible') && !bar.contains(e.target)) bar.classList.remove('visible');
-        });
-
-        // (Restante da lógica de busca e categorias igual ao anterior...)
+        // FUNÇÃO DE RENDERIZAR CATEGORIAS (COM ORDENAÇÃO)
         function renderizarCategorias() {
-            const grid = document.getElementById('gridCategorias'); grid.innerHTML = "";
-            Object.keys(estruturaCategorias).forEach(cat => {
+            const grid = document.getElementById('gridCategorias');
+            grid.innerHTML = "";
+            
+            // Verifica se existe uma ordem salva, senão pega alfabética
+            let ordem = estruturaCategorias["_order"];
+            if (!ordem) {
+                ordem = Object.keys(estruturaCategorias).filter(k => k !== "_order").sort();
+            }
+
+            ordem.forEach(cat => {
+                // Pula se a categoria não estiver mais nas chaves (caso tenha sido deletada e a ordem não atualizada)
+                if (!estruturaCategorias.hasOwnProperty(cat)) return;
+
                 const icone = ICONES_CAT[cat] || "📂";
-                const card = document.createElement('div'); card.className = 'cat-card';
+                const card = document.createElement('div');
+                card.className = 'cat-card';
                 card.innerHTML = `<div class=\"cat-icon\">${icone}</div><div class=\"cat-name\">${cat}</div>`;
                 card.addEventListener('click', () => abrirSubcategorias(cat));
                 grid.appendChild(card);
@@ -248,6 +214,18 @@
                 divResultados.appendChild(div);
             });
         }
+
+        let startY = 0;
+        document.addEventListener('touchstart', (e) => { startY = e.touches[0].clientY; }, { passive: true });
+        document.addEventListener('touchend', (e) => {
+            const endY = e.changedTouches[0].clientY;
+            if(startY > window.innerHeight * 0.8 && startY - endY > 50) { document.getElementById('adminBar').classList.add('visible'); }
+        }, { passive: true });
+        document.addEventListener('click', (e) => {
+            const bar = document.getElementById('adminBar');
+            if(bar.classList.contains('visible') && !bar.contains(e.target)) bar.classList.remove('visible');
+        });
+
         carregarDados();
     </script>
 </body>
