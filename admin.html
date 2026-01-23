@@ -5,123 +5,151 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin - Gestão</title>
     <style>
-        * { -webkit-user-select: none; user-select: none; }
-        input, textarea { -webkit-user-select: text; user-select: text; }
+        * { -webkit-user-select: none; user-select: none; box-sizing: border-box; }
+        input, textarea, select { -webkit-user-select: text; user-select: text; }
         body { font-family: 'Segoe UI', sans-serif; padding: 20px; background: #e9ecef; max-width: 800px; margin: 0 auto; }
-        .header-admin { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        
+        /* TELA DE LOGIN */
+        #loginScreen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #222; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; color: white; }
+        .login-box { text-align: center; background: #333; padding: 30px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); width: 90%; max-width: 350px; }
+        .login-input { width: 100%; padding: 12px; margin: 10px 0; border-radius: 5px; border: none; font-size: 16px; }
+        .btn-login { background: #007bff; color: white; padding: 12px; width: 100%; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; font-size: 16px; margin-top: 10px; }
+
+        .header-admin { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; display: none; }
         .btn-home { text-decoration: none; background: #333; color: white; padding: 10px 15px; border-radius: 8px; font-weight: bold; font-size: 14px; }
-        .card { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-bottom: 25px; }
+        .badge-role { background: #ffc107; color: #333; padding: 2px 8px; border-radius: 4px; font-size: 12px; font-weight: bold; margin-left: 10px; }
+
+        .card { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-bottom: 25px; display: none; }
         h2 { margin-top: 0; color: #333; border-bottom: 2px solid #007bff; padding-bottom: 10px; }
         h3 { color: #555; font-size: 16px; margin-bottom: 10px; border-left: 4px solid #6f42c1; padding-left: 8px; }
-        input, select, textarea { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; }
+        
+        input, select, textarea { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 6px; }
         label { font-weight: 500; font-size: 14px; color: #555; margin-top: 10px; display: block; }
         .row { display: flex; gap: 10px; } .col { flex: 1; }
-        .cat-manager-item { display: flex; justify-content: space-between; align-items: center; background: #f8f9fa; padding: 10px; border: 1px solid #eee; margin-bottom: 5px; border-radius: 6px; }
-        .cat-controls button { width: 30px; height: 30px; padding: 0; margin-left: 2px; }
+
+        .manager-item { display: flex; justify-content: space-between; align-items: center; background: #f8f9fa; padding: 10px; border: 1px solid #eee; margin-bottom: 5px; border-radius: 6px; }
+        .item-lista { display: flex; justify-content: space-between; align-items: center; background: #fff; padding: 15px; margin-bottom: 10px; border-radius: 8px; border-left: 5px solid #007bff; }
+
+        button { width: 100%; padding: 12px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; color: white; margin-top: 10px; }
+        .btn-success { background: #28a745; } .btn-warning { background: #ffc107; color: #333; display: inline-block; } .btn-danger { background: #dc3545; display: inline-block; }
+        .btn-mini { width: auto !important; padding: 5px 10px !important; display: inline-block !important; margin-left: 5px; }
+        
         .box-highlight { padding: 15px; border-radius: 8px; display: none; margin-top: 15px; }
         .delivery-box { background: #fff3cd; border: 1px solid #ffeeba; }
         .publi-box { background: #d4edda; border: 1px solid #c3e6cb; }
         .item-cardapio { display: flex; justify-content: space-between; align-items: center; background: white; padding: 10px; margin: 8px 0; border-radius: 6px; border: 1px solid #ddd; }
-        button { width: 100%; padding: 12px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; color: white; margin-top: 10px; }
-        .btn-success { background: #28a745; } .btn-warning { background: #ffc107; color: #333; display: none; } .btn-danger { background: #dc3545; display: none; }
-        .btn-mini { width: auto !important; padding: 5px 10px !important; display: inline-block !important; margin-left: 5px; }
-        .item-lista { display: flex; justify-content: space-between; align-items: center; background: #fff; padding: 15px; margin-bottom: 10px; border-radius: 8px; border-left: 5px solid #007bff; }
+        .validade-info { font-weight: bold; color: #155724; font-size: 13px; margin-top: 5px; text-align: right; }
     </style>
 </head>
 <body>
-    <script>
-        const senha = prompt("🔒 Admin: Digite a senha:");
-        if (senha !== "1234") { document.body.innerHTML = ""; window.location.href = "index.html"; }
-    </script>
 
-    <div class="header-admin">
-        <h2 style="border:none; margin:0;">Painel Administrativo</h2>
+    <div id="loginScreen">
+        <div class="login-box">
+            <h2>🔒 Área Administrativa</h2>
+            <p>Faça login para continuar</p>
+            <input type="text" id="inputUsuario" class="login-input" placeholder="Usuário (Ex: master)">
+            <input type="password" id="inputSenha" class="login-input" placeholder="Senha">
+            <button class="btn-login" onclick="fazerLogin()">Acessar Painel</button>
+            <p id="msgLogin" style="color:#ff6b6b; font-size:14px; margin-top:10px;"></p>
+        </div>
+    </div>
+
+    <div class="header-admin" id="headerAdmin">
+        <div><h2 style="border:none; margin:0;">Painel de Gestão</h2><span id="roleBadge" class="badge-role">...</span></div>
         <a href="index.html" class="btn-home">🏠 Ver App</a>
     </div>
 
-    <div class="card" style="border-top: 5px solid #17a2b8;">
-        <h2>📂 Gerenciar Categorias</h2>
-        <div id="listaGestaoCategorias"></div>
-        <div style="display:flex; gap:10px; margin-top:15px; border-top:1px solid #eee; padding-top:10px;">
-            <input type="text" id="novaCategoriaInput" placeholder="Nome da Nova Categoria" style="margin:0;">
-            <button class="btn-success" style="margin:0; width:auto;" onclick="adicionarCategoria()">Adicionar</button>
-        </div>
-    </div>
-
-    <div class="card" style="border-top: 5px solid #6f42c1;">
-        <h2>⚙️ Configurações Visuais</h2>
-        <input type="text" id="confNomeCidade" placeholder="Nome do App">
-        <input type="text" id="confImgFundo" placeholder="Link da Imagem de Fundo (URL)">
-        <label>Degradê Superior / Inferior:</label>
+    <div class="card" id="painelCidades" style="border-top: 5px solid #ff5722;">
+        <h2>🏙️ Gerenciar Cidades (Master)</h2>
+        <div id="listaCidades"></div>
+        
+        <h3 id="tituloCidadeForm" style="margin-top:20px;">Nova Cidade / Editar</h3>
         <div class="row">
-            <input type="range" id="opacAzul" min="0" max="100" value="80" class="col">
-            <input type="range" id="opacPreto" min="0" max="100" value="50" class="col">
+            <input type="text" id="novaCidadeNome" placeholder="Nome (Ex: Mãe do Rio)" class="col">
+            <input type="text" id="novaCidadeUF" placeholder="UF" style="width: 80px;">
         </div>
-        <input type="text" id="confLogoPatra" placeholder="Link da Logo Patrocinador">
-        <div class="row"><input type="number" id="confSizePatra" placeholder="Tam %"><input type="number" id="confPosPatra" placeholder="Pos px"></div>
-        <button id="btnSalvarConfig" class="btn-primary" style="background:#6f42c1">Salvar Configurações</button>
+        <div class="row">
+            <input type="text" id="novaCidadeFundo" placeholder="Link Foto Fundo (Opcional)" class="col">
+            <input type="text" id="novaCidadeLogo" placeholder="Link Logo Patrocinador" class="col">
+        </div>
+        
+        <label style="color:#007bff;">Dados de Acesso do Admin Local:</label>
+        <div class="row">
+            <input type="text" id="novaCidadeLogin" placeholder="Usuário de Acesso (Único)" class="col" style="font-weight:bold;">
+            <input type="text" id="novaCidadeSenha" placeholder="Senha" class="col">
+        </div>
+        
+        <div style="display:flex; gap:10px;">
+            <button id="btnSalvarCidade" class="btn-success" onclick="salvarCidade()">+ Cadastrar Cidade</button>
+            <button id="btnCancelarCidade" class="btn-danger" style="display:none;" onclick="cancelarEdicaoCidade()">Cancelar</button>
+        </div>
     </div>
 
-    <div class="card">
+    <div class="card" id="painelMasterConfig" style="border-top: 5px solid #6f42c1;">
+        <h2>⚙️ Configurações Globais</h2>
+        <h3>📂 Categorias</h3>
+        <div id="listaGestaoCategorias"></div>
+        <div class="row"><input type="text" id="novaCategoriaInput" placeholder="Nome da Categoria" class="col"><button class="btn-success" style="width:auto; margin-top:8px;" onclick="adicionarCategoria()">Adicionar</button></div>
+
+        <h3 style="margin-top:20px;">🎨 Visual App</h3>
+        <input type="text" id="confNomeCidade" placeholder="Nome do App (Cabeçalho)">
+        <label>Degradê Azul / Preto:</label>
+        <div class="row"><input type="range" id="opacAzul" min="0" max="100" class="col"><input type="range" id="opacPreto" min="0" max="100" class="col"></div>
+        <button onclick="salvarConfigGlobal()" style="background:#6f42c1">Salvar Configurações</button>
+    </div>
+
+    <div class="card" id="painelCadastro" style="display:block;">
         <h2 id="tituloForm">🏪 Gerenciar Cadastro</h2>
         
-        <label style="color:#007bff; font-weight:bold; font-size:16px;">1. Categoria:</label>
+        <label style="color:#ff5722; font-weight:bold;">1. Cidade:</label>
+        <select id="selCidadeCadastro" style="border: 2px solid #ff5722; font-weight:bold;"><option value="">Selecione...</option></select>
+
+        <label style="color:#007bff; font-weight:bold;">2. Categoria:</label>
         <select id="categoria" style="border: 2px solid #007bff;"><option value="">Selecione...</option></select>
 
         <label>Subcategoria:</label>
         <div style="display: flex; gap: 10px;">
             <select id="subcategoria" disabled><option value="">Selecione categoria...</option></select>
-            <button id="btnAddSub" style="background:#28a745; width:50px; font-size:20px;">+</button>
+            <button id="btnAddSub" class="btn-plus" title="Adicionar subcategoria">+</button>
         </div>
 
         <hr style="margin: 20px 0; border: 0; border-top: 1px solid #eee;">
 
         <label id="lblNome">Nome do Local:</label>
         <input type="text" id="nome">
-        
-        <label>Preços (Opcional - Para Classificados/Promoções):</label>
-        <div class="row">
-            <input type="number" id="precoAntigo" placeholder="Preço Original (Riscado)">
-            <input type="number" id="precoAtual" placeholder="Preço Atual (Destaque)">
-        </div>
-
-        <label id="lblCidade">Endereço / Bairro / Descrição:</label>
+        <div class="row"><input type="number" id="precoAntigo" placeholder="Preço Riscado" class="col"><input type="number" id="precoAtual" placeholder="Preço Atual" class="col"></div>
+        <label id="lblCidade">Endereço / Descrição:</label>
         <input type="text" id="cidade">
-        
-        <label id="lblImagem">Links das Fotos (Um por linha):</label>
-        <textarea id="imagem" rows="4" placeholder="https://imagem1.jpg&#10;https://imagem2.jpg"></textarea>
-
+        <label id="lblImagem">Fotos (URL por linha):</label>
+        <textarea id="imagem" rows="3"></textarea>
         <label>Contatos:</label>
-        <div class="row">
-            <input type="text" id="contato" placeholder="WhatsApp">
-            <input type="text" id="telFixo" placeholder="Tel. Fixo">
-        </div>
-        <div id="divInsta"><input type="text" id="instagram" placeholder="Link Instagram"></div>
+        <div class="row"><input type="text" id="contato" placeholder="WhatsApp" class="col"><input type="text" id="telFixo" placeholder="Fixo" class="col"></div>
+        <div id="divInsta"><input type="text" id="instagram" placeholder="Instagram Link"></div>
 
         <div style="margin-top:15px; display:flex; gap:10px;">
-            <input type="checkbox" id="checkDelivery" style="width:20px; height:20px;"> <label for="checkDelivery" style="margin:0">Tem Delivery?</label>
-            <input type="checkbox" id="checkPubli" style="width:20px; height:20px;"> <label for="checkPubli" style="margin:0">Tem Banner?</label>
+            <input type="checkbox" id="checkDelivery" style="width:20px; height:20px;"> <label for="checkDelivery" style="margin:0">Delivery?</label>
+            <input type="checkbox" id="checkPubli" style="width:20px; height:20px;"> <label for="checkPubli" style="margin:0">Banner?</label>
         </div>
         <input type="number" id="taxaEntrega" placeholder="Taxa Entrega" style="display:none; margin-top:5px;">
 
         <div id="boxPubli" class="box-highlight publi-box">
             <input type="text" id="imgPubli" placeholder="Link Banner">
             <div class="row">
-                <select id="tipoValidade" class="col"><option value="dias">Dias</option><option value="data">Até Data</option></select>
+                <select id="tipoValidade" class="col"><option value="dias">Dias</option><option value="data">Data</option></select>
                 <input type="number" id="valorValidade" placeholder="Qtd" class="col">
                 <input type="date" id="dataEspecifica" class="col" style="display:none">
             </div>
-            <div id="contadorPubli" style="font-weight:bold; color:green; text-align:right;"></div>
-            <button onclick="removerPubli()" style="background:#dc3545; width:auto; float:right; margin-top:5px;">🗑️ Remover Banner</button>
+            <div id="contadorPubli" class="validade-info"></div>
+            <button onclick="removerPubli()" style="background:#dc3545; width:auto; float:right;">🗑️ Remover</button>
             <div style="clear:both"></div>
         </div>
 
         <div id="boxDelivery" class="box-highlight delivery-box">
             <h3>🍔 Cardápio</h3>
-            <div class="row"><input type="text" id="prodNome" placeholder="Item"><input type="number" id="prodPreco" placeholder="Preço"></div>
+            <div class="row"><input type="text" id="prodNome" placeholder="Item" class="col"><input type="number" id="prodPreco" placeholder="$$" style="width:80px"></div>
             <input type="text" id="prodDesc" placeholder="Descrição">
-            <input type="text" id="prodImg" placeholder="Link Foto">
-            <button id="btnAddItem" style="background:#17a2b8; width:auto; float:right;">Adicionar +</button>
+            <input type="text" id="prodImg" placeholder="Foto URL">
+            <button id="btnAddItem" style="background:#17a2b8; width:auto; float:right;">Adicionar</button>
             <div id="lista-cardapio-preview" style="clear:both; margin-top:10px;"></div>
         </div>
 
@@ -130,14 +158,19 @@
         <button id="btnCancelar" class="btn-danger">Cancelar</button>
     </div>
 
-    <div class="card">
-        <h3>📋 Cadastros</h3>
+    <div class="card" id="painelLista" style="display:block;">
+        <h3>📋 Cadastros (Filtrado por Cidade)</h3>
         <div id="lista-locais">Carregando...</div>
+    </div>
+
+    <div class="card" id="painelDanger" style="border: 2px solid red; background: #fff5f5; text-align: center;">
+        <h3 style="color:red; border:none;">⚠️ Zona de Perigo</h3>
+        <button onclick="zerarBanco()" style="background:red; color:white;">🔥 RESETAR ESTABELECIMENTOS</button>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getFirestore, collection, addDoc, deleteDoc, updateDoc, doc, getDoc, setDoc, onSnapshot, query, orderBy, where, getDocs } 
+        import { getFirestore, collection, addDoc, deleteDoc, updateDoc, doc, getDoc, setDoc, onSnapshot, query, orderBy, where, getDocs, writeBatch } 
         from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
         const firebaseConfig = {
@@ -152,65 +185,238 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
         const el = (id) => document.getElementById(id);
+        const MASTER_PASS = "master123";
+        const IMG_PADRAO_CIDADE = "https://images.unsplash.com/photo-1505142468610-359e7d316be0?q=80&w=3070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D";
+
+        let currentUser = null; 
         let idEditando = null, cardapioAtual = [], listaSubs = {}, itemMenuEditandoIndex = -1;
+        let idCidadeEditando = null;
 
-        // --- CARREGAR DADOS ---
-        async function carregarDados() {
-            try {
-                const docRef = doc(db, "config", "categorias");
-                const docSnap = await getDoc(docRef);
-                listaSubs = docSnap.exists() ? docSnap.data() : { "Comercio": [], "_order": ["Comercio"] };
-                renderizarGerenciadorCategorias(); atualizarSelectPrincipal();
+        // ======================================================
+        // 1. SISTEMA DE LOGIN (LOGIN E SENHA)
+        // ======================================================
+        
+        setTimeout(() => el('inputUsuario').focus(), 300);
+        el('inputSenha').addEventListener('keypress', (e) => { if(e.key === 'Enter') fazerLogin(); });
+        el('inputUsuario').addEventListener('keypress', (e) => { if(e.key === 'Enter') el('inputSenha').focus(); });
 
-                const confSnap = await getDoc(doc(db, "config", "geral"));
-                if(confSnap.exists()) {
-                    const d = confSnap.data();
-                    el('confNomeCidade').value = d.titulo || ""; el('confImgFundo').value = d.fundo || "";
-                    el('opacAzul').value = d.opacAzul || 80; el('opacPreto').value = d.opacPreto || 50;
-                    el('confLogoPatra').value = d.logoPatra || ""; el('confSizePatra').value = d.sizePatra || 30; el('confPosPatra').value = d.posPatra || 20;
-                }
-            } catch (e) {}
-        }
-        carregarDados();
+        window.fazerLogin = async () => {
+            const user = el('inputUsuario').value.trim();
+            const pass = el('inputSenha').value.trim();
+            const msg = el('msgLogin');
+            msg.textContent = "Verificando...";
 
-        // --- LÓGICA DE CAMPOS DINÂMICOS ---
-        el('categoria').addEventListener('change', () => {
-            const cat = el('categoria').value;
-            if(cat === 'Classificados') { el('lblNome').textContent = "Nome do Produto:"; el('lblCidade').textContent = "Descrição:"; el('lblImagem').textContent = "Fotos do Produto (URL):"; el('divInsta').style.display = 'none'; }
-            else if(cat === 'Profissionais') { el('lblNome').textContent = "Nome Profissional:"; el('lblCidade').textContent = "Qualificação:"; el('lblImagem').textContent = "Foto Perfil (URL):"; el('divInsta').style.display = 'block'; }
-            else { el('lblNome').textContent = "Nome Local:"; el('lblCidade').textContent = "Endereço:"; el('lblImagem').textContent = "Logo/Fotos (URL):"; el('divInsta').style.display = 'block'; }
-            
-            const sub = el('subcategoria'); sub.innerHTML = '<option value="">Selecione...</option>'; sub.disabled = !cat;
-            if(cat) (listaSubs[cat] || []).forEach(op => sub.innerHTML += `<option value="${op}">${op}</option>`);
-        });
+            if(!user || !pass) { msg.textContent = "Preencha todos os campos."; return; }
 
-        // --- CRUD LOCAL ---
-        // Função segura de exclusão
-        window.deletarLocalSeguro = async (id) => {
-            const n1 = Math.floor(Math.random() * 10) + 1;
-            const n2 = Math.floor(Math.random() * 10) + 1;
-            const resp = prompt(`Para excluir, resolva: ${n1} + ${n2} = ?`);
-            if(parseInt(resp) !== (n1+n2)) return alert("Conta errada.");
-            await deleteDoc(doc(db, "guia_cidades", id));
+            // 1. Check Master
+            if(user === 'master' && pass === 'master123') {
+                currentUser = { role: 'master', name: 'Master Admin' };
+                iniciarAdmin(); return;
+            }
+
+            // 2. Check Cidades
+            const q = query(collection(db, "cidades"), where("login", "==", user), where("senha", "==", pass));
+            const snap = await getDocs(q);
+
+            if(!snap.empty) {
+                const docData = snap.docs[0].data();
+                currentUser = { role: 'city', cityId: snap.docs[0].id, cityName: docData.nome };
+                iniciarAdmin();
+            } else {
+                msg.textContent = "Usuário ou senha incorretos.";
+            }
         };
 
-        // Salvar/Editar
-        const salvarOuAtualizar = async (isUpdate) => {
-            if(!el('nome').value) return alert("Nome obrigatório");
-            el('statusLocal').textContent = "Salvando...";
-            
-            // Trata Imagens (Textarea para Array)
-            const imgs = el('imagem').value.split('\n').map(s => s.trim()).filter(s => s);
-            const imgPrincipal = imgs.length > 0 ? imgs[0] : "https://via.placeholder.com/150";
+        function iniciarAdmin() {
+            el('loginScreen').style.display = 'none';
+            el('headerAdmin').style.display = 'flex';
+            el('roleBadge').textContent = currentUser.role === 'master' ? '👑 Master' : `📍 ${currentUser.cityName}`;
 
+            if(currentUser.role === 'master') {
+                el('painelCidades').style.display = 'block';
+                el('painelMasterConfig').style.display = 'block';
+                el('painelDanger').style.display = 'block';
+                el('btnAddSub').disabled = false; 
+            } else {
+                el('painelCidades').style.display = 'none';
+                el('painelMasterConfig').style.display = 'none';
+                el('painelDanger').style.display = 'none';
+                el('btnAddSub').disabled = true;
+            }
+            el('painelCadastro').style.display = 'block';
+            el('painelLista').style.display = 'block';
+
+            carregarCidadesAdmin();
+            carregarCategorias();
+            if(currentUser.role === 'master') carregarConfigGeral();
+            configurarSeletorCidades();
+            iniciarListenerLocais();
+        }
+
+        // ======================================================
+        // 2. GESTÃO DE CIDADES (MASTER)
+        // ======================================================
+
+        function carregarCidadesAdmin() {
+            onSnapshot(collection(db, "cidades"), (snap) => {
+                const div = el('listaCidades'); div.innerHTML = "";
+                const select = el('selCidadeCadastro');
+                select.innerHTML = '<option value="">Selecione...</option>';
+
+                snap.forEach(doc => {
+                    const cid = doc.data();
+                    if(currentUser && currentUser.role === 'master') {
+                        div.innerHTML += `
+                            <div class="manager-item">
+                                <div>
+                                    <span><b>${cid.nome}</b> (${cid.uf})</span><br>
+                                    <span style="font-size:12px; color:#666;">User: <b>${cid.login || '---'}</b> | Pass: <b>${cid.senha}</b></span>
+                                </div>
+                                <div>
+                                    <button class="btn-warning" style="width:30px; display:inline-block;" onclick="prepararEdicaoCidade('${doc.id}', '${cid.nome}', '${cid.uf}', '${cid.login||''}', '${cid.senha}', '${cid.fundo||''}', '${cid.logoPatra||''}')">✏️</button>
+                                    <button class="btn-danger" style="width:30px; display:inline-block;" onclick="excluirCidade('${doc.id}', '${cid.nome}')">✕</button>
+                                </div>
+                            </div>`;
+                    }
+                    const opt = document.createElement('option');
+                    opt.value = doc.id; opt.textContent = `${cid.nome} - ${cid.uf}`;
+                    select.appendChild(opt);
+                });
+                configurarSeletorCidades();
+            });
+        }
+
+        window.prepararEdicaoCidade = (id, nome, uf, login, senha, fundo, logo) => {
+            idCidadeEditando = id;
+            el('novaCidadeNome').value = nome;
+            el('novaCidadeUF').value = uf;
+            el('novaCidadeLogin').value = login;
+            el('novaCidadeSenha').value = senha;
+            el('novaCidadeFundo').value = fundo;
+            el('novaCidadeLogo').value = logo;
+            
+            el('btnSalvarCidade').textContent = "Atualizar Cidade";
+            el('btnSalvarCidade').className = "btn-warning";
+            el('btnCancelarCidade').style.display = "inline-block";
+            el('tituloCidadeForm').textContent = "✏️ Editando Cidade";
+            el('novaCidadeLogin').disabled = false; // PERMITIDO EDITAR
+        };
+
+        window.cancelarEdicaoCidade = () => {
+            idCidadeEditando = null;
+            el('novaCidadeNome').value = ""; el('novaCidadeUF').value = ""; 
+            el('novaCidadeLogin').value = ""; el('novaCidadeSenha').value = ""; 
+            el('novaCidadeFundo').value = ""; el('novaCidadeLogo').value = "";
+            el('btnSalvarCidade').textContent = "+ Cadastrar Cidade";
+            el('btnSalvarCidade').className = "btn-success";
+            el('btnCancelarCidade').style.display = "none";
+            el('tituloCidadeForm').textContent = "Nova Cidade";
+        };
+
+        window.salvarCidade = async () => {
+            const nome = el('novaCidadeNome').value.trim();
+            const uf = el('novaCidadeUF').value.trim().toUpperCase();
+            const login = el('novaCidadeLogin').value.trim();
+            const senha = el('novaCidadeSenha').value.trim();
+            let fundo = el('novaCidadeFundo').value.trim();
+            const logoPatra = el('novaCidadeLogo').value.trim();
+            
+            if(!nome || !uf || !senha || !login) return alert("Preencha Nome, UF, Login e Senha.");
+            if(!fundo) fundo = IMG_PADRAO_CIDADE;
+
+            // VALIDAÇÃO DE LOGIN ÚNICO
+            const check = query(collection(db, "cidades"), where("login", "==", login));
+            const checkSnap = await getDocs(check);
+            let loginEmUso = false;
+            
+            if(!checkSnap.empty) {
+                // Se existe, verifica se não é a mesma cidade que estamos editando
+                if(idCidadeEditando) {
+                    // Se o ID encontrado for diferente do editado, é conflito
+                    if(checkSnap.docs[0].id !== idCidadeEditando) loginEmUso = true;
+                } else {
+                    // Se criando nova e achou, é conflito
+                    loginEmUso = true;
+                }
+            }
+
+            if(loginEmUso) return alert(`ERRO: O usuário '${login}' já está em uso.`);
+            if(login === 'master') return alert("Login 'master' é reservado.");
+
+            if(idCidadeEditando) {
+                await updateDoc(doc(db, "cidades", idCidadeEditando), { nome, uf, login, senha, fundo, logoPatra });
+                alert("Cidade atualizada!");
+            } else {
+                await addDoc(collection(db, "cidades"), { nome, uf, login, senha, fundo, logoPatra });
+                alert("Cidade criada com sucesso!");
+            }
+            cancelarEdicaoCidade();
+        };
+
+        window.excluirCidade = async (id, nomeCidade) => { 
+            const q = query(collection(db, "guia_cidades"), where("cidadeId", "==", id));
+            const snap = await getDocs(q);
+            
+            if(!snap.empty) {
+                alert(`IMPOSSÍVEL EXCLUIR: A cidade '${nomeCidade}' possui ${snap.size} estabelecimentos cadastrados. Remova os estabelecimentos primeiro.`);
+                return;
+            }
+
+            const n1 = Math.floor(Math.random() * 10) + 1;
+            const n2 = Math.floor(Math.random() * 10) + 1;
+            const resp = prompt(`Para deletar '${nomeCidade}' PERMANENTEMENTE, resolva: ${n1} + ${n2} = ?`);
+            
+            if(parseInt(resp) === (n1 + n2)) {
+                await deleteDoc(doc(db, "cidades", id));
+                alert("Cidade excluída.");
+            } else {
+                alert("Cálculo errado. Cancelado.");
+            }
+        };
+
+        function configurarSeletorCidades() {
+            const select = el('selCidadeCadastro');
+            if(currentUser && currentUser.role === 'city') {
+                select.value = currentUser.cityId;
+                select.disabled = true;
+            } else { select.disabled = false; }
+        }
+
+        // ======================================================
+        // 3. RESTANTE (CRUD LOCAIS E HELPERS)
+        // ======================================================
+        
+        function iniciarListenerLocais() {
+            let q = currentUser.role === 'city' ? query(collection(db, "guia_cidades"), where("cidadeId", "==", currentUser.cityId)) : query(collection(db, "guia_cidades"));
+            onSnapshot(q, (snap) => {
+                const lista = el('lista-locais'); lista.innerHTML = "";
+                let itens = []; snap.forEach(d => itens.push({id: d.id, ...d.data()}));
+                itens.sort((a,b) => (b.dataCadastro?.seconds || 0) - (a.dataCadastro?.seconds || 0));
+                
+                itens.forEach(item => {
+                    const div = document.createElement('div'); div.className = "item-lista";
+                    div.innerHTML = `<div><strong>${item.nome}</strong><br><small>${item.categoria}</small></div><div><button class="btn-mini btn-warning" onclick="carregarParaEdicao('${item.id}')">✏️</button><button class="btn-mini btn-danger" style="display:inline-block" onclick="deletarLocalSeguro('${item.id}')">✕</button></div>`;
+                    div.querySelector('.btn-warning').onclick = () => carregarParaEdicao(item.id, item);
+                    lista.appendChild(div);
+                });
+            });
+        }
+
+        const salvarOuAtualizar = async (isUpdate) => {
+            let cidadeIdFinal = currentUser.role === 'city' ? currentUser.cityId : el('selCidadeCadastro').value;
+            if(!cidadeIdFinal) return alert("Selecione a CIDADE!");
+            if(!el('nome').value) return alert("Nome obrigatório");
+
+            el('statusLocal').textContent = "Salvando...";
+            const imgs = el('imagem').value.split('\n').map(s => s.trim()).filter(s => s);
+            
             const dados = {
+                cidadeId: cidadeIdFinal,
                 nome: el('nome').value, nomeBusca: el('nome').value.toLowerCase(),
                 cidade: el('cidade').value, categoria: el('categoria').value, subcategoria: el('subcategoria').value,
                 contato: el('contato').value, telFixo: el('telFixo').value, instagram: el('instagram').value,
-                imagem: imgPrincipal, // Mantem compatibilidade
-                imagens: imgs,        // Nova array de galeria
-                preco: parseFloat(el('precoAtual').value) || 0,
-                precoAntigo: parseFloat(el('precoAntigo').value) || 0,
+                imagem: imgs[0] || "https://via.placeholder.com/150", imagens: imgs,
+                preco: parseFloat(el('precoAtual').value) || 0, precoAntigo: parseFloat(el('precoAntigo').value) || 0,
                 temDelivery: el('checkDelivery').checked, taxaEntrega: parseFloat(el('taxaEntrega').value) || 0,
                 cardapio: cardapioAtual,
                 publi: { ativa: el('checkPubli').checked, img: el('imgPubli').value, dataFim: calcularDataFimPubli() },
@@ -223,78 +429,97 @@
                 el('statusLocal').textContent = "Sucesso!"; limparForm();
             } catch(e) { alert("Erro: " + e); }
         };
-
         el('btnSalvar').onclick = () => salvarOuAtualizar(false);
         el('btnAtualizar').onclick = () => salvarOuAtualizar(true);
 
-        // Listar
-        onSnapshot(query(collection(db, "guia_cidades"), orderBy("dataCadastro", "desc")), (snap) => {
-            const lista = el('lista-locais'); lista.innerHTML = "";
-            snap.forEach((d) => {
-                const item = d.data();
-                const div = document.createElement('div'); div.className = "item-lista";
-                div.innerHTML = `<div><strong>${item.nome}</strong><br><small>${item.categoria}</small></div><div><button class="btn-mini btn-warning" id="e-${d.id}">EDITAR</button><button class="btn-mini btn-danger" style="display:inline-block" onclick="deletarLocalSeguro('${d.id}')">X</button></div>`;
-                lista.appendChild(div);
-                el(`e-${d.id}`).onclick = () => { carregarParaEdicao(d.id, item); };
-            });
-        });
-
         function carregarParaEdicao(id, item) {
             idEditando = id;
+            el('selCidadeCadastro').value = item.cidadeId;
             el('categoria').value = item.categoria; el('categoria').dispatchEvent(new Event('change'));
             el('nome').value = item.nome; el('cidade').value = item.cidade;
-            // Carrega imagens no textarea
-            el('imagem').value = (item.imagens && item.imagens.length > 0) ? item.imagens.join('\n') : (item.imagem || "");
+            el('imagem').value = (item.imagens || [item.imagem]).join('\n');
             el('precoAtual').value = item.preco || ""; el('precoAntigo').value = item.precoAntigo || "";
             el('contato').value = item.contato || ""; el('telFixo').value = item.telFixo || ""; el('instagram').value = item.instagram || "";
-            setTimeout(() => { el('subcategoria').value = item.subcategoria; }, 200);
-            
+            setTimeout(() => { el('subcategoria').value = item.subcategoria; }, 100);
             el('checkDelivery').checked = item.temDelivery || false; 
             el('taxaEntrega').value = item.taxaEntrega || "";
             el('taxaEntrega').style.display = item.temDelivery ? 'block' : 'none';
             cardapioAtual = item.cardapio || []; renderCardapio();
-
             if(item.publi) { 
                 el('checkPubli').checked = item.publi.ativa; el('boxPubli').style.display = item.publi.ativa ? 'block' : 'none'; el('imgPubli').value = item.publi.img || "";
-                // Logica do contador (mantida simplificada aqui)
                 if(item.publi.dataFim) {
-                    // Converter e mostrar contador... (Código igual ao anterior)
+                    let d = item.publi.dataFim.seconds ? new Date(item.publi.dataFim.seconds * 1000) : new Date(item.publi.dataFim);
+                    el('contadorPubli').textContent = `Vence em: ${d.toLocaleDateString()}`;
                 }
             }
-            
             el('btnSalvar').style.display = 'none'; el('btnAtualizar').style.display = 'inline-block'; el('btnCancelar').style.display = 'inline-block';
-            el('tituloForm').textContent = "✏️ Editando: " + item.nome; window.scrollTo({top: 300, behavior:'smooth'});
+            el('tituloForm').textContent = "✏️ Editando: " + item.nome; 
+            window.scrollTo({top: 400, behavior:'smooth'});
         }
 
-        // --- OUTRAS FUNÇÕES (Mantidas do anterior, abreviadas) ---
-        // Gestão de Categorias, Publi Calc, Delivery Checkbox... (Mesma lógica)
-        
-        // Categoria CRUD
-        window.adicionarCategoria = async () => { /* Mesma lógica */ };
-        window.deletarCategoria = async (cat) => { /* Mesma lógica */ };
-        window.moverCategoria = async (idx, dir) => { /* Mesma lógica */ };
-        function renderizarGerenciadorCategorias() { /* Mesma lógica, com X vermelho */ }
-        
-        // Publi Helpers
-        el('checkPubli').onchange = (e) => el('boxPubli').style.display = e.target.checked ? 'block' : 'none';
-        window.removerPubli = () => { el('checkPubli').checked = false; el('imgPubli').value = ""; el('boxPubli').style.display = 'none'; };
-        function calcularDataFimPubli() { /* Mesma lógica */ }
-        
-        // Cardapio
-        el('btnAddItem').onclick = () => { /* Mesma lógica */ };
-        function renderCardapio() { /* Mesma lógica */ }
+        async function carregarCategorias() {
+            const docSnap = await getDoc(doc(db, "config", "categorias"));
+            listaSubs = docSnap.exists() ? docSnap.data() : { "Comercio": [], "_order": ["Comercio"] };
+            renderCategorias(); atualizarSelectCat();
+        }
+        async function carregarConfigGeral() {
+            const docSnap = await getDoc(doc(db, "config", "geral"));
+            if(docSnap.exists()) {
+                const d = docSnap.data();
+                el('confNomeCidade').value = d.titulo || ""; 
+                el('opacAzul').value = d.opacAzul || 80; el('opacPreto').value = d.opacPreto || 50;
+            }
+        }
+        function renderCategorias() {
+            const div = el('listaGestaoCategorias'); div.innerHTML = "";
+            let ordem = listaSubs["_order"] || Object.keys(listaSubs).filter(k => k !== "_order").sort();
+            ordem.forEach((cat, index) => {
+                if(cat === "_order") return;
+                div.innerHTML += `<div class="manager-item"><b>${cat}</b><div class="cat-controls"><button class="btn-mini" onclick="moverCat(${index},-1)">▲</button><button class="btn-mini" onclick="moverCat(${index},1)">▼</button><button class="btn-mini btn-danger" onclick="delCat('${cat}')">✕</button></div></div>`;
+            });
+        }
+        function atualizarSelectCat() {
+            const sel = el('categoria'); const val = sel.value; sel.innerHTML = '<option value="">Selecione...</option>';
+            let ordem = listaSubs["_order"] || Object.keys(listaSubs).filter(k => k !== "_order").sort();
+            ordem.forEach(c => sel.innerHTML += `<option value="${c}">${c}</option>`);
+            sel.value = val;
+        }
+        window.adicionarCategoria = async () => { const nome = el('novaCategoriaInput').value.trim(); if(!nome || listaSubs[nome]) return; listaSubs[nome] = []; let ordem = listaSubs["_order"] || []; ordem.push(nome); listaSubs["_order"] = ordem; await setDoc(doc(db, "config", "categorias"), listaSubs); el('novaCategoriaInput').value=""; renderCategorias(); atualizarSelectCat(); };
+        window.delCat = async (cat) => { if(confirm("Excluir?")) { delete listaSubs[cat]; listaSubs["_order"] = listaSubs["_order"].filter(c => c !== cat); await setDoc(doc(db, "config", "categorias"), listaSubs); renderCategorias(); atualizarSelectCat(); }};
+        window.moverCat = async (i, d) => { let o = listaSubs["_order"]; let n = i+d; if(n<0||n>=o.length) return; [o[i], o[n]] = [o[n], o[i]]; listaSubs["_order"] = o; await setDoc(doc(db, "config", "categorias"), listaSubs); renderCategorias(); atualizarSelectCat(); };
 
-        // Config
-        el('btnSalvarConfig').onclick = async () => { /* Mesma lógica */ };
-        el('btnAddSub').onclick = async () => { /* Mesma lógica */ };
+        el('categoria').addEventListener('change', () => {
+            const cat = el('categoria').value;
+            if(cat === 'Classificados') { el('lblNome').textContent = "Produto:"; el('lblCidade').textContent = "Descrição:"; el('divInsta').style.display='none'; }
+            else if(cat === 'Profissionais') { el('lblNome').textContent = "Profissional:"; el('lblCidade').textContent = "Qualificação:"; el('divInsta').style.display='block'; }
+            else { el('lblNome').textContent = "Local:"; el('lblCidade').textContent = "Endereço:"; el('divInsta').style.display='block'; }
+            const sub = el('subcategoria'); sub.innerHTML = '<option value="">Selecione...</option>'; sub.disabled = !cat;
+            if(cat) (listaSubs[cat]||[]).forEach(s => sub.innerHTML += `<option value="${s}">${s}</option>`);
+        });
+
+        window.salvarConfigGlobal = async () => { await setDoc(doc(db, "config", "geral"), { titulo: el('confNomeCidade').value, opacAzul: el('opacAzul').value, opacPreto: el('opacPreto').value }, { merge: true }); alert("Salvo!"); };
+        el('checkDelivery').onchange = e => { el('boxDelivery').style.display = e.target.checked ? 'block':'none'; el('taxaEntrega').style.display = e.target.checked ? 'block':'none'; };
+        el('checkPubli').onchange = e => el('boxPubli').style.display = e.target.checked ? 'block':'none';
+        el('tipoValidade').onchange = e => { el('valorValidade').style.display = e.target.value === 'data' ? 'none':'block'; el('dataEspecifica').style.display = e.target.value === 'data' ? 'block':'none'; };
+        window.removerPubli = () => { el('checkPubli').checked = false; el('imgPubli').value=""; el('boxPubli').style.display='none'; };
+        function calcularDataFimPubli() { if(!el('checkPubli').checked) return null; const t=el('tipoValidade').value; const d=new Date(); if(t==='data'){ const dt=new Date(el('dataEspecifica').value); dt.setHours(23,59,59); return dt; } else { d.setDate(d.getDate() + (parseInt(el('valorValidade').value)||0)); return d; } }
         
+        el('btnAddItem').onclick = () => { const i={nome:el('prodNome').value, preco:parseFloat(el('prodPreco').value), desc:el('prodDesc').value, img:el('prodImg').value}; if(!i.nome || !i.preco) return; if(itemMenuEditandoIndex===-1) cardapioAtual.push(i); else cardapioAtual[itemMenuEditandoIndex]=i; renderCardapio(); el('btnLimparItem').click(); };
+        el('btnLimparItem').onclick = () => { el('prodNome').value=""; el('prodPreco').value=""; el('prodDesc').value=""; el('prodImg').value=""; itemMenuEditandoIndex=-1; el('btnAddItem').textContent="Adicionar"; };
+        function renderCardapio() { const d=el('lista-cardapio-preview'); d.innerHTML=""; cardapioAtual.forEach((i,x)=> d.innerHTML+=`<div class="item-cardapio"><b>${i.nome}</b> - ${i.preco}<button class="btn-mini btn-danger" onclick="delItemMenu(${x})">X</button></div>`); }
+        window.delItemMenu = x => { cardapioAtual.splice(x,1); renderCardapio(); };
+        window.deletarLocalSeguro = async (id) => { const a=Math.floor(Math.random()*10), b=Math.floor(Math.random()*10); if(prompt(`${a}+${b}?`) == (a+b)) await deleteDoc(doc(db, "guia_cidades", id)); };
+        
+        window.zerarBanco = async () => { if(currentUser.role !== 'master') return; if(prompt("Tem certeza? Digite 'RESETAR'") === 'RESETAR') { const q = query(collection(db, "guia_cidades")); const snap = await getDocs(q); const batch = writeBatch(db); snap.forEach(doc => batch.delete(doc.ref)); await batch.commit(); alert("Dados apagados!"); }};
+
         el('btnCancelar').onclick = limparForm;
         function limparForm() {
-            idEditando = null; cardapioAtual = [];
-            el('nome').value = ""; el('imagem').value = ""; el('precoAtual').value = ""; el('precoAntigo').value = "";
-            el('btnSalvar').style.display = 'block'; el('btnAtualizar').style.display = 'none'; el('btnCancelar').style.display = 'none';
-            el('tituloForm').textContent = "🏪 Gerenciar Cadastro";
+            idEditando=null; cardapioAtual=[]; 
+            el('nome').value=""; el('imagem').value=""; el('precoAtual').value=""; el('precoAntigo').value="";
+            el('btnSalvar').style.display='block'; el('btnAtualizar').style.display='none'; el('btnCancelar').style.display='none'; el('tituloForm').textContent="🏪 Gerenciar Cadastro";
+            configurarSeletorCidades();
         }
+        el('btnAddSub').onclick = async () => { if(currentUser.role !== 'master') return alert("Apenas Master cria subcategorias."); const cat = el('categoria').value; if(!cat) return; const nova = prompt("Nova Subcategoria:"); if(!nova) return; if(!listaSubs[cat]) listaSubs[cat] = []; listaSubs[cat].push(nova); await setDoc(doc(db, "config", "categorias"), listaSubs); el('categoria').dispatchEvent(new Event('change')); el('subcategoria').value = nova; };
     </script>
 </body>
 </html>
