@@ -7,7 +7,7 @@
     <style>
         /* CSS GLOBAL */
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; 
-            -webkit-user-select: none; user-select: none; /* Não seleciona texto */
+            -webkit-user-select: none; user-select: none; 
         }
         input { -webkit-user-select: text; user-select: text; }
 
@@ -25,7 +25,15 @@
 
         .header-container { width: 100%; max-width: 500px; text-align: center; margin-top: 20px; padding: 0 10px; position: relative; z-index: 10; }
         .header-top { display: flex; align-items: center; justify-content: center; position: relative; margin-bottom: 10px; }
-        .btn-voltar-home { position: absolute; left: 0; top: 50%; transform: translateY(-50%); background: none; border: none; color: white; font-size: 24px; cursor: pointer; text-shadow: 0 2px 4px rgba(0,0,0,0.8); display: none; }
+        
+        /* Botão Voltar (Seta) */
+        .btn-voltar-home { 
+            position: absolute; left: 0; top: 50%; transform: translateY(-50%); 
+            background: none; border: none; color: white; font-size: 24px; 
+            cursor: pointer; text-shadow: 0 2px 4px rgba(0,0,0,0.8); 
+            display: none; padding: 10px; /* Aumenta a área de toque */
+        }
+        
         h1 { font-weight: bold; font-size: 2em; background: none; margin: 0; text-transform: none; text-shadow: 2px 2px 4px #000000, 0 0 10px rgba(0,0,0,0.7); }
 
         .search-box { width: 100%; margin-bottom: 20px; position: relative; z-index: 10; }
@@ -34,31 +42,28 @@
         #resultados { width: 90%; max-width: 500px; padding-bottom: 50px; display: none; position: relative; z-index: 10; }
         .card { background: rgba(255, 255, 255, 0.95); border-radius: 12px; overflow: hidden; margin-bottom: 15px; color: #333; display: flex; align-items: center; padding: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.2); position: relative; cursor: pointer; height: 90px; }
         .card-img { width: 70px; height: 70px; object-fit: cover; border-radius: 8px; margin-right: 15px; background: #ddd; flex-shrink: 0; }
-        .card-content { flex: 1; min-width: 0; }
+        .card-content { flex: 1; min-width: 0; display: flex; flex-direction: column; justify-content: center; }
         .card-content h3 { margin: 0 0 5px 0; font-size: 18px; color: #222; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .tag { background: #e0e0e0; padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: bold; color: #555; }
-        .badge-delivery { background: #ffc107; padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: bold; color: #000; margin-left: 5px; }
-        .card-content p { color: #666; font-size: 13px; margin: 5px 0 0 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .card-content p { color: #666; font-size: 13px; margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        
+        .card-footer-row { display: flex; justify-content: space-between; align-items: center; margin-top: 5px; }
+        .tags-wrapper { display: flex; gap: 5px; overflow: hidden; }
+        .tag { background: #e0e0e0; padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: bold; color: #555; white-space: nowrap; }
+        .badge-delivery { background: #ffc107; padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: bold; color: #000; white-space: nowrap; }
+        .price-display { font-size: 14px; font-weight: bold; color: #28a745; white-space: nowrap; display: flex; flex-direction: column; align-items: flex-end; line-height: 1; }
+        .old-price { text-decoration: line-through; color: #999; font-size: 10px; }
 
-        #painelNavegacao { width: 90%; max-width: 500px; display: none; background: rgba(255, 255, 255, 0.95); border-radius: 15px; padding: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); color: #333; margin-bottom: 20px; animation: fadeIn 0.3s ease; position: relative; z-index: 10; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+        #painelNavegacao { width: 90%; max-width: 500px; display: none; background: rgba(255, 255, 255, 0.95); border-radius: 15px; padding: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); color: #333; margin-bottom: 20px; position: relative; z-index: 10; }
         .cat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-top: 10px; }
         .cat-card { display: flex; flex-direction: column; align-items: center; text-align: center; padding: 10px; border-radius: 10px; cursor: pointer; border: 1px solid #eee; }
-        .cat-card:hover { background: #f0f0f0; }
         .cat-icon { font-size: 30px; margin-bottom: 5px; }
-        .cat-name { font-size: 12px; font-weight: bold; color: #555; }
         
         .subcat-header { display: flex; align-items: center; margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 10px; }
-        .btn-voltar-cat { border: none; background: none; font-size: 20px; cursor: pointer; margin-right: 10px; }
+        /* Seta interna do painel de subcategorias */
+        .btn-voltar-cat { border: none; background: none; font-size: 20px; cursor: pointer; margin-right: 10px; padding: 5px; }
         
-        /* NOVO: SUBCATEGORIAS EM GRADE DE 2 COLUNAS */
         .subcat-list { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        .subcat-chip { 
-            background: #f8f9fa; padding: 15px 10px; border-radius: 8px; font-size: 14px; 
-            color: #333; cursor: pointer; border: 1px solid #ddd; text-align: center; font-weight: 500;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-        }
-        .subcat-chip:active { background: #e2e6ea; transform: scale(0.98); }
+        .subcat-chip { background: #f8f9fa; padding: 15px 10px; border-radius: 8px; font-size: 14px; color: #333; cursor: pointer; border: 1px solid #ddd; text-align: center; font-weight: 500; }
 
         .admin-bar-secret { position: fixed; bottom: 0; left: 0; width: 100%; height: 60px; background: rgba(0,0,0,0.85); backdrop-filter: blur(5px); display: flex; justify-content: center; align-items: center; z-index: 999; transform: translateY(100%); transition: transform 0.3s; border-top: 2px solid #333; }
         .admin-bar-secret.visible { transform: translateY(0); }
@@ -66,19 +71,14 @@
     </style>
 </head>
 <body>
-
-    <div id="gradTop" class="grad-top"></div>
-    <div id="gradBottom" class="grad-bottom"></div>
-    <img id="logoPatra" class="sponsor-logo" src="">
-
+    <div id="gradTop" class="grad-top"></div><div id="gradBottom" class="grad-bottom"></div><img id="logoPatra" class="sponsor-logo" src="">
+    
     <div class="header-container">
         <div class="header-top">
-            <button id="btnVoltarInicio" class="btn-voltar-home" onclick="resetarApp()">⬅</button>
-            <h1 id="appTitulo">Guia da Cidade</h1>
+            <button id="btnVoltarInicio" class="btn-voltar-home" onclick="clickVoltar()">⬅</button>
+            <h1 id="appTitulo">Guia</h1>
         </div>
-        <div class="search-box">
-            <input type="text" id="busca" placeholder="🔍 Buscar..." autocomplete="off">
-        </div>
+        <div class="search-box"><input type="text" id="busca" placeholder="🔍 Buscar..." autocomplete="off"></div>
     </div>
 
     <div id="painelNavegacao">
@@ -88,7 +88,7 @@
         </div>
         <div id="viewSubcategorias" style="display: none;">
             <div class="subcat-header">
-                <button class="btn-voltar-cat" onclick="voltarCategorias()">⬅</button>
+                <button class="btn-voltar-cat" onclick="voltarParaCategorias()">⬅</button>
                 <h3 id="tituloCatSelecionada" style="margin:0; font-size:16px;">...</h3>
             </div>
             <div id="listaSubcats" class="subcat-list"></div>
@@ -97,59 +97,124 @@
 
     <div id="resultados"></div>
 
-    <div id="adminBar" class="admin-bar-secret">
-        <a href="admin.html" class="btn-admin-gear">⚙️</a>
-    </div>
+    <div id="adminBar" class="admin-bar-secret"><a href="admin.html" class="btn-admin-gear">⚙️</a></div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getFirestore, collection, getDocs, getDoc, doc, query, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-
-        const firebaseConfig = {
-          apiKey: "AIzaSyDsTWnP2cmsUIDeDlotoR1uELMAba_-dyw",
-          authDomain: "testegithub-e1ffb.firebaseapp.com",
-          projectId: "testegithub-e1ffb",
-          storageBucket: "testegithub-e1ffb.firebasestorage.app",
-          messagingSenderId: "508103458559",
-          appId: "1:508103458559:web:55bc2fe4dc61d7b5ee16ca"
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
+        const firebaseConfig = { apiKey: "AIzaSyDsTWnP2cmsUIDeDlotoR1uELMAba_-dyw", authDomain: "testegithub-e1ffb.firebaseapp.com", projectId: "testegithub-e1ffb", storageBucket: "testegithub-e1ffb.firebasestorage.app", messagingSenderId: "508103458559", appId: "1:508103458559:web:55bc2fe4dc61d7b5ee16ca" };
+        const app = initializeApp(firebaseConfig); const db = getFirestore(app);
+        
+        // ESTADOS DE NAVEGAÇÃO
+        // home: Tela inicial limpa (logo, busca, sem painel)
+        // cats: Painel de Categorias aberto
+        // subcats: Painel de Subcategorias aberto
+        // results: Lista de resultados (pode ter vindo de subcategoria ou busca direta)
+        let viewState = 'home'; 
+        let lastCategory = ''; // Memória para saber para onde voltar
 
         const ICONES_CAT = { "Comercio": "🛍️", "Alimentacao": "🍔", "Servicos": "🛠️", "Saude": "🏥", "Publico": "🏛️", "Profissionais": "👔", "Delivery": "🛵", "Classificados": "📢", "Aluguel": "🏠" };
-        let todosLocais = [];
-        let estruturaCategorias = {};
+        let todosLocais = [], estruturaCategorias = {};
 
+        // --- SISTEMA DE NAVEGAÇÃO CORRIGIDO ---
+
+        window.clickVoltar = () => {
+            // Se estou vendo resultados de uma subcategoria, volto para a lista de subcategorias
+            if (viewState === 'results_sub') {
+                abrirSubcategorias(lastCategory); 
+                return;
+            }
+            // Se estou vendo subcategorias, volto para categorias
+            if (viewState === 'subcats') {
+                voltarParaCategorias();
+                return;
+            }
+            // Se estou vendo categorias ou resultados de busca geral, reseto tudo
+            resetarApp();
+        };
+
+        window.voltarParaCategorias = () => {
+            document.getElementById('viewSubcategorias').style.display = 'none';
+            document.getElementById('viewCategorias').style.display = 'block';
+            document.getElementById('btnVoltarInicio').style.display = 'block'; // Seta ainda visível
+            viewState = 'cats';
+        };
+
+        window.resetarApp = () => {
+            document.getElementById('busca').value = "";
+            document.getElementById('resultados').style.display = 'none';
+            document.getElementById('painelNavegacao').style.display = 'none';
+            document.getElementById('btnVoltarInicio').style.display = 'none'; // Some a seta
+            
+            // Reseta visualização interna do painel
+            document.getElementById('viewSubcategorias').style.display = 'none';
+            document.getElementById('viewCategorias').style.display = 'block';
+            
+            viewState = 'home';
+        };
+
+        // --- FUNÇÕES DE BUSCA E EXIBIÇÃO ---
+
+        // Ao focar na busca: Abre Categorias
+        const inputBusca = document.getElementById('busca');
+        const painelNav = document.getElementById('painelNavegacao');
+        const divResultados = document.getElementById('resultados');
+
+        inputBusca.addEventListener('click', () => { // Mudado de 'focus' para 'click' para garantir em mobile
+            if(inputBusca.value.trim() === "") { 
+                painelNav.style.display = 'block'; 
+                divResultados.style.display = 'none'; 
+                document.getElementById('btnVoltarInicio').style.display = 'block'; 
+                
+                // Se não estava em subcategorias, mostra categorias
+                if (viewState !== 'subcats') {
+                    voltarParaCategorias();
+                }
+            }
+        });
+
+        // Ao digitar: Busca direta
+        inputBusca.addEventListener('keyup', (e) => { 
+            const termo = e.target.value.toLowerCase(); 
+            if(termo.length > 0) { 
+                painelNav.style.display = 'none'; 
+                divResultados.style.display = 'block'; 
+                document.getElementById('btnVoltarInicio').style.display = 'block'; 
+                viewState = 'results_search'; // Estado de busca digitada
+                executarBusca(termo); 
+            } else { 
+                // Se apagar tudo, volta categorias
+                divResultados.style.display = 'none'; 
+                painelNav.style.display = 'block'; 
+                viewState = 'cats';
+            }
+        });
+
+        // Ao clicar em uma subcategoria
+        window.pesquisarPorSubcategoria = (termo) => {
+            inputBusca.value = termo; // (Opcional visualmente)
+            painelNav.style.display = 'none';
+            divResultados.style.display = 'block';
+            viewState = 'results_sub'; // Marca que viemos de uma subcategoria
+            executarBusca(termo.toLowerCase());
+        };
+
+        // --- CARREGAMENTO DE DADOS ---
         async function carregarDados() {
             const q = query(collection(db, "guia_cidades"), orderBy("nome"));
             const snapshot = await getDocs(q);
-            todosLocais = [];
-            snapshot.forEach(doc => todosLocais.push({ id: doc.id, ...doc.data() }));
-
+            todosLocais = []; snapshot.forEach(doc => todosLocais.push({ id: doc.id, ...doc.data() }));
+            
             try {
                 const docSnap = await getDoc(doc(db, "config", "geral"));
                 if (docSnap.exists()) {
                     const d = docSnap.data();
                     if(d.titulo) document.getElementById('appTitulo').textContent = d.titulo;
                     if(d.fundo) document.body.style.backgroundImage = `url('${d.fundo}')`;
-                    
-                    const opAzul = (d.opacAzul !== undefined) ? d.opacAzul / 100 : 0.8;
-                    const opPreto = (d.opacPreto !== undefined) ? d.opacPreto / 100 : 0.5;
-                    document.getElementById('gradTop').style.background = `linear-gradient(to bottom, rgba(0,0,255, ${opAzul}), transparent)`;
-                    document.getElementById('gradBottom').style.background = `linear-gradient(to top, rgba(0,0,0, ${opPreto}), transparent)`;
-
-                    if(d.logoPatra) {
-                        const img = document.getElementById('logoPatra');
-                        img.src = d.logoPatra;
-                        img.style.display = 'block';
-                        img.style.width = (d.sizePatra || 30) + '%';
-                        img.style.bottom = (d.posPatra || 20) + 'px';
-                    }
+                    document.getElementById('gradTop').style.background = `linear-gradient(to bottom, rgba(0,0,255, ${(d.opacAzul||80)/100}), transparent)`;
+                    document.getElementById('gradBottom').style.background = `linear-gradient(to top, rgba(0,0,0, ${(d.opacPreto||50)/100}), transparent)`;
+                    if(d.logoPatra) { const img = document.getElementById('logoPatra'); img.src = d.logoPatra; img.style.display = 'block'; img.style.width = (d.sizePatra||30)+'%'; img.style.bottom = (d.posPatra||20)+'px'; }
                 }
-            } catch(e) {}
-
-            try {
                 const docCat = await getDoc(doc(db, "config", "categorias"));
                 if (docCat.exists()) { estruturaCategorias = docCat.data(); renderizarCategorias(); }
             } catch(e) {}
@@ -157,81 +222,79 @@
 
         function renderizarCategorias() {
             const grid = document.getElementById('gridCategorias'); grid.innerHTML = "";
-            let ordem = estruturaCategorias["_order"];
-            if (!ordem) ordem = Object.keys(estruturaCategorias).filter(k => k !== "_order").sort();
-
+            let ordem = estruturaCategorias["_order"] || Object.keys(estruturaCategorias).filter(k => k !== "_order").sort();
             ordem.forEach(cat => {
-                if (!estruturaCategorias.hasOwnProperty(cat)) return;
-                const icone = ICONES_CAT[cat] || "📂";
+                if(!estruturaCategorias.hasOwnProperty(cat)) return;
                 const card = document.createElement('div'); card.className = 'cat-card';
-                card.innerHTML = `<div class=\"cat-icon\">${icone}</div><div class=\"cat-name\">${cat}</div>`;
+                card.innerHTML = `<div class=\"cat-icon\">${ICONES_CAT[cat] || "📂"}</div><div class=\"cat-name\">${cat}</div>`;
                 card.addEventListener('click', () => abrirSubcategorias(cat));
                 grid.appendChild(card);
             });
         }
 
         window.abrirSubcategorias = (cat) => {
+            lastCategory = cat; // Salva para poder voltar
             document.getElementById('viewCategorias').style.display = 'none';
             document.getElementById('viewSubcategorias').style.display = 'block';
+            
+            // Garante que o painel está visível (caso venha do results_sub)
+            document.getElementById('painelNavegacao').style.display = 'block';
+            document.getElementById('resultados').style.display = 'none';
+
             document.getElementById('tituloCatSelecionada').textContent = cat;
-            mostrarBotaoVoltar(true);
+            document.getElementById('btnVoltarInicio').style.display = 'block';
+            viewState = 'subcats';
+
             const lista = document.getElementById('listaSubcats'); lista.innerHTML = "";
             const subs = estruturaCategorias[cat] || [];
             
             const chipTudo = document.createElement('div'); chipTudo.className = 'subcat-chip'; 
-            chipTudo.style.gridColumn = "1 / -1"; /* Ocupa largura total */
-            chipTudo.textContent = `Ver tudo de ${cat}`;
-            chipTudo.onclick = () => { pesquisarPorTermo(cat); }; lista.appendChild(chipTudo);
+            chipTudo.style.gridColumn = "1 / -1"; chipTudo.textContent = `Ver tudo de ${cat}`;
+            chipTudo.onclick = () => { pesquisarPorSubcategoria(cat); }; lista.appendChild(chipTudo);
             
             subs.forEach(sub => {
                 const chip = document.createElement('div'); chip.className = 'subcat-chip'; chip.textContent = sub;
-                chip.onclick = () => { pesquisarPorTermo(sub); }; lista.appendChild(chip);
+                chip.onclick = () => { pesquisarPorSubcategoria(sub); }; lista.appendChild(chip);
             });
         }
-
-        window.voltarCategorias = () => { document.getElementById('viewSubcategorias').style.display = 'none'; document.getElementById('viewCategorias').style.display = 'block'; }
-        window.resetarApp = () => { document.getElementById('busca').value = ""; document.getElementById('resultados').style.display = 'none'; document.getElementById('painelNavegacao').style.display = 'none'; mostrarBotaoVoltar(false); voltarCategorias(); }
-        function mostrarBotaoVoltar(mostrar) { document.getElementById('btnVoltarInicio').style.display = mostrar ? 'block' : 'none'; }
-
-        const inputBusca = document.getElementById('busca');
-        const painelNav = document.getElementById('painelNavegacao');
-        const divResultados = document.getElementById('resultados');
-
-        inputBusca.addEventListener('focus', () => {
-            if(inputBusca.value.trim() === "") { painelNav.style.display = 'block'; divResultados.style.display = 'none'; mostrarBotaoVoltar(true); voltarCategorias(); }
-        });
-
-        inputBusca.addEventListener('keyup', (e) => {
-            const termo = e.target.value.toLowerCase();
-            if(termo.length > 0) { painelNav.style.display = 'none'; divResultados.style.display = 'block'; mostrarBotaoVoltar(true); executarBusca(termo); } 
-            else { divResultados.style.display = 'none'; painelNav.style.display = 'block'; }
-        });
-
-        function pesquisarPorTermo(termo) { inputBusca.value = termo; painelNav.style.display = 'none'; divResultados.style.display = 'block'; executarBusca(termo.toLowerCase()); }
 
         function executarBusca(termo) {
-            divResultados.innerHTML = "";
+            const divRes = document.getElementById('resultados'); divRes.innerHTML = "";
             const filtrados = todosLocais.filter(l => l.nomeBusca.includes(termo) || l.categoria.toLowerCase().includes(termo) || (l.subcategoria && l.subcategoria.toLowerCase().includes(termo)));
-            if(filtrados.length === 0) { divResultados.innerHTML = "<p style='text-align:center; color:white; background:rgba(0,0,0,0.5); padding:10px; border-radius:10px;'>Nenhum local encontrado.</p>"; return; }
+            
+            if(filtrados.length === 0) { divRes.innerHTML = "<p style='text-align:center; color:white; background:rgba(0,0,0,0.5); padding:10px;'>Nada encontrado.</p>"; return; }
+            
             filtrados.forEach(local => {
-                const imagem = local.imagem || "https://via.placeholder.com/150";
+                const imagem = (local.imagens && local.imagens.length > 0) ? local.imagens[0] : (local.imagem || "https://via.placeholder.com/150");
+                let precoHtml = '';
+                if(local.preco > 0) {
+                    const antigo = local.precoAntigo > 0 ? `<span class="old-price">R$ ${local.precoAntigo.toFixed(2)}</span>` : '';
+                    precoHtml = `<div class="price-display">${antigo}<span>R$ ${local.preco.toFixed(2)}</span></div>`;
+                }
                 const div = document.createElement('div'); div.className = 'card';
-                div.innerHTML = `<img src="${imagem}" class="card-img"><div class="card-content"><h3>${local.nome}</h3><span class="tag">${local.categoria}</span>${local.subcategoria ? `<span class="tag">${local.subcategoria}</span>` : ''}${local.temDelivery ? '<span class="badge-delivery">🛵 Delivery</span>' : ''}<p>${local.cidade}</p></div>`;
+                div.innerHTML = `
+                    <img src="${imagem}" class="card-img">
+                    <div class="card-content">
+                        <h3>${local.nome}</h3>
+                        <p>${local.cidade}</p>
+                        <div class="card-footer-row">
+                            <div class="tags-wrapper">
+                                <span class="tag">${local.categoria}</span>
+                                ${local.subcategoria ? `<span class="tag">${local.subcategoria}</span>` : ''}
+                                ${local.temDelivery ? '<span class="badge-delivery">🛵</span>' : ''}
+                            </div>
+                            ${precoHtml}
+                        </div>
+                    </div>`;
                 div.addEventListener('click', () => window.location.href = `detalhes.html?id=${local.id}`);
-                divResultados.appendChild(div);
+                divRes.appendChild(div);
             });
         }
-
+        
         let startY = 0;
         document.addEventListener('touchstart', (e) => { startY = e.touches[0].clientY; }, { passive: true });
-        document.addEventListener('touchend', (e) => {
-            const endY = e.changedTouches[0].clientY;
-            if(startY > window.innerHeight * 0.8 && startY - endY > 50) { document.getElementById('adminBar').classList.add('visible'); }
-        }, { passive: true });
-        document.addEventListener('click', (e) => {
-            const bar = document.getElementById('adminBar');
-            if(bar.classList.contains('visible') && !bar.contains(e.target)) bar.classList.remove('visible');
-        });
+        document.addEventListener('touchend', (e) => { const endY = e.changedTouches[0].clientY; if(startY > window.innerHeight * 0.8 && startY - endY > 50) document.getElementById('adminBar').classList.add('visible'); }, { passive: true });
+        document.addEventListener('click', (e) => { const bar = document.getElementById('adminBar'); if(bar.classList.contains('visible') && !bar.contains(e.target)) bar.classList.remove('visible'); });
 
         carregarDados();
     </script>
