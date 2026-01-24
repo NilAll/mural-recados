@@ -9,9 +9,9 @@
         input, textarea, select { -webkit-user-select: text; user-select: text; }
         body { font-family: 'Segoe UI', sans-serif; padding: 20px; background: #e9ecef; max-width: 800px; margin: 0 auto; }
         
-        /* TELA DE LOGIN */
+        /* TELA DE LOGIN ATUALIZADA */
         #loginScreen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #222; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; color: white; }
-        .login-box { text-align: center; background: #333; padding: 30px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); width: 90%; max-width: 350px; }
+        .login-box { text-align: center; background: #333; padding: 30px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); width: 90%; max-width: 350px; position: relative; }
         .login-input { width: 100%; padding: 12px; margin: 10px 0; border-radius: 5px; border: none; font-size: 16px; }
         .btn-login { background: #007bff; color: white; padding: 12px; width: 100%; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; font-size: 16px; margin-top: 10px; }
 
@@ -44,10 +44,17 @@
 <body>
 
     <div id="loginScreen">
+        <div style="position:absolute; top:0; left:0; width:100%; padding:20px; display:flex; justify-content:space-between; align-items:center;">
+            <div style="display:flex; align-items:center; gap:10px; font-size:20px; font-weight:bold;">
+                <span>⚙️</span> <span>Guia da Cidade</span>
+            </div>
+            <button onclick="window.location.href='index.html'" style="background:none; border:none; color:white; font-size:28px; cursor:pointer; width:auto; padding:0; margin:0;">✕</button>
+        </div>
+
         <div class="login-box">
             <h2>🔒 Área Administrativa</h2>
             <p>Faça login para continuar</p>
-            <input type="text" id="inputUsuario" class="login-input" placeholder="Usuário (Ex: master)">
+            <input type="text" id="inputUsuario" class="login-input" placeholder="Usuário ou E-mail">
             <input type="password" id="inputSenha" class="login-input" placeholder="Senha">
             <button class="btn-login" onclick="fazerLogin()">Acessar Painel</button>
             <p id="msgLogin" style="color:#ff6b6b; font-size:14px; margin-top:10px;"></p>
@@ -62,7 +69,6 @@
     <div class="card" id="painelCidades" style="border-top: 5px solid #ff5722;">
         <h2>🏙️ Gerenciar Cidades (Master)</h2>
         <div id="listaCidades"></div>
-        
         <h3 id="tituloCidadeForm" style="margin-top:20px;">Nova Cidade / Editar</h3>
         <div class="row">
             <input type="text" id="novaCidadeNome" placeholder="Nome (Ex: Mãe do Rio)" class="col">
@@ -72,25 +78,25 @@
             <input type="text" id="novaCidadeFundo" placeholder="Link Foto Fundo (Opcional)" class="col">
             <input type="text" id="novaCidadeLogo" placeholder="Link Logo Patrocinador" class="col">
         </div>
-        
         <label style="color:#007bff;">Dados de Acesso do Admin Local:</label>
         <div class="row">
             <input type="text" id="novaCidadeLogin" placeholder="Usuário de Acesso (Único)" class="col" style="font-weight:bold;">
             <input type="text" id="novaCidadeSenha" placeholder="Senha" class="col">
         </div>
-        
         <div style="display:flex; gap:10px;">
             <button id="btnSalvarCidade" class="btn-success" onclick="salvarCidade()">+ Cadastrar Cidade</button>
             <button id="btnCancelarCidade" class="btn-danger" style="display:none;" onclick="cancelarEdicaoCidade()">Cancelar</button>
         </div>
     </div>
 
-    <div class="card" id="painelMasterConfig" style="border-top: 5px solid #6f42c1;">
-        <h2>⚙️ Configurações Globais</h2>
-        <h3>📂 Categorias</h3>
+    <div class="card" id="painelCategorias" style="border-top: 5px solid #17a2b8;">
+        <h2>📂 Categorias</h2>
         <div id="listaGestaoCategorias"></div>
         <div class="row"><input type="text" id="novaCategoriaInput" placeholder="Nome da Categoria" class="col"><button class="btn-success" style="width:auto; margin-top:8px;" onclick="adicionarCategoria()">Adicionar</button></div>
+    </div>
 
+    <div class="card" id="painelMasterConfig" style="border-top: 5px solid #6f42c1;">
+        <h2>⚙️ Configurações Globais</h2>
         <h3 style="margin-top:20px;">🎨 Visual App</h3>
         <input type="text" id="confNomeCidade" placeholder="Nome do App (Cabeçalho)">
         <label>Degradê Azul / Preto:</label>
@@ -159,7 +165,7 @@
     </div>
 
     <div class="card" id="painelLista" style="display:block;">
-        <h3>📋 Cadastros (Filtrado por Cidade)</h3>
+        <h3>📋 Cadastros (Filtrado por Permissão)</h3>
         <div id="lista-locais">Carregando...</div>
     </div>
 
@@ -173,17 +179,8 @@
         import { getFirestore, collection, addDoc, deleteDoc, updateDoc, doc, getDoc, setDoc, onSnapshot, query, orderBy, where, getDocs, writeBatch } 
         from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-        const firebaseConfig = {
-          apiKey: "AIzaSyDsTWnP2cmsUIDeDlotoR1uELMAba_-dyw",
-          authDomain: "testegithub-e1ffb.firebaseapp.com",
-          projectId: "testegithub-e1ffb",
-          storageBucket: "testegithub-e1ffb.firebasestorage.app",
-          messagingSenderId: "508103458559",
-          appId: "1:508103458559:web:55bc2fe4dc61d7b5ee16ca"
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
+        const firebaseConfig = { apiKey: "AIzaSyDsTWnP2cmsUIDeDlotoR1uELMAba_-dyw", authDomain: "testegithub-e1ffb.firebaseapp.com", projectId: "testegithub-e1ffb", storageBucket: "testegithub-e1ffb.firebasestorage.app", messagingSenderId: "508103458559", appId: "1:508103458559:web:55bc2fe4dc61d7b5ee16ca" };
+        const app = initializeApp(firebaseConfig); const db = getFirestore(app);
         const el = (id) => document.getElementById(id);
         const MASTER_PASS = "master123";
         const IMG_PADRAO_CIDADE = "https://images.unsplash.com/photo-1505142468610-359e7d316be0?q=80&w=3070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D";
@@ -192,10 +189,7 @@
         let idEditando = null, cardapioAtual = [], listaSubs = {}, itemMenuEditandoIndex = -1;
         let idCidadeEditando = null;
 
-        // ======================================================
-        // 1. SISTEMA DE LOGIN (LOGIN E SENHA)
-        // ======================================================
-        
+        // LOGIN
         setTimeout(() => el('inputUsuario').focus(), 300);
         el('inputSenha').addEventListener('keypress', (e) => { if(e.key === 'Enter') fazerLogin(); });
         el('inputUsuario').addEventListener('keypress', (e) => { if(e.key === 'Enter') el('inputSenha').focus(); });
@@ -208,43 +202,52 @@
 
             if(!user || !pass) { msg.textContent = "Preencha todos os campos."; return; }
 
-            // 1. Check Master
+            // 1. MASTER
             if(user === 'master' && pass === 'master123') {
                 currentUser = { role: 'master', name: 'Master Admin' };
                 iniciarAdmin(); return;
             }
 
-            // 2. Check Cidades
-            const q = query(collection(db, "cidades"), where("login", "==", user), where("senha", "==", pass));
-            const snap = await getDocs(q);
-
-            if(!snap.empty) {
-                const docData = snap.docs[0].data();
-                currentUser = { role: 'city', cityId: snap.docs[0].id, cityName: docData.nome };
-                iniciarAdmin();
-            } else {
-                msg.textContent = "Usuário ou senha incorretos.";
+            // 2. ADMIN CIDADE
+            const qCity = query(collection(db, "cidades"), where("login", "==", user), where("senha", "==", pass));
+            const snapCity = await getDocs(qCity);
+            if(!snapCity.empty) {
+                const docData = snapCity.docs[0].data();
+                currentUser = { role: 'city', cityId: snapCity.docs[0].id, cityName: docData.nome };
+                iniciarAdmin(); return;
             }
+
+            // 3. OWNER (Dono de Estabelecimento) - PROCURA PELO EMAIL
+            const qUser = query(collection(db, "users"), where("email", "==", user), where("senha", "==", pass));
+            const snapUser = await getDocs(qUser);
+            if(!snapUser.empty) {
+                const docData = snapUser.docs[0].data();
+                currentUser = { role: 'owner', userId: snapUser.docs[0].id, name: docData.nome };
+                iniciarAdmin(); return;
+            }
+
+            msg.textContent = "Usuário ou senha incorretos.";
         };
 
         function iniciarAdmin() {
             el('loginScreen').style.display = 'none';
             el('headerAdmin').style.display = 'flex';
-            el('roleBadge').textContent = currentUser.role === 'master' ? '👑 Master' : `📍 ${currentUser.cityName}`;
+            el('roleBadge').textContent = currentUser.role === 'master' ? '👑 Master' : (currentUser.role === 'city' ? `📍 ${currentUser.cityName}` : `👤 ${currentUser.name}`);
 
-            if(currentUser.role === 'master') {
-                el('painelCidades').style.display = 'block';
-                el('painelMasterConfig').style.display = 'block';
-                el('painelDanger').style.display = 'block';
-                el('btnAddSub').disabled = false; 
-            } else {
-                el('painelCidades').style.display = 'none';
-                el('painelMasterConfig').style.display = 'none';
-                el('painelDanger').style.display = 'none';
-                el('btnAddSub').disabled = true;
-            }
+            // Visibilidade Paineis
+            el('painelCidades').style.display = currentUser.role === 'master' ? 'block' : 'none';
+            el('painelMasterConfig').style.display = currentUser.role === 'master' ? 'block' : 'none';
+            el('painelDanger').style.display = currentUser.role === 'master' ? 'block' : 'none';
+            
+            // Categorias: Master e City podem ver
+            el('painelCategorias').style.display = (currentUser.role === 'master' || currentUser.role === 'city') ? 'block' : 'none';
+            
+            // Cadastro e Lista: Todos veem
             el('painelCadastro').style.display = 'block';
             el('painelLista').style.display = 'block';
+
+            // Permissões Específicas
+            el('btnAddSub').disabled = (currentUser.role === 'owner'); // Owner não cria sub
 
             carregarCidadesAdmin();
             carregarCategorias();
@@ -254,9 +257,8 @@
         }
 
         // ======================================================
-        // 2. GESTÃO DE CIDADES (MASTER)
+        // GESTÃO DE CIDADES (MASTER)
         // ======================================================
-
         function carregarCidadesAdmin() {
             onSnapshot(collection(db, "cidades"), (snap) => {
                 const div = el('listaCidades'); div.innerHTML = "";
@@ -268,19 +270,14 @@
                     if(currentUser && currentUser.role === 'master') {
                         div.innerHTML += `
                             <div class="manager-item">
-                                <div>
-                                    <span><b>${cid.nome}</b> (${cid.uf})</span><br>
-                                    <span style="font-size:12px; color:#666;">User: <b>${cid.login || '---'}</b> | Pass: <b>${cid.senha}</b></span>
-                                </div>
+                                <div><b>${cid.nome}</b> (${cid.uf}) <span style="font-size:12px;color:#666">User: ${cid.login}</span></div>
                                 <div>
                                     <button class="btn-warning" style="width:30px; display:inline-block;" onclick="prepararEdicaoCidade('${doc.id}', '${cid.nome}', '${cid.uf}', '${cid.login||''}', '${cid.senha}', '${cid.fundo||''}', '${cid.logoPatra||''}')">✏️</button>
                                     <button class="btn-danger" style="width:30px; display:inline-block;" onclick="excluirCidade('${doc.id}', '${cid.nome}')">✕</button>
                                 </div>
                             </div>`;
                     }
-                    const opt = document.createElement('option');
-                    opt.value = doc.id; opt.textContent = `${cid.nome} - ${cid.uf}`;
-                    select.appendChild(opt);
+                    const opt = document.createElement('option'); opt.value = doc.id; opt.textContent = `${cid.nome} - ${cid.uf}`; select.appendChild(opt);
                 });
                 configurarSeletorCidades();
             });
@@ -288,111 +285,72 @@
 
         window.prepararEdicaoCidade = (id, nome, uf, login, senha, fundo, logo) => {
             idCidadeEditando = id;
-            el('novaCidadeNome').value = nome;
-            el('novaCidadeUF').value = uf;
-            el('novaCidadeLogin').value = login;
-            el('novaCidadeSenha').value = senha;
-            el('novaCidadeFundo').value = fundo;
-            el('novaCidadeLogo').value = logo;
-            
-            el('btnSalvarCidade').textContent = "Atualizar Cidade";
-            el('btnSalvarCidade').className = "btn-warning";
-            el('btnCancelarCidade').style.display = "inline-block";
-            el('tituloCidadeForm').textContent = "✏️ Editando Cidade";
-            el('novaCidadeLogin').disabled = false; // PERMITIDO EDITAR
+            el('novaCidadeNome').value = nome; el('novaCidadeUF').value = uf;
+            el('novaCidadeLogin').value = login; el('novaCidadeSenha').value = senha;
+            el('novaCidadeFundo').value = fundo; el('novaCidadeLogo').value = logo;
+            el('btnSalvarCidade').textContent = "Atualizar"; el('btnSalvarCidade').className = "btn-warning";
+            el('btnCancelarCidade').style.display = "inline-block"; el('tituloCidadeForm').textContent = "✏️ Editando";
+            el('novaCidadeLogin').disabled = false; 
         };
 
         window.cancelarEdicaoCidade = () => {
             idCidadeEditando = null;
-            el('novaCidadeNome').value = ""; el('novaCidadeUF').value = ""; 
-            el('novaCidadeLogin').value = ""; el('novaCidadeSenha').value = ""; 
-            el('novaCidadeFundo').value = ""; el('novaCidadeLogo').value = "";
-            el('btnSalvarCidade').textContent = "+ Cadastrar Cidade";
-            el('btnSalvarCidade').className = "btn-success";
-            el('btnCancelarCidade').style.display = "none";
-            el('tituloCidadeForm').textContent = "Nova Cidade";
+            el('novaCidadeNome').value = ""; el('novaCidadeUF').value = ""; el('novaCidadeLogin').value = ""; el('novaCidadeSenha').value = ""; el('novaCidadeFundo').value = ""; el('novaCidadeLogo').value = "";
+            el('btnSalvarCidade').textContent = "+ Cadastrar"; el('btnSalvarCidade').className = "btn-success";
+            el('btnCancelarCidade').style.display = "none"; el('tituloCidadeForm').textContent = "Nova Cidade";
         };
 
         window.salvarCidade = async () => {
-            const nome = el('novaCidadeNome').value.trim();
-            const uf = el('novaCidadeUF').value.trim().toUpperCase();
-            const login = el('novaCidadeLogin').value.trim();
-            const senha = el('novaCidadeSenha').value.trim();
-            let fundo = el('novaCidadeFundo').value.trim();
-            const logoPatra = el('novaCidadeLogo').value.trim();
-            
+            const nome = el('novaCidadeNome').value.trim(); const uf = el('novaCidadeUF').value.trim().toUpperCase();
+            const login = el('novaCidadeLogin').value.trim(); const senha = el('novaCidadeSenha').value.trim();
+            let fundo = el('novaCidadeFundo').value.trim(); const logoPatra = el('novaCidadeLogo').value.trim();
             if(!nome || !uf || !senha || !login) return alert("Preencha Nome, UF, Login e Senha.");
             if(!fundo) fundo = IMG_PADRAO_CIDADE;
 
-            // VALIDAÇÃO DE LOGIN ÚNICO
             const check = query(collection(db, "cidades"), where("login", "==", login));
             const checkSnap = await getDocs(check);
             let loginEmUso = false;
-            
             if(!checkSnap.empty) {
-                // Se existe, verifica se não é a mesma cidade que estamos editando
-                if(idCidadeEditando) {
-                    // Se o ID encontrado for diferente do editado, é conflito
-                    if(checkSnap.docs[0].id !== idCidadeEditando) loginEmUso = true;
-                } else {
-                    // Se criando nova e achou, é conflito
-                    loginEmUso = true;
-                }
+                if(idCidadeEditando) { if(checkSnap.docs[0].id !== idCidadeEditando) loginEmUso = true; } 
+                else { loginEmUso = true; }
             }
-
-            if(loginEmUso) return alert(`ERRO: O usuário '${login}' já está em uso.`);
+            if(loginEmUso) return alert(`ERRO: Usuário '${login}' já existe.`);
             if(login === 'master') return alert("Login 'master' é reservado.");
 
-            if(idCidadeEditando) {
-                await updateDoc(doc(db, "cidades", idCidadeEditando), { nome, uf, login, senha, fundo, logoPatra });
-                alert("Cidade atualizada!");
-            } else {
-                await addDoc(collection(db, "cidades"), { nome, uf, login, senha, fundo, logoPatra });
-                alert("Cidade criada com sucesso!");
-            }
+            if(idCidadeEditando) { await updateDoc(doc(db, "cidades", idCidadeEditando), { nome, uf, login, senha, fundo, logoPatra }); alert("Atualizado!"); } 
+            else { await addDoc(collection(db, "cidades"), { nome, uf, login, senha, fundo, logoPatra }); alert("Criado!"); }
             cancelarEdicaoCidade();
         };
 
         window.excluirCidade = async (id, nomeCidade) => { 
             const q = query(collection(db, "guia_cidades"), where("cidadeId", "==", id));
             const snap = await getDocs(q);
-            
-            if(!snap.empty) {
-                alert(`IMPOSSÍVEL EXCLUIR: A cidade '${nomeCidade}' possui ${snap.size} estabelecimentos cadastrados. Remova os estabelecimentos primeiro.`);
-                return;
-            }
-
-            const n1 = Math.floor(Math.random() * 10) + 1;
-            const n2 = Math.floor(Math.random() * 10) + 1;
-            const resp = prompt(`Para deletar '${nomeCidade}' PERMANENTEMENTE, resolva: ${n1} + ${n2} = ?`);
-            
-            if(parseInt(resp) === (n1 + n2)) {
-                await deleteDoc(doc(db, "cidades", id));
-                alert("Cidade excluída.");
-            } else {
-                alert("Cálculo errado. Cancelado.");
-            }
+            if(!snap.empty) { alert(`A cidade '${nomeCidade}' tem ${snap.size} locais cadastrados. Remova-os antes.`); return; }
+            const n1 = Math.floor(Math.random()*10)+1; const n2 = Math.floor(Math.random()*10)+1;
+            if(parseInt(prompt(`Para deletar '${nomeCidade}', resolva: ${n1}+${n2}=?`)) === (n1+n2)) { await deleteDoc(doc(db, "cidades", id)); alert("Excluída."); }
         };
 
         function configurarSeletorCidades() {
             const select = el('selCidadeCadastro');
-            if(currentUser && currentUser.role === 'city') {
-                select.value = currentUser.cityId;
-                select.disabled = true;
-            } else { select.disabled = false; }
+            if(currentUser && currentUser.role === 'city') { select.value = currentUser.cityId; select.disabled = true; }
+            else if(currentUser && currentUser.role === 'owner') { select.disabled = false; } // Owner escolhe cidade
+            else { select.disabled = false; }
         }
 
         // ======================================================
-        // 3. RESTANTE (CRUD LOCAIS E HELPERS)
+        // 3. LOCAIS (FILTRADO POR ROLE)
         // ======================================================
-        
         function iniciarListenerLocais() {
-            let q = currentUser.role === 'city' ? query(collection(db, "guia_cidades"), where("cidadeId", "==", currentUser.cityId)) : query(collection(db, "guia_cidades"));
+            let q;
+            if(currentUser.role === 'city') q = query(collection(db, "guia_cidades"), where("cidadeId", "==", currentUser.cityId));
+            else if(currentUser.role === 'owner') q = query(collection(db, "guia_cidades"), where("ownerId", "==", currentUser.userId));
+            else q = query(collection(db, "guia_cidades")); // Master
+
             onSnapshot(q, (snap) => {
                 const lista = el('lista-locais'); lista.innerHTML = "";
                 let itens = []; snap.forEach(d => itens.push({id: d.id, ...d.data()}));
                 itens.sort((a,b) => (b.dataCadastro?.seconds || 0) - (a.dataCadastro?.seconds || 0));
-                
+                if(itens.length === 0) lista.innerHTML = "<p style='text-align:center;color:#666'>Nada encontrado.</p>";
                 itens.forEach(item => {
                     const div = document.createElement('div'); div.className = "item-lista";
                     div.innerHTML = `<div><strong>${item.nome}</strong><br><small>${item.categoria}</small></div><div><button class="btn-mini btn-warning" onclick="carregarParaEdicao('${item.id}')">✏️</button><button class="btn-mini btn-danger" style="display:inline-block" onclick="deletarLocalSeguro('${item.id}')">✕</button></div>`;
@@ -403,7 +361,8 @@
         }
 
         const salvarOuAtualizar = async (isUpdate) => {
-            let cidadeIdFinal = currentUser.role === 'city' ? currentUser.cityId : el('selCidadeCadastro').value;
+            let cidadeIdFinal = el('selCidadeCadastro').value;
+            if(currentUser.role === 'city') cidadeIdFinal = currentUser.cityId;
             if(!cidadeIdFinal) return alert("Selecione a CIDADE!");
             if(!el('nome').value) return alert("Nome obrigatório");
 
@@ -422,6 +381,11 @@
                 publi: { ativa: el('checkPubli').checked, img: el('imgPubli').value, dataFim: calcularDataFimPubli() },
                 dataCadastro: new Date()
             };
+
+            // Se for owner criando, atrela o ID dele
+            if(currentUser.role === 'owner' && !isUpdate) {
+                dados.ownerId = currentUser.userId;
+            }
 
             try {
                 if(isUpdate) await updateDoc(doc(db, "guia_cidades", idEditando), dados);
@@ -442,8 +406,7 @@
             el('contato').value = item.contato || ""; el('telFixo').value = item.telFixo || ""; el('instagram').value = item.instagram || "";
             setTimeout(() => { el('subcategoria').value = item.subcategoria; }, 100);
             el('checkDelivery').checked = item.temDelivery || false; 
-            el('taxaEntrega').value = item.taxaEntrega || "";
-            el('taxaEntrega').style.display = item.temDelivery ? 'block' : 'none';
+            el('taxaEntrega').value = item.taxaEntrega || ""; el('taxaEntrega').style.display = item.temDelivery ? 'block' : 'none';
             cardapioAtual = item.cardapio || []; renderCardapio();
             if(item.publi) { 
                 el('checkPubli').checked = item.publi.ativa; el('boxPubli').style.display = item.publi.ativa ? 'block' : 'none'; el('imgPubli').value = item.publi.img || "";
@@ -457,6 +420,7 @@
             window.scrollTo({top: 400, behavior:'smooth'});
         }
 
+        // --- HELPERS E CATEGORIAS ---
         async function carregarCategorias() {
             const docSnap = await getDoc(doc(db, "config", "categorias"));
             listaSubs = docSnap.exists() ? docSnap.data() : { "Comercio": [], "_order": ["Comercio"] };
@@ -466,8 +430,7 @@
             const docSnap = await getDoc(doc(db, "config", "geral"));
             if(docSnap.exists()) {
                 const d = docSnap.data();
-                el('confNomeCidade').value = d.titulo || ""; 
-                el('opacAzul').value = d.opacAzul || 80; el('opacPreto').value = d.opacPreto || 50;
+                el('confNomeCidade').value = d.titulo || ""; el('opacAzul').value = d.opacAzul || 80; el('opacPreto').value = d.opacPreto || 50;
             }
         }
         function renderCategorias() {
@@ -519,7 +482,7 @@
             el('btnSalvar').style.display='block'; el('btnAtualizar').style.display='none'; el('btnCancelar').style.display='none'; el('tituloForm').textContent="🏪 Gerenciar Cadastro";
             configurarSeletorCidades();
         }
-        el('btnAddSub').onclick = async () => { if(currentUser.role !== 'master') return alert("Apenas Master cria subcategorias."); const cat = el('categoria').value; if(!cat) return; const nova = prompt("Nova Subcategoria:"); if(!nova) return; if(!listaSubs[cat]) listaSubs[cat] = []; listaSubs[cat].push(nova); await setDoc(doc(db, "config", "categorias"), listaSubs); el('categoria').dispatchEvent(new Event('change')); el('subcategoria').value = nova; };
+        el('btnAddSub').onclick = async () => { if(currentUser.role === 'owner') return alert("Apenas Admin cria subcategorias."); const cat = el('categoria').value; if(!cat) return; const nova = prompt("Nova Subcategoria:"); if(!nova) return; if(!listaSubs[cat]) listaSubs[cat] = []; listaSubs[cat].push(nova); await setDoc(doc(db, "config", "categorias"), listaSubs); el('categoria').dispatchEvent(new Event('change')); el('subcategoria').value = nova; };
     </script>
 </body>
 </html>
