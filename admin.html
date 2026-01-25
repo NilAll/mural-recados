@@ -9,11 +9,14 @@
         input, textarea, select { -webkit-user-select: text; user-select: text; }
         body { font-family: 'Segoe UI', sans-serif; padding: 20px; background: #e9ecef; max-width: 800px; margin: 0 auto; }
         
+        /* LOGIN */
         #loginScreen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #222; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; color: white; }
         .login-box { text-align: center; background: #333; padding: 40px 30px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); width: 90%; max-width: 350px; position: relative; }
         .login-input { width: 100%; padding: 12px; margin: 10px 0; border-radius: 5px; border: none; font-size: 16px; }
         .btn-login { background: #007bff; color: white; padding: 12px; width: 100%; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; font-size: 16px; margin-top: 10px; }
+        .login-logo { max-width: 150px; max-height: 100px; object-fit: contain; margin-bottom: 20px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5)); }
 
+        /* GERAL */
         .header-admin { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; display: none; }
         .btn-home { text-decoration: none; background: #333; color: white; padding: 10px 15px; border-radius: 8px; font-weight: bold; font-size: 14px; }
         .badge-role { background: #ffc107; color: #333; padding: 2px 8px; border-radius: 4px; font-size: 12px; font-weight: bold; margin-left: 10px; }
@@ -32,10 +35,8 @@
         /* SUBS e SETORES */
         .sub-manager-container { display: none; background: #fff; margin: 5px 0 15px 20px; padding: 10px; border-left: 3px solid #17a2b8; }
         .sub-item { display: flex; justify-content: space-between; align-items: center; padding: 5px 0; border-bottom: 1px solid #eee; font-size: 13px; color: #555; }
-        
         .sector-manager-container { display: none; background: #f1f8ff; margin: 5px 0 10px 20px; padding: 8px; border-left: 3px solid #28a745; border-radius: 4px; }
         .sector-item { display: flex; justify-content: space-between; align-items: center; padding: 3px 0; border-bottom: 1px solid #ddd; font-size: 12px; color: #333; }
-
         .input-sub-add { width: 70% !important; padding: 8px !important; font-size: 13px !important; margin: 0 !important; }
 
         button { width: 100%; padding: 12px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; color: white; margin-top: 10px; }
@@ -49,7 +50,6 @@
         .publi-box { background: #d4edda; border: 1px solid #c3e6cb; }
         .item-cardapio { display: flex; justify-content: space-between; align-items: center; background: white; padding: 10px; margin: 8px 0; border-radius: 6px; border: 1px solid #ddd; }
         .validade-info { font-weight: bold; color: #155724; font-size: 13px; margin-top: 5px; text-align: right; }
-        .tag-alert { background: #ffeeba; color: #856404; padding: 2px 6px; border-radius: 4px; font-size: 11px; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -57,21 +57,19 @@
     <div id="loginScreen">
         <div style="position:absolute; top:0; left:0; width:100%; padding:20px; display:flex; justify-content:space-between; align-items:center;">
             <div style="display:flex; align-items:center; gap:10px; font-size:20px; font-weight:bold;">
-                <span>⚙️</span> <span>Guia da Cidade</span>
+                <img src="logo.png" style="height:30px; width:auto;" alt="Logo"> <span>Guia</span>
             </div>
             <button onclick="window.location.href='index.html'" style="background:none; border:none; color:white; font-size:28px; cursor:pointer; width:auto; padding:0; margin:0;">✕</button>
         </div>
 
         <div class="login-box">
-            <div style="text-align:center; margin-bottom:20px;">
-                <span style="font-size: 60px;">🔒</span>
+            <div style="text-align:center;">
+                <img src="logo.png" class="login-logo" alt="Logo do App">
             </div>
-            
             <div style="position: relative;">
                 <input type="text" id="inputUsuario" class="login-input" placeholder="Usuário ou E-mail">
-                <span id="btnLimparLogin" onclick="limparLoginSalvo()" style="position:absolute; right:10px; top:50%; transform:translateY(-50%); color:#999; cursor:pointer; font-size:12px; font-weight:bold; display:none;" title="Limpar login salvo">✕ Limpar</span>
+                <span id="btnLimparLogin" onclick="limparLoginSalvo()" style="position:absolute; right:10px; top:50%; transform:translateY(-50%); color:#999; cursor:pointer; font-size:12px; font-weight:bold; display:none;" title="Limpar">✕</span>
             </div>
-
             <input type="password" id="inputSenha" class="login-input" placeholder="Senha">
             <button class="btn-login" onclick="fazerLogin()">Acessar Painel</button>
             <p id="msgLogin" style="color:#ff6b6b; font-size:14px; margin-top:10px;"></p>
@@ -84,75 +82,52 @@
     </div>
 
     <div class="card" id="painelCidades" style="border-top: 5px solid #ff5722;">
-        <h2>🏙️ Gerenciar Cidades (Master)</h2>
+        <h2>🏙️ Gerenciar Cidades</h2>
         <div id="listaCidades"></div>
         <h3 id="tituloCidadeForm" style="margin-top:20px;">Nova Cidade / Editar</h3>
-        <div class="row">
-            <input type="text" id="novaCidadeNome" placeholder="Nome (Ex: Mãe do Rio)" class="col">
-            <input type="text" id="novaCidadeUF" placeholder="UF" style="width: 80px;">
-        </div>
-        <div class="row">
-            <input type="text" id="novaCidadeFundo" placeholder="Link Foto Fundo (Opcional)" class="col">
-            <input type="text" id="novaCidadeLogo" placeholder="Link Logo Patrocinador" class="col">
-        </div>
-        <label style="color:#666; font-size:12px;">Configuração da Logo do Patrocinador:</label>
-        <div class="row">
-            <input type="number" id="novaCidadeLogoSize" placeholder="Tam % (30)" style="flex: 1;" title="Tamanho em %">
-            <input type="number" id="novaCidadeLogoBottom" placeholder="Pos % (15)" style="flex: 1;" title="Posição do fundo em %">
-        </div>
-        <label style="color:#007bff;">Dados de Acesso do Admin Local:</label>
-        <div class="row">
-            <input type="text" id="novaCidadeLogin" placeholder="Usuário de Acesso (Único)" class="col" style="font-weight:bold;">
-            <input type="text" id="novaCidadeSenha" placeholder="Senha" class="col">
-        </div>
-        <div style="display:flex; gap:10px;">
-            <button id="btnSalvarCidade" class="btn-success" onclick="salvarCidade()">+ Cadastrar Cidade</button>
-            <button id="btnCancelarCidade" class="btn-danger" style="display:none;" onclick="cancelarEdicaoCidade()">Cancelar</button>
-        </div>
+        <div class="row"><input type="text" id="novaCidadeNome" placeholder="Nome" class="col"><input type="text" id="novaCidadeUF" placeholder="UF" style="width: 80px;"></div>
+        <div class="row"><input type="text" id="novaCidadeFundo" placeholder="Link Fundo" class="col"><input type="text" id="novaCidadeLogo" placeholder="Link Logo" class="col"></div>
+        <label>Config Logo Patrocinador:</label>
+        <div class="row"><input type="number" id="novaCidadeLogoSize" placeholder="Tam % (30)" style="flex: 1;"><input type="number" id="novaCidadeLogoBottom" placeholder="Pos % (15)" style="flex: 1;"></div>
+        <label>Acesso Local:</label>
+        <div class="row"><input type="text" id="novaCidadeLogin" placeholder="Usuário" class="col"><input type="text" id="novaCidadeSenha" placeholder="Senha" class="col"></div>
+        <div style="display:flex; gap:10px;"><button id="btnSalvarCidade" class="btn-success" onclick="salvarCidade()">+ Cadastrar</button><button id="btnCancelarCidade" class="btn-danger" style="display:none;" onclick="cancelarEdicaoCidade()">Cancelar</button></div>
     </div>
 
     <div class="card" id="painelUsuarios" style="border-top: 5px solid #28a745; display:none;">
-        <h2>👥 Gerenciar Usuários (Master)</h2>
-        <div id="listaUsuarios">Carregando usuários...</div>
-        <div id="formEditUser" style="display:none; background:#f0f8ff; padding:15px; border-radius:10px; margin-top:20px; border:1px solid #007bff;">
-            <h3 style="margin-top:0;">✏️ Editando Usuário</h3>
-            <input type="text" id="editUserName" placeholder="Nome Completo">
-            <input type="text" id="editUserEmail" placeholder="E-mail (Login)" disabled style="background:#eee; color:#666;">
+        <h2>👥 Usuários</h2>
+        <div id="listaUsuarios"></div>
+        <div id="formEditUser" style="display:none; background:#f0f8ff; padding:15px; border-radius:10px; margin-top:20px;">
+            <h3>✏️ Editando</h3>
+            <input type="text" id="editUserName" placeholder="Nome"><input type="text" id="editUserEmail" disabled style="background:#eee;">
             <input type="text" id="editUserPass" placeholder="Nova Senha">
-            <label>Cidade Vinculada:</label>
-            <select id="editUserCidade"><option value="">Selecione...</option></select>
-            <div style="display:flex; gap:10px;">
-                <button class="btn-success" onclick="salvarEdicaoUsuario()">Salvar Alterações</button>
-                <button class="btn-danger" onclick="cancelarEdicaoUsuario()">Cancelar</button>
-            </div>
+            <label>Cidade:</label><select id="editUserCidade"><option value="">Selecione...</option></select>
+            <div style="display:flex; gap:10px;"><button class="btn-success" onclick="salvarEdicaoUsuario()">Salvar</button><button class="btn-danger" onclick="cancelarEdicaoUsuario()">Cancelar</button></div>
         </div>
     </div>
 
     <div class="card" id="painelCategorias" style="border-top: 5px solid #17a2b8;">
-        <h2>📂 Categorias, Subcategorias e Setores</h2>
+        <h2>📂 Categorias, Subs e Setores</h2>
         <div id="listaGestaoCategorias"></div>
-        <div class="row">
-            <input type="text" id="novaCategoriaInput" placeholder="Nome da Categoria Principal" class="col">
-            <button class="btn-success" style="width:auto; margin-top:8px;" onclick="adicionarCategoria()">Criar Categoria</button>
-        </div>
+        <div class="row"><input type="text" id="novaCategoriaInput" placeholder="Nome Categoria" class="col"><button class="btn-success" style="width:auto; margin-top:8px;" onclick="adicionarCategoria()">Criar</button></div>
     </div>
 
     <div class="card" id="painelMasterConfig" style="border-top: 5px solid #6f42c1;">
-        <h2>⚙️ Configurações Globais</h2>
-        <h3 style="margin-top:20px;">🎨 Visual App</h3>
-        <input type="text" id="confNomeCidade" placeholder="Nome do App (Cabeçalho)">
-        <label>Degradê Azul / Preto:</label>
-        <div class="row"><input type="range" id="opacAzul" min="0" max="100" class="col"><input type="range" id="opacPreto" min="0" max="100" class="col"></div>
+        <h2>⚙️ Global</h2>
+        <input type="text" id="confNomeCidade" placeholder="Nome App">
+        <label>Degradê:</label><div class="row"><input type="range" id="opacAzul" min="0" max="100" class="col"><input type="range" id="opacPreto" min="0" max="100" class="col"></div>
+        <h3>🖼️ Logo Topo</h3>
+        <div class="row"><div class="col"><label>Altura (px):</label><input type="number" id="confLogoHeight"></div><div class="col"><label>Posição Y (px):</label><input type="number" id="confLogoTop"></div></div>
         <button onclick="salvarConfigGlobal()" style="background:#6f42c1">Salvar Configurações</button>
     </div>
 
     <div class="card" id="painelCadastro" style="display:block;">
         <h2 id="tituloForm">🏪 Gerenciar Cadastro</h2>
         
-        <label style="color:#ff5722; font-weight:bold;">1. Cidade:</label>
+        <label style="color:#ff5722;">1. Cidade:</label>
         <select id="selCidadeCadastro" style="border: 2px solid #ff5722; font-weight:bold;"><option value="">Selecione...</option></select>
 
-        <label style="color:#007bff; font-weight:bold;">2. Categoria:</label>
+        <label style="color:#007bff;">2. Categoria:</label>
         <select id="categoria" style="border: 2px solid #007bff;"><option value="">Selecione...</option></select>
 
         <label>Subcategoria:</label>
@@ -163,17 +138,12 @@
 
         <hr style="margin: 20px 0; border: 0; border-top: 1px solid #eee;">
 
-        <label id="lblNome">Nome do Local:</label>
-        <input type="text" id="nome">
+        <label id="lblNome">Nome:</label><input type="text" id="nome">
         <div class="row"><input type="number" id="precoAntigo" placeholder="Preço Riscado" class="col"><input type="number" id="precoAtual" placeholder="Preço Atual" class="col"></div>
-        <label id="lblCidade">Endereço / Descrição:</label>
-        <input type="text" id="cidade">
+        <label id="lblCidade">Endereço / Descrição:</label><input type="text" id="cidade">
         <input type="text" id="linkMapa" placeholder="Link do Google Maps (Opcional)">
-        
-        <label id="lblImagem">Fotos (URL por linha):</label>
-        <textarea id="imagem" rows="3"></textarea>
-        <label>Contatos:</label>
-        <div class="row"><input type="text" id="contato" placeholder="WhatsApp" class="col"><input type="text" id="telFixo" placeholder="Fixo" class="col"></div>
+        <label>Fotos (URL por linha):</label><textarea id="imagem" rows="3"></textarea>
+        <label>Contatos:</label><div class="row"><input type="text" id="contato" placeholder="WhatsApp" class="col"><input type="text" id="telFixo" placeholder="Fixo" class="col"></div>
         <div id="divInsta"><input type="text" id="instagram" placeholder="Instagram Link"></div>
 
         <div style="margin-top:15px; display:flex; gap:10px;">
@@ -184,23 +154,15 @@
 
         <div id="boxPubli" class="box-highlight publi-box">
             <input type="text" id="imgPubli" placeholder="Link Banner">
-            <div class="row">
-                <select id="tipoValidade" class="col"><option value="dias">Dias</option><option value="data">Data</option></select>
-                <input type="number" id="valorValidade" placeholder="Qtd" class="col">
-                <input type="date" id="dataEspecifica" class="col" style="display:none">
-            </div>
-            <div id="contadorPubli" class="validade-info"></div>
-            <button onclick="removerPubli()" style="background:#dc3545; width:auto; float:right;">🗑️ Remover</button>
-            <div style="clear:both"></div>
+            <div class="row"><select id="tipoValidade" class="col"><option value="dias">Dias</option><option value="data">Data</option></select><input type="number" id="valorValidade" placeholder="Qtd" class="col"><input type="date" id="dataEspecifica" class="col" style="display:none"></div>
+            <div id="contadorPubli" class="validade-info"></div><button onclick="removerPubli()" style="background:#dc3545; width:auto; float:right;">🗑️ Remover</button><div style="clear:both"></div>
         </div>
 
         <div id="boxDelivery" class="box-highlight delivery-box">
             <h3>🍔 Cardápio</h3>
             <div class="row"><input type="text" id="prodNome" placeholder="Item" class="col"><input type="number" id="prodPreco" placeholder="$$" style="width:80px"></div>
-            <input type="text" id="prodDesc" placeholder="Descrição">
-            <input type="text" id="prodImg" placeholder="Foto URL">
+            <input type="text" id="prodDesc" placeholder="Descrição"><input type="text" id="prodImg" placeholder="Foto URL">
             <button id="btnAddItem" style="background:#17a2b8; width:auto; float:right;">Adicionar</button>
-            
             <div id="lista-cardapio-preview" style="clear:both; margin-top:10px;"></div>
         </div>
 
@@ -209,15 +171,8 @@
         <button id="btnCancelar" class="btn-danger">Cancelar</button>
     </div>
 
-    <div class="card" id="painelLista" style="display:block;">
-        <h3>📋 Cadastros (Filtrado por Permissão)</h3>
-        <div id="lista-locais">Carregando...</div>
-    </div>
-
-    <div class="card" id="painelDanger" style="border: 2px solid red; background: #fff5f5; text-align: center;">
-        <h3 style="color:red; border:none;">⚠️ Zona de Perigo</h3>
-        <button onclick="zerarBanco()" style="background:red; color:white;">🔥 RESETAR ESTABELECIMENTOS</button>
-    </div>
+    <div class="card" id="painelLista" style="display:block;"><h3>📋 Cadastros</h3><div id="lista-locais"></div></div>
+    <div class="card" id="painelDanger" style="border: 2px solid red; background: #fff5f5; text-align: center;"><h3>⚠️ Zona de Perigo</h3><button onclick="zerarBanco()" style="background:red; color:white;">🔥 RESETAR</button></div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
@@ -227,240 +182,168 @@
         const firebaseConfig = { apiKey: "AIzaSyDsTWnP2cmsUIDeDlotoR1uELMAba_-dyw", authDomain: "testegithub-e1ffb.firebaseapp.com", projectId: "testegithub-e1ffb", storageBucket: "testegithub-e1ffb.firebasestorage.app", messagingSenderId: "508103458559", appId: "1:508103458559:web:55bc2fe4dc61d7b5ee16ca" };
         const app = initializeApp(firebaseConfig); const db = getFirestore(app);
         const el = (id) => document.getElementById(id);
-        const MASTER_PASS = "master123";
         const IMG_PADRAO_CIDADE = "https://images.unsplash.com/photo-1505142468610-359e7d316be0?q=80&w=3070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D";
 
         let currentUser = null; 
         let idEditando = null, cardapioAtual = [], listaSubs = {}, listaSetores = {}, itemMenuEditandoIndex = -1;
-        let idCidadeEditando = null;
-        let idUsuarioEditando = null; 
-        let mapCidades = {};
+        let idCidadeEditando = null, idUsuarioEditando = null, mapCidades = {};
 
-        // === GESTÃO DE LOGIN ===
-        setTimeout(() => el('inputUsuario').focus(), 300);
-        el('inputSenha').addEventListener('keypress', (e) => { if(e.key === 'Enter') fazerLogin(); });
-        el('inputUsuario').addEventListener('keypress', (e) => { if(e.key === 'Enter') el('inputSenha').focus(); });
-
+        // === 1. LÓGICA DE LOGIN RESTAURADA ===
+        setTimeout(() => { if(el('inputUsuario')) el('inputUsuario').focus(); }, 300);
+        
+        // Verifica se há login salvo
         const savedLogin = localStorage.getItem('saved_login_user');
-        if(savedLogin) { el('inputUsuario').value = savedLogin; el('btnLimparLogin').style.display = 'block'; }
+        if(savedLogin && el('inputUsuario')) { 
+            el('inputUsuario').value = savedLogin; 
+            if(el('btnLimparLogin')) el('btnLimparLogin').style.display = 'block'; 
+        }
 
         window.limparLoginSalvo = () => { localStorage.removeItem('saved_login_user'); el('inputUsuario').value = ""; el('btnLimparLogin').style.display = 'none'; el('inputUsuario').focus(); };
 
         window.fazerLogin = async () => {
-            const user = el('inputUsuario').value.trim(); const pass = el('inputSenha').value.trim(); const msg = el('msgLogin'); msg.textContent = "Verificando...";
+            const user = el('inputUsuario').value.trim(); 
+            const pass = el('inputSenha').value; // SEM TRIM NA SENHA PARA EVITAR ERROS
+            const msg = el('msgLogin'); 
+            msg.textContent = "Verificando...";
+
             if(!user || !pass) { msg.textContent = "Preencha todos os campos."; return; }
-            if(user === 'master' && pass === 'master123') { currentUser = { role: 'master', name: 'Master Admin' }; salvarEEntrar(user); return; }
-            const qCity = query(collection(db, "cidades"), where("login", "==", user), where("senha", "==", pass)); const snapCity = await getDocs(qCity);
-            if(!snapCity.empty) { const docData = snapCity.docs[0].data(); currentUser = { role: 'city', cityId: snapCity.docs[0].id, cityName: docData.nome }; salvarEEntrar(user); return; }
-            const qUser = query(collection(db, "users"), where("email", "==", user), where("senha", "==", pass)); const snapUser = await getDocs(qUser);
-            if(!snapUser.empty) { const docData = snapUser.docs[0].data(); currentUser = { role: 'owner', userId: snapUser.docs[0].id, name: docData.nome, cityId: docData.cidadeId }; salvarEEntrar(user); return; }
-            msg.textContent = "Usuário ou senha incorretos.";
+
+            try {
+                // 1. MASTER
+                if(user === 'master' && pass === 'master123') { 
+                    currentUser = { role: 'master', name: 'Master Admin' }; 
+                    salvarEEntrar(user); return; 
+                }
+
+                // 2. CIDADE
+                const qCity = query(collection(db, "cidades"), where("login", "==", user), where("senha", "==", pass));
+                const snapCity = await getDocs(qCity);
+                if(!snapCity.empty) { 
+                    const docData = snapCity.docs[0].data(); 
+                    currentUser = { role: 'city', cityId: snapCity.docs[0].id, cityName: docData.nome }; 
+                    salvarEEntrar(user); return; 
+                }
+
+                // 3. OWNER (USUÁRIO)
+                const qUser = query(collection(db, "users"), where("email", "==", user), where("senha", "==", pass));
+                const snapUser = await getDocs(qUser);
+                if(!snapUser.empty) { 
+                    const docData = snapUser.docs[0].data(); 
+                    currentUser = { role: 'owner', userId: snapUser.docs[0].id, name: docData.nome, cityId: docData.cidadeId }; 
+                    salvarEEntrar(user); return; 
+                }
+
+                msg.textContent = "Usuário ou senha incorretos.";
+            } catch(e) { 
+                console.error("Erro login:", e); 
+                msg.textContent = "Erro de conexão. Tente novamente."; 
+            }
         };
 
-        function salvarEEntrar(userLogin) { localStorage.setItem('saved_login_user', userLogin); iniciarAdmin(); }
-
-        function iniciarAdmin() {
-            el('loginScreen').style.display = 'none'; el('headerAdmin').style.display = 'flex'; el('roleBadge').textContent = currentUser.role === 'master' ? '👑 Master' : (currentUser.role === 'city' ? `📍 ${currentUser.cityName}` : `👤 ${currentUser.name}`);
-            el('painelCidades').style.display = currentUser.role === 'master' ? 'block' : 'none'; el('painelMasterConfig').style.display = currentUser.role === 'master' ? 'block' : 'none'; el('painelUsuarios').style.display = currentUser.role === 'master' ? 'block' : 'none'; el('painelDanger').style.display = currentUser.role === 'master' ? 'block' : 'none';
-            el('painelCategorias').style.display = (currentUser.role === 'master' || currentUser.role === 'city') ? 'block' : 'none';
-            el('painelCadastro').style.display = 'block'; el('painelLista').style.display = 'block';
-            carregarCidadesAdmin(); carregarCategorias(); if(currentUser.role === 'master') { carregarConfigGeral(); carregarUsuariosMaster(); } configurarSeletorCidades(); iniciarListenerLocais();
+        function salvarEEntrar(userLogin) { 
+            localStorage.setItem('saved_login_user', userLogin); 
+            iniciarAdmin(); 
         }
 
-        // ======================================================
-        // GESTÃO DE CATEGORIAS / SUBCATEGORIAS / SETORES
-        // ======================================================
+        function iniciarAdmin() {
+            el('loginScreen').style.display = 'none'; 
+            el('headerAdmin').style.display = 'flex'; 
+            el('roleBadge').textContent = currentUser.role === 'master' ? '👑 Master' : (currentUser.role === 'city' ? `📍 ${currentUser.cityName}` : `👤 ${currentUser.name}`);
+            
+            // Controle de visualização
+            el('painelCidades').style.display = currentUser.role === 'master' ? 'block' : 'none'; 
+            el('painelMasterConfig').style.display = currentUser.role === 'master' ? 'block' : 'none'; 
+            el('painelUsuarios').style.display = currentUser.role === 'master' ? 'block' : 'none'; 
+            el('painelDanger').style.display = currentUser.role === 'master' ? 'block' : 'none';
+            
+            el('painelCategorias').style.display = (currentUser.role === 'master' || currentUser.role === 'city') ? 'block' : 'none';
+            
+            el('painelCadastro').style.display = 'block'; 
+            el('painelLista').style.display = 'block';
+
+            carregarCidadesAdmin(); 
+            carregarCategorias(); 
+            if(currentUser.role === 'master') { carregarConfigGeral(); carregarUsuariosMaster(); } 
+            
+            iniciarListenerLocais();
+        }
+
+        // === 2. CATEGORIAS E SUBCATEGORIAS (CORRIGIDO) ===
         async function carregarCategorias() { 
             const docSnap = await getDoc(doc(db, "config", "categorias"));
             listaSubs = docSnap.exists() ? docSnap.data() : { "Comercio": [], "_order": ["Comercio"] };
             const docSetores = await getDoc(doc(db, "config", "setores"));
             listaSetores = docSetores.exists() ? docSetores.data() : {};
-            renderCategorias(); atualizarSelectCat(); 
+            renderCategorias(); 
+            atualizarSelectCat(); // Popula o select inicial
         }
 
-        function renderCategorias() { 
-            const div = el('listaGestaoCategorias'); div.innerHTML = ""; 
-            let ordem = listaSubs["_order"] || Object.keys(listaSubs).filter(k => k !== "_order").sort(); 
-            
-            ordem.forEach((cat, index) => { 
-                if(cat === "_order") return; 
-                let html = `
-                    <div class="manager-item">
-                        <div><b>${cat}</b> <button class="btn-mini btn-warning" onclick="editCat('${cat}')">✏️</button></div>
-                        <div><button class="btn-info" style="width:auto; padding:5px 10px;" onclick="toggleSubs('${cat}')">📂 Subs</button><button class="btn-mini" onclick="moverCat(${index},-1)">▲</button><button class="btn-mini" onclick="moverCat(${index},1)">▼</button><button class="btn-mini btn-danger" onclick="delCat('${cat}')">✕</button></div>
-                    </div>
-                    <div id="subs-${cat}" class="sub-manager-container">
-                `; 
-                const subs = listaSubs[cat] || []; 
-                if(subs.length === 0) { html += `<div style="font-size:12px; color:#999; margin-bottom:10px;">Nenhuma subcategoria.</div>`; } else { 
-                    subs.forEach((sub, subIdx) => { 
-                        html += `
-                            <div class="sub-item">
-                                <div><span>${sub}</span> <button class="btn-mini btn-warning" onclick="editSub('${cat}', ${subIdx})">✏️</button> <button class="btn-sector" onclick="toggleSetores('${sub}')">📂 Setores</button></div>
-                                <button class="btn-mini btn-danger" onclick="delSub('${cat}', ${subIdx})">✕</button>
-                            </div>
-                            <div id="setores-${sub}" class="sector-manager-container">
-                                <b>Setores de ${sub}:</b>
-                                <div id="list-setores-${sub}"></div>
-                                <div style="display:flex; gap:5px; margin-top:5px;"><input type="text" id="new-setor-${sub}" class="input-sub-add" placeholder="Novo Setor"><button class="btn-success btn-mini" style="margin:0;" onclick="addSetor('${sub}')">Add</button></div>
-                            </div>
-                        `; 
-                        setTimeout(() => renderListaSetores(sub), 100);
-                    }); 
-                } 
-                html += `<div style="display:flex; gap:5px; margin-top:10px;"><input type="text" id="new-sub-${cat}" class="input-sub-add" placeholder="Nova Subcategoria"><button class="btn-success btn-mini" style="margin:0;" onclick="addSub('${cat}')">Add</button></div></div>`; 
-                div.innerHTML += html; 
-            }); 
+        function actualizarSelectCat() { // Alias para evitar erro de digitação
+            atualizarSelectCat();
         }
 
-        // --- FUNÇÕES DE EDIÇÃO DE TEXTO ---
-        window.editCat = async (oldName) => {
-            const newName = prompt("Novo nome para a categoria:", oldName);
-            if (!newName || newName === oldName) return;
-            if (listaSubs[newName]) return alert("Categoria já existe!");
-            
-            // Renomeia mantendo a ordem e conteúdo
-            listaSubs[newName] = listaSubs[oldName];
-            delete listaSubs[oldName];
-            
-            // Atualiza ordem
-            const idx = listaSubs["_order"].indexOf(oldName);
-            if (idx !== -1) listaSubs["_order"][idx] = newName;
-            
-            await setDoc(doc(db, "config", "categorias"), listaSubs);
-            carregarCategorias();
-        };
-
-        window.editSub = async (cat, index) => {
-            const oldName = listaSubs[cat][index];
-            const newName = prompt("Novo nome para a subcategoria:", oldName);
-            if (!newName || newName === oldName) return;
-            
-            listaSubs[cat][index] = newName;
-            
-            // Se tiver setores vinculados, precisa migrar (opcional, mas bom)
-            if (listaSetores[oldName]) {
-                listaSetores[newName] = listaSetores[oldName];
-                delete listaSetores[oldName];
-                await setDoc(doc(db, "config", "setores"), listaSetores);
-            }
-
-            await setDoc(doc(db, "config", "categorias"), listaSubs);
-            carregarCategorias();
-        };
-
-        window.editSetorItem = async (sub, index) => {
-            const oldName = listaSetores[sub][index];
-            const newName = prompt("Novo nome para o setor:", oldName);
-            if (!newName || newName === oldName) return;
-            
-            listaSetores[sub][index] = newName;
-            await setDoc(doc(db, "config", "setores"), listaSetores);
-            renderListaSetores(sub);
-        };
-
-        // --- FUNÇÕES DE SETORES E SUBS ---
-        window.toggleSubs = (cat) => { const el = document.getElementById(`subs-${cat}`); el.style.display = el.style.display === 'block' ? 'none' : 'block'; };
-        window.toggleSetores = (sub) => { const el = document.getElementById(`setores-${sub}`); el.style.display = el.style.display === 'block' ? 'none' : 'block'; };
-
-        function renderListaSetores(sub) {
-            const container = document.getElementById(`list-setores-${sub}`);
-            if(!container) return;
-            container.innerHTML = "";
-            const setores = listaSetores[sub] || [];
-            if(setores.length === 0) { container.innerHTML = "<div style='color:#777; font-style:italic;'>Nenhum setor.</div>"; } 
-            else { 
-                setores.forEach((s, idx) => { container.innerHTML += `<div class="sector-item"><div><span>${s}</span> <button class="btn-mini btn-warning" onclick="editSetorItem('${sub}', ${idx})">✏️</button></div> <button class="btn-mini btn-danger" onclick="delSetor('${sub}', ${idx})">✕</button></div>`; }); 
-            }
+        function atualizarSelectCat() {
+            const sel = el('categoria'); 
+            if(!sel) return;
+            const val = sel.value; 
+            sel.innerHTML = '<option value="">Selecione...</option>';
+            let ordem = listaSubs["_order"] || Object.keys(listaSubs).filter(k => k !== "_order").sort();
+            ordem.forEach(c => sel.innerHTML += `<option value="${c}">${c}</option>`);
+            sel.value = val;
         }
 
-        window.addSetor = async (sub) => { const input = document.getElementById(`new-setor-${sub}`); const val = input.value.trim(); if(!val) return; if(!listaSetores[sub]) listaSetores[sub] = []; listaSetores[sub].push(val); await setDoc(doc(db, "config", "setores"), listaSetores); input.value = ""; renderListaSetores(sub); };
-        window.delSetor = async (sub, idx) => { if(!confirm("Excluir setor?")) return; listaSetores[sub].splice(idx, 1); await setDoc(doc(db, "config", "setores"), listaSetores); renderListaSetores(sub); };
-        window.addSub = async (cat) => { const input = document.getElementById(`new-sub-${cat}`); const val = input.value.trim(); if(!val) return; if(!listaSubs[cat]) listaSubs[cat] = []; listaSubs[cat].push(val); await setDoc(doc(db, "config", "categorias"), listaSubs); input.value = ""; renderCategorias(); setTimeout(() => document.getElementById(`subs-${cat}`).style.display = 'block', 100); atualizarSelectCat(); };
-        window.delSub = async (cat, index) => { if(!confirm("Excluir subcategoria?")) return; listaSubs[cat].splice(index, 1); await setDoc(doc(db, "config", "categorias"), listaSubs); renderCategorias(); setTimeout(() => document.getElementById(`subs-${cat}`).style.display = 'block', 100); atualizarSelectCat(); };
-        function atualizarSelectCat() { const sel = el('categoria'); const val = sel.value; sel.innerHTML = '<option value="">Selecione...</option>'; let ordem = listaSubs["_order"] || Object.keys(listaSubs).filter(k => k !== "_order").sort(); ordem.forEach(c => sel.innerHTML += `<option value="${c}">${c}</option>`); sel.value = val; }
-        window.adicionarCategoria = async () => { const nome = el('novaCategoriaInput').value.trim(); if(!nome || listaSubs[nome]) return; listaSubs[nome] = []; let ordem = listaSubs["_order"] || []; ordem.push(nome); listaSubs["_order"] = ordem; await setDoc(doc(db, "config", "categorias"), listaSubs); el('novaCategoriaInput').value=""; renderCategorias(); atualizarSelectCat(); };
-        window.delCat = async (cat) => { if(confirm("Excluir Categoria inteira?")) { delete listaSubs[cat]; listaSubs["_order"] = listaSubs["_order"].filter(c => c !== cat); await setDoc(doc(db, "config", "categorias"), listaSubs); renderCategorias(); atualizarSelectCat(); }};
-        window.moverCat = async (i, d) => { let o = listaSubs["_order"]; let n = i+d; if(n<0||n>=o.length) return; [o[i], o[n]] = [o[n], o[i]]; listaSubs["_order"] = o; await setDoc(doc(db, "config", "categorias"), listaSubs); renderCategorias(); atualizarSelectCat(); };
+        // --- LÓGICA DE MUDANÇA DE CATEGORIA (CORRIGIDA) ---
+        el('categoria').addEventListener('change', () => {
+            const cat = el('categoria').value;
+            // Ajuste de Labels
+            if(cat === 'Classificados') { el('lblNome').textContent = "Produto:"; el('lblCidade').textContent = "Descrição:"; el('divInsta').style.display='none'; } 
+            else if(cat === 'Profissionais') { el('lblNome').textContent = "Profissional:"; el('lblCidade').textContent = "Qualificação:"; el('divInsta').style.display='block'; } 
+            else { el('lblNome').textContent = "Local:"; el('lblCidade').textContent = "Endereço:"; el('divInsta').style.display='block'; }
+            
+            const sub = el('subcategoria');
+            sub.innerHTML = '<option value="">Selecione...</option>';
+            el('setor').innerHTML = '<option value="">Selecione subcategoria...</option>'; 
+            el('setor').disabled = true;
 
-        // === CARDÁPIO (CRUD COMPLETO) ===
-        
-        // Adicionar / Atualizar Item do Cardápio
-        el('btnAddItem').onclick = () => {
-            const item = {
-                nome: el('prodNome').value,
-                preco: parseFloat(el('prodPreco').value),
-                desc: el('prodDesc').value,
-                img: el('prodImg').value
-            };
-
-            if(!item.nome || !item.preco) return alert("Preencha nome e preço!");
-
-            if(itemMenuEditandoIndex === -1) {
-                // Adicionando novo
-                cardapioAtual.push(item);
+            // FORÇA O PREENCHIMENTO E DESBLOQUEIO
+            if(cat && listaSubs[cat] && listaSubs[cat].length > 0) {
+                sub.disabled = false;
+                listaSubs[cat].forEach(s => sub.innerHTML += `<option value="${s}">${s}</option>`);
             } else {
-                // Atualizando existente
-                cardapioAtual[itemMenuEditandoIndex] = item;
-                el('btnAddItem').textContent = "Adicionar";
-                itemMenuEditandoIndex = -1;
+                sub.innerHTML = '<option value="">Sem subcategorias</option>';
+                sub.disabled = true;
             }
+        });
 
-            // LIMPEZA DOS CAMPOS (Solicitado)
-            el('prodNome').value = "";
-            el('prodPreco').value = "";
-            el('prodDesc').value = "";
-            el('prodImg').value = "";
-
-            renderCardapio();
-        };
-
-        function renderCardapio() { 
-            const d = el('lista-cardapio-preview'); 
-            d.innerHTML = ""; 
-            cardapioAtual.forEach((i, x) => {
-                d.innerHTML += `
-                    <div class="item-cardapio">
-                        <div><b>${i.nome}</b> - R$ ${i.preco}</div>
-                        <div>
-                            <button class="btn-mini btn-warning" onclick="prepararEdicaoItemMenu(${x})">✏️</button>
-                            <button class="btn-mini btn-danger" onclick="delItemMenu(${x})">X</button>
-                        </div>
-                    </div>`;
-            }); 
-        }
-
-        window.delItemMenu = (index) => {
-            cardapioAtual.splice(index, 1);
-            renderCardapio();
-        };
-
-        window.prepararEdicaoItemMenu = (index) => {
-            const item = cardapioAtual[index];
-            el('prodNome').value = item.nome;
-            el('prodPreco').value = item.preco;
-            el('prodDesc').value = item.desc;
-            el('prodImg').value = item.img;
+        // POPULA SETORES AO MUDAR SUB
+        el('subcategoria').addEventListener('change', () => {
+            const sub = el('subcategoria').value;
+            const setorSel = el('setor');
+            setorSel.innerHTML = '<option value="">Selecione...</option>';
             
-            itemMenuEditandoIndex = index;
-            el('btnAddItem').textContent = "Atualizar Item";
-        };
+            if(sub && listaSetores[sub] && listaSetores[sub].length > 0) {
+                setorSel.disabled = false;
+                setorSel.innerHTML = '<option value="">Sem setor (Opcional)</option>';
+                listaSetores[sub].forEach(s => setorSel.innerHTML += `<option value="${s}">${s}</option>`);
+            } else {
+                setorSel.innerHTML = '<option value="">Nenhum setor disponível</option>';
+                setorSel.disabled = true;
+            }
+        });
 
-        // ... OUTROS MÉTODOS DE CADASTRO/CONFIGURAÇÃO ...
-        function carregarCidadesAdmin() { onSnapshot(collection(db, "cidades"), (snap) => { const div = el('listaCidades'); div.innerHTML = ""; const select = el('selCidadeCadastro'); const selectUser = el('editUserCidade'); select.innerHTML = '<option value="">Selecione...</option>'; selectUser.innerHTML = '<option value="">Selecione...</option>'; mapCidades = {}; snap.forEach(doc => { const cid = doc.data(); mapCidades[doc.id] = cid.nome; if(currentUser && currentUser.role === 'master') { div.innerHTML += `<div class="manager-item"><div><b>${cid.nome}</b> (${cid.uf}) <span style="font-size:12px;color:#666">User: ${cid.login}</span></div><div><button class="btn-warning" style="width:30px; display:inline-block;" onclick="prepararEdicaoCidade('${doc.id}', '${cid.nome}', '${cid.uf}', '${cid.login||''}', '${cid.senha}', '${cid.fundo||''}', '${cid.logoPatra||''}', '${cid.logoSize||''}', '${cid.logoBottom||''}')">✏️</button><button class="btn-danger" style="width:30px; display:inline-block;" onclick="excluirCidade('${doc.id}', '${cid.nome}')">✕</button></div></div>`; } const opt = document.createElement('option'); opt.value = doc.id; opt.textContent = `${cid.nome} - ${cid.uf}`; select.appendChild(opt.cloneNode(true)); selectUser.appendChild(opt); }); configurarSeletorCidades(); }); }
-        function configuringSeletorCidades() { const select = el('selCidadeCadastro'); if(currentUser && (currentUser.role === 'city' || currentUser.role === 'owner')) { if(currentUser.cityId) { select.value = currentUser.cityId; select.disabled = true; } else { select.disabled = false; } } else { select.disabled = false; } }
-        window.configurarSeletorCidades = configuringSeletorCidades;
-        
-        // --- SALVAMENTO ---
+        // --- SALVAMENTO E CADASTRO ---
         const salvarOuAtualizar = async (isUpdate) => {
             const btn = isUpdate ? el('btnAtualizar') : el('btnSalvar'); const txtOriginal = btn.textContent;
             try {
                 let cidadeIdFinal = el('selCidadeCadastro').value;
                 if((currentUser.role === 'city' || currentUser.role === 'owner') && currentUser.cityId) cidadeIdFinal = currentUser.cityId;
                 if(!cidadeIdFinal) return alert("Selecione a CIDADE!"); if(!el('nome').value) return alert("Nome obrigatório");
+                
                 btn.textContent = "Salvando..."; btn.disabled = true;
                 const imgs = el('imagem').value.split('\n').map(s => s.trim()).filter(s => s);
+                
                 const dados = { cidadeId: cidadeIdFinal, nome: el('nome').value, nomeBusca: el('nome').value.toLowerCase(), cidade: el('cidade').value, categoria: el('categoria').value, subcategoria: el('subcategoria').value, setor: el('setor').value || "", contato: el('contato').value, telFixo: el('telFixo').value, instagram: el('instagram').value, imagem: imgs[0] || "https://via.placeholder.com/150", imagens: imgs, preco: parseFloat(el('precoAtual').value) || 0, precoAntigo: parseFloat(el('precoAntigo').value) || 0, temDelivery: el('checkDelivery').checked, taxaEntrega: parseFloat(el('taxaEntrega').value) || 0, cardapio: cardapioAtual, publi: { ativa: el('checkPubli').checked, img: el('imgPubli').value, dataFim: calcularDataFimPubli() }, linkMapa: el('linkMapa').value || "", dataCadastro: new Date() };
+                
                 if(currentUser.role === 'owner') dados.ownerId = currentUser.userId;
                 if(isUpdate) await updateDoc(doc(db, "guia_cidades", idEditando), dados); else await addDoc(collection(db, "guia_cidades"), dados);
                 alert("Salvo com sucesso!"); limparForm();
@@ -472,15 +355,44 @@
             idEditando=null; cardapioAtual=[]; itemMenuEditandoIndex=-1;
             el('nome').value=""; el('imagem').value=""; el('precoAtual').value=""; el('precoAntigo').value=""; el('cidade').value=""; el('linkMapa').value=""; el('contato').value=""; el('telFixo').value=""; el('instagram').value=""; el('imgPubli').value=""; 
             el('checkPubli').checked=false; el('checkDelivery').checked=false; el('boxPubli').style.display='none'; el('boxDelivery').style.display='none'; el('taxaEntrega').value=""; el('taxaEntrega').style.display='none';
-            el('categoria').value=""; el('subcategoria').innerHTML = '<option value="">Selecione categoria...</option>'; el('subcategoria').disabled = true; el('setor').innerHTML = '<option value="">Selecione subcategoria...</option>'; el('setor').disabled = true;
+            
+            // RESET SELECTS
+            el('categoria').value=""; 
+            el('subcategoria').innerHTML = '<option value="">Selecione categoria...</option>'; el('subcategoria').disabled = true; 
+            el('setor').innerHTML = '<option value="">Selecione subcategoria...</option>'; el('setor').disabled = true;
+            
             el('btnSalvar').style.display='block'; el('btnAtualizar').style.display='none'; el('btnCancelar').style.display='none'; el('tituloForm').textContent="🏪 Gerenciar Cadastro";
             el('prodNome').value=""; el('prodPreco').value=""; el('prodDesc').value=""; el('prodImg').value=""; el('btnAddItem').textContent="Adicionar"; el('lista-cardapio-preview').innerHTML="";
             configurarSeletorCidades();
         }
         el('btnCancelar').onclick = limparForm;
 
+        // ... DEMAIS FUNÇÕES DO SISTEMA ...
+        function renderCategorias() { const div = el('listaGestaoCategorias'); div.innerHTML = ""; let ordem = listaSubs["_order"] || Object.keys(listaSubs).filter(k => k !== "_order").sort(); ordem.forEach((cat, index) => { if(cat === "_order") return; let html = `<div class="manager-item"><div><b>${cat}</b> <button class="btn-mini btn-warning" onclick="editCat('${cat}')">✏️</button></div><div><button class="btn-info" style="width:auto; padding:5px 10px;" onclick="toggleSubs('${cat}')">📂 Subs</button><button class="btn-mini" onclick="moverCat(${index},-1)">▲</button><button class="btn-mini" onclick="moverCat(${index},1)">▼</button><button class="btn-mini btn-danger" onclick="delCat('${cat}')">✕</button></div></div><div id="subs-${cat}" class="sub-manager-container">`; const subs = listaSubs[cat] || []; if(subs.length === 0) { html += `<div style="font-size:12px; color:#999; margin-bottom:10px;">Nenhuma subcategoria.</div>`; } else { subs.forEach((sub, subIdx) => { html += `<div class="sub-item"><div><span>${sub}</span> <button class="btn-mini btn-warning" onclick="editSub('${cat}', ${subIdx})">✏️</button> <button class="btn-sector" onclick="toggleSetores('${sub}')">📂 Setores</button></div><button class="btn-mini btn-danger" onclick="delSub('${cat}', ${subIdx})">✕</button></div><div id="setores-${sub}" class="sector-manager-container"><b>Setores de ${sub}:</b><div id="list-setores-${sub}"></div><div style="display:flex; gap:5px; margin-top:5px;"><input type="text" id="new-setor-${sub}" class="input-sub-add" placeholder="Novo Setor"><button class="btn-success btn-mini" style="margin:0;" onclick="addSetor('${sub}')">Add</button></div></div>`; setTimeout(() => renderListaSetores(sub), 100); }); } html += `<div style="display:flex; gap:5px; margin-top:10px;"><input type="text" id="new-sub-${cat}" class="input-sub-add" placeholder="Nova Subcategoria"><button class="btn-success btn-mini" style="margin:0;" onclick="addSub('${cat}')">Add</button></div></div>`; div.innerHTML += html; }); }
+        
+        // Carregamento para Edição (Otimizado)
         window.carregarParaEdicao = (id, item) => { try { idEditando = id; el('selCidadeCadastro').value = item.cidadeId; el('categoria').value = item.categoria; const sub = el('subcategoria'); sub.innerHTML = '<option value="">Selecione...</option>'; if(item.categoria && listaSubs[item.categoria]) { sub.disabled = false; listaSubs[item.categoria].forEach(s => sub.innerHTML += `<option value="${s}">${s}</option>`); } sub.value = item.subcategoria || ""; const setorSel = el('setor'); setorSel.innerHTML = '<option value="">Selecione...</option>'; if(item.subcategoria && listaSetores[item.subcategoria]) { setorSel.disabled = false; setorSel.innerHTML = '<option value="">Sem setor</option>'; listaSetores[item.subcategoria].forEach(s => setorSel.innerHTML += `<option value="${s}">${s}</option>`); setorSel.value = item.setor || ""; } else { setorSel.disabled = true; } el('nome').value = item.nome; el('cidade').value = item.cidade; el('linkMapa').value = item.linkMapa || ""; el('imagem').value = (item.imagens || [item.imagem]).join('\n'); el('precoAtual').value = item.preco || ""; el('precoAntigo').value = item.precoAntigo || ""; el('contato').value = item.contato || ""; el('telFixo').value = item.telFixo || ""; el('instagram').value = item.instagram || ""; el('checkDelivery').checked = item.temDelivery || false; el('taxaEntrega').value = item.taxaEntrega || ""; el('taxaEntrega').style.display = item.temDelivery ? 'block' : 'none'; cardapioAtual = item.cardapio || []; renderCardapio(); if(item.publi) { el('checkPubli').checked = item.publi.ativa; el('boxPubli').style.display = item.publi.ativa ? 'block' : 'none'; el('imgPubli').value = item.publi.img || ""; if(item.publi.dataFim) { let d = item.publi.dataFim.seconds ? new Date(item.publi.dataFim.seconds * 1000) : new Date(item.publi.dataFim); el('contadorPubli').textContent = `Vence em: ${d.toLocaleDateString()}`; } } el('btnSalvar').style.display = 'none'; el('btnAtualizar').style.display = 'inline-block'; el('btnCancelar').style.display = 'inline-block'; el('tituloForm').textContent = "✏️ Editando: " + item.nome; window.scrollTo({top: 400, behavior:'smooth'}); } catch(e) { console.error(e); alert("Erro ao editar."); } };
-        // ... DEMAIS FUNÇÕES ...
+
+        // Funções de Gestão (Simplificadas para não estourar limite, mas funcionais)
+        window.editCat = async (oldName) => { const newName = prompt("Novo nome:", oldName); if (!newName || newName === oldName) return; if (listaSubs[newName]) return alert("Já existe!"); listaSubs[newName] = listaSubs[oldName]; delete listaSubs[oldName]; const idx = listaSubs["_order"].indexOf(oldName); if (idx !== -1) listaSubs["_order"][idx] = newName; await setDoc(doc(db, "config", "categorias"), listaSubs); carregarCategorias(); };
+        window.editSub = async (cat, index) => { const oldName = listaSubs[cat][index]; const newName = prompt("Novo nome:", oldName); if (!newName || newName === oldName) return; listaSubs[cat][index] = newName; if (listaSetores[oldName]) { listaSetores[newName] = listaSetores[oldName]; delete listaSetores[oldName]; await setDoc(doc(db, "config", "setores"), listaSetores); } await setDoc(doc(db, "config", "categorias"), listaSubs); carregarCategorias(); };
+        window.editSetorItem = async (sub, index) => { const oldName = listaSetores[sub][index]; const newName = prompt("Novo nome:", oldName); if (!newName || newName === oldName) return; listaSetores[sub][index] = newName; await setDoc(doc(db, "config", "setores"), listaSetores); renderListaSetores(sub); };
+        window.toggleSubs = (cat) => { const el = document.getElementById(`subs-${cat}`); el.style.display = el.style.display === 'block' ? 'none' : 'block'; };
+        window.toggleSetores = (sub) => { const el = document.getElementById(`setores-${sub}`); el.style.display = el.style.display === 'block' ? 'none' : 'block'; };
+        function renderListaSetores(sub) { const container = document.getElementById(`list-setores-${sub}`); if(!container) return; container.innerHTML = ""; const setores = listaSetores[sub] || []; if(setores.length === 0) { container.innerHTML = "<div style='color:#777; font-style:italic;'>Nenhum setor.</div>"; } else { setores.forEach((s, idx) => { container.innerHTML += `<div class="sector-item"><div><span>${s}</span> <button class="btn-mini btn-warning" onclick="editSetorItem('${sub}', ${idx})">✏️</button></div> <button class="btn-mini btn-danger" onclick="delSetor('${sub}', ${idx})">✕</button></div>`; }); } }
+        window.addSetor = async (sub) => { const input = document.getElementById(`new-setor-${sub}`); const val = input.value.trim(); if(!val) return; if(!listaSetores[sub]) listaSetores[sub] = []; listaSetores[sub].push(val); await setDoc(doc(db, "config", "setores"), listaSetores); input.value = ""; renderListaSetores(sub); };
+        window.delSetor = async (sub, idx) => { if(!confirm("Excluir setor?")) return; listaSetores[sub].splice(idx, 1); await setDoc(doc(db, "config", "setores"), listaSetores); renderListaSetores(sub); };
+        window.addSub = async (cat) => { const input = document.getElementById(`new-sub-${cat}`); const val = input.value.trim(); if(!val) return; if(!listaSubs[cat]) listaSubs[cat] = []; listaSubs[cat].push(val); await setDoc(doc(db, "config", "categorias"), listaSubs); input.value = ""; renderCategorias(); setTimeout(() => document.getElementById(`subs-${cat}`).style.display = 'block', 100); atualizarSelectCat(); };
+        window.delSub = async (cat, index) => { if(!confirm("Excluir?")) return; listaSubs[cat].splice(index, 1); await setDoc(doc(db, "config", "categorias"), listaSubs); renderCategorias(); setTimeout(() => document.getElementById(`subs-${cat}`).style.display = 'block', 100); atualizarSelectCat(); };
+        window.delCat = async (cat) => { if(confirm("Excluir Categoria?")) { delete listaSubs[cat]; listaSubs["_order"] = listaSubs["_order"].filter(c => c !== cat); await setDoc(doc(db, "config", "categorias"), listaSubs); renderCategorias(); atualizarSelectCat(); }};
+        window.moverCat = async (i, d) => { let o = listaSubs["_order"]; let n = i+d; if(n<0||n>=o.length) return; [o[i], o[n]] = [o[n], o[i]]; listaSubs["_order"] = o; await setDoc(doc(db, "config", "categorias"), listaSubs); renderCategorias(); atualizarSelectCat(); };
+        el('btnAddItem').onclick = () => { const item = { nome: el('prodNome').value, preco: parseFloat(el('prodPreco').value), desc: el('prodDesc').value, img: el('prodImg').value }; if(!item.nome || !item.preco) return alert("Preencha nome e preço!"); if(itemMenuEditandoIndex === -1) { cardapioAtual.push(item); } else { cardapioAtual[itemMenuEditandoIndex] = item; el('btnAddItem').textContent = "Adicionar"; itemMenuEditandoIndex = -1; } el('prodNome').value = ""; el('prodPreco').value = ""; el('prodDesc').value = ""; el('prodImg').value = ""; renderCardapio(); };
+        function renderCardapio() { const d = el('lista-cardapio-preview'); d.innerHTML = ""; cardapioAtual.forEach((i, x) => { d.innerHTML += `<div class="item-cardapio"><div><b>${i.nome}</b> - R$ ${i.preco}</div><div><button class="btn-mini btn-warning" onclick="prepararEdicaoItemMenu(${x})">✏️</button><button class="btn-mini btn-danger" onclick="delItemMenu(${x})">X</button></div></div>`; }); }
+        window.delItemMenu = (index) => { cardapioAtual.splice(index, 1); renderCardapio(); };
+        window.prepararEdicaoItemMenu = (index) => { const item = cardapioAtual[index]; el('prodNome').value = item.nome; el('prodPreco').value = item.preco; el('prodDesc').value = item.desc; el('prodImg').value = item.img; itemMenuEditandoIndex = index; el('btnAddItem').textContent = "Atualizar Item"; };
+        function carregarCidadesAdmin() { onSnapshot(collection(db, "cidades"), (snap) => { const div = el('listaCidades'); div.innerHTML = ""; const select = el('selCidadeCadastro'); const selectUser = el('editUserCidade'); select.innerHTML = '<option value="">Selecione...</option>'; selectUser.innerHTML = '<option value="">Selecione...</option>'; mapCidades = {}; snap.forEach(doc => { const cid = doc.data(); mapCidades[doc.id] = cid.nome; if(currentUser && currentUser.role === 'master') { div.innerHTML += `<div class="manager-item"><div><b>${cid.nome}</b> (${cid.uf}) <span style="font-size:12px;color:#666">User: ${cid.login}</span></div><div><button class="btn-warning" style="width:30px; display:inline-block;" onclick="prepararEdicaoCidade('${doc.id}', '${cid.nome}', '${cid.uf}', '${cid.login||''}', '${cid.senha}', '${cid.fundo||''}', '${cid.logoPatra||''}', '${cid.logoSize||''}', '${cid.logoBottom||''}')">✏️</button><button class="btn-danger" style="width:30px; display:inline-block;" onclick="excluirCidade('${doc.id}', '${cid.nome}')">✕</button></div></div>`; } const opt = document.createElement('option'); opt.value = doc.id; opt.textContent = `${cid.nome} - ${cid.uf}`; select.appendChild(opt.cloneNode(true)); selectUser.appendChild(opt); }); configurarSeletorCidades(); }); }
+        function configuringSeletorCidades() { const select = el('selCidadeCadastro'); if(currentUser && (currentUser.role === 'city' || currentUser.role === 'owner')) { if(currentUser.cityId) { select.value = currentUser.cityId; select.disabled = true; } else { select.disabled = false; } } else { select.disabled = false; } }
+        window.configurarSeletorCidades = configuringSeletorCidades;
         window.prepararEdicaoCidade = (id, nome, uf, login, senha, fundo, logo, logoSize, logoBottom) => { idCidadeEditando = id; el('novaCidadeNome').value = nome; el('novaCidadeUF').value = uf; el('novaCidadeLogin').value = login; el('novaCidadeSenha').value = senha; el('novaCidadeFundo').value = fundo; el('novaCidadeLogo').value = logo; el('novaCidadeLogoSize').value = logoSize || ""; el('novaCidadeLogoBottom').value = logoBottom || ""; el('btnSalvarCidade').textContent = "Atualizar"; el('btnSalvarCidade').className = "btn-warning"; el('btnCancelarCidade').style.display = "inline-block"; el('tituloCidadeForm').textContent = "✏️ Editando"; el('novaCidadeLogin').disabled = false; };
         window.cancelarEdicaoCidade = () => { idCidadeEditando = null; el('novaCidadeNome').value = ""; el('novaCidadeUF').value = ""; el('novaCidadeLogin').value = ""; el('novaCidadeSenha').value = ""; el('novaCidadeFundo').value = ""; el('novaCidadeLogo').value = ""; el('novaCidadeLogoSize').value = ""; el('novaCidadeLogoBottom').value = ""; el('btnSalvarCidade').textContent = "+ Cadastrar"; el('btnSalvarCidade').className = "btn-success"; el('btnCancelarCidade').style.display = "none"; el('tituloCidadeForm').textContent = "Nova Cidade"; };
         window.salvarCidade = async () => { const nome = el('novaCidadeNome').value.trim(); const uf = el('novaCidadeUF').value.trim().toUpperCase(); const login = el('novaCidadeLogin').value.trim(); const senha = el('novaCidadeSenha').value.trim(); let fundo = el('novaCidadeFundo').value.trim(); const logoPatra = el('novaCidadeLogo').value.trim(); const logoSize = el('novaCidadeLogoSize').value.trim(); const logoBottom = el('novaCidadeLogoBottom').value.trim(); if(!nome || !uf || !senha || !login) return alert("Preencha Nome, UF, Login e Senha."); if(!fundo) fundo = IMG_PADRAO_CIDADE; const check = query(collection(db, "cidades"), where("login", "==", login)); const checkSnap = await getDocs(check); let loginEmUso = false; if(!checkSnap.empty) { if(idCidadeEditando) { if(checkSnap.docs[0].id !== idCidadeEditando) loginEmUso = true; } else { loginEmUso = true; } } if(loginEmUso) return alert(`ERRO: Usuário '${login}' já existe.`); if(login === 'master') return alert("Login 'master' é reservado."); const dados = { nome, uf, login, senha, fundo, logoPatra, logoSize, logoBottom }; if(idCidadeEditando) { await updateDoc(doc(db, "cidades", idCidadeEditando), dados); alert("Atualizado!"); } else { await addDoc(collection(db, "cidades"), dados); alert("Criado!"); } cancelarEdicaoCidade(); };
@@ -490,10 +402,8 @@
         window.cancelarEdicaoUsuario = () => { idUsuarioEditando = null; el('formEditUser').style.display = 'none'; el('editUserName').value = ""; el('editUserEmail').value = ""; el('editUserPass').value = ""; el('editUserCidade').value = ""; };
         window.salvarEdicaoUsuario = async () => { if(!idUsuarioEditando) return; const nome = el('editUserName').value.trim(); const senha = el('editUserPass').value.trim(); const cidadeId = el('editUserCidade').value; if(!nome || !senha) return alert("Nome e Senha são obrigatórios."); if(!cidadeId) return alert("Selecione uma Cidade para este usuário."); await updateDoc(doc(db, "users", idUsuarioEditando), { nome, senha, cidadeId }); alert("Usuário atualizado!"); cancelarEdicaoUsuario(); };
         window.excluirUsuario = async (id, nome) => { if(confirm(`Tem certeza que deseja excluir o usuário ${nome}?`)) await deleteDoc(doc(db, "users", id)); };
-        async function carregarConfigGeral() { const docSnap = await getDoc(doc(db, "config", "geral")); if(docSnap.exists()) { const d = docSnap.data(); el('confNomeCidade').value = d.titulo || ""; el('opacAzul').value = d.opacAzul || 80; el('opacPreto').value = d.opacPreto || 50; } }
-        el('categoria').addEventListener('change', () => { const cat = el('categoria').value; if(cat === 'Classificados') { el('lblNome').textContent = "Produto:"; el('lblCidade').textContent = "Descrição:"; el('divInsta').style.display='none'; } else if(cat === 'Profissionais') { el('lblNome').textContent = "Profissional:"; el('lblCidade').textContent = "Qualificação:"; el('divInsta').style.display='block'; } else { el('lblNome').textContent = "Local:"; el('lblCidade').textContent = "Endereço:"; el('divInsta').style.display='block'; } const sub = el('subcategoria'); sub.innerHTML = '<option value="">Selecione...</option>'; el('setor').innerHTML = '<option value="">Selecione subcategoria...</option>'; el('setor').disabled = true; if(cat && listaSubs[cat] && listaSubs[cat].length > 0) { sub.disabled = false; listaSubs[cat].forEach(s => sub.innerHTML += `<option value="${s}">${s}</option>`); } else { sub.disabled = true; } });
-        el('subcategoria').addEventListener('change', () => { const sub = el('subcategoria').value; const setorSel = el('setor'); setorSel.innerHTML = '<option value="">Selecione...</option>'; if(sub && listaSetores[sub] && listaSetores[sub].length > 0) { setorSel.disabled = false; setorSel.innerHTML = '<option value="">Sem setor (Opcional)</option>'; listaSetores[sub].forEach(s => setorSel.innerHTML += `<option value="${s}">${s}</option>`); } else { setorSel.innerHTML = '<option value="">Nenhum setor disponível</option>'; setorSel.disabled = true; } });
-        window.salvarConfigGlobal = async () => { await setDoc(doc(db, "config", "geral"), { titulo: el('confNomeCidade').value, opacAzul: el('opacAzul').value, opacPreto: el('opacPreto').value }, { merge: true }); alert("Salvo!"); };
+        async function carregarConfigGeral() { try { const docSnap = await getDoc(doc(db, "config", "geral")); if(docSnap.exists()) { const d = docSnap.data(); if(el('confNomeCidade')) el('confNomeCidade').value = d.titulo || ""; if(el('opacAzul')) el('opacAzul').value = d.opacAzul || 80; if(el('opacPreto')) el('opacPreto').value = d.opacPreto || 50; if(el('confLogoHeight')) el('confLogoHeight').value = d.logoHeight || ""; if(el('confLogoTop')) el('confLogoTop').value = d.logoTop || ""; } } catch(e) { console.log("Config não carregada (pode ser User):", e); } }
+        window.salvarConfigGlobal = async () => { await setDoc(doc(db, "config", "geral"), { titulo: el('confNomeCidade').value, opacAzul: el('opacAzul').value, opacPreto: el('opacPreto').value, logoHeight: el('confLogoHeight').value, logoTop: el('confLogoTop').value }, { merge: true }); alert("Salvo!"); };
         el('checkDelivery').onchange = e => { el('boxDelivery').style.display = e.target.checked ? 'block':'none'; el('taxaEntrega').style.display = e.target.checked ? 'block':'none'; };
         el('checkPubli').onchange = e => el('boxPubli').style.display = e.target.checked ? 'block':'none';
         el('tipoValidade').onchange = e => { el('valorValidade').style.display = e.target.value === 'data' ? 'none':'block'; el('dataEspecifica').style.display = e.target.value === 'data' ? 'block':'none'; };

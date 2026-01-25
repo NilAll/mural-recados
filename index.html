@@ -3,24 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    
     <title>Guia da Cidade</title>
 
     <link rel="manifest" href="manifest.json">
-
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Guia MDR">
-    
     <link rel="apple-touch-icon" href="icon.png">
     <link rel="icon" type="image/png" href="icon.png">
-    
     <meta name="theme-color" content="#222222">
     
     <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
 
     <style>
-        /* CSS GLOBAL */
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; -webkit-user-select: none; user-select: none; }
         input, select { -webkit-user-select: text; user-select: text; }
         body { background-color: #222; background-size: cover; background-position: center; background-attachment: fixed; min-height: 100vh; color: white; padding: 10px 0; display: flex; flex-direction: column; align-items: center; overflow-x: hidden; }
@@ -28,20 +23,21 @@
         .grad-top { position: fixed; top: 0; left: 0; width: 100%; height: 25%; pointer-events: none; z-index: 1; }
         .grad-bottom { position: fixed; bottom: 0; left: 0; width: 100%; height: 20%; pointer-events: none; z-index: 1; }
         
-        .sponsor-logo { 
-            position: fixed; 
-            left: 50%; 
-            transform: translateX(-50%); 
-            z-index: 5; 
-            pointer-events: none; 
-            display: none; 
-            max-width: 180px; 
-        }
+        .sponsor-logo { position: fixed; left: 50%; transform: translateX(-50%); z-index: 5; pointer-events: none; display: none; max-width: 180px; }
 
         #appContent { display: none; width: 100%; display: flex; flex-direction: column; align-items: center; }
 
         .header-container { width: 100%; max-width: 500px; text-align: center; margin-top: 20px; padding: 0 10px; position: relative; z-index: 20; }
-        .header-top { display: flex; align-items: center; justify-content: center; position: relative; margin-bottom: 5px; }
+        .header-top { display: flex; align-items: center; justify-content: center; position: relative; margin-bottom: 15px; }
+        
+        /* LOGO CLICÁVEL (Efeito de clique) */
+        .header-logo { 
+            height: 50px; width: auto; object-fit: contain;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));
+            cursor: pointer; transition: transform 0.2s;
+        }
+        .header-logo:active { transform: scale(0.95); }
+
         .btn-voltar-home { position: absolute; left: 0; top: 50%; transform: translateY(-50%); background: none; border: none; color: white; font-size: 24px; cursor: pointer; text-shadow: 0 2px 4px rgba(0,0,0,0.8); display: none; padding: 10px; }
         .btn-hamburger { position: absolute; right: 0; top: 50%; transform: translateY(-50%); background: none; border: none; color: white; font-size: 26px; cursor: pointer; text-shadow: 0 2px 4px rgba(0,0,0,0.8); padding: 10px; }
         
@@ -49,11 +45,9 @@
         .menu-opt { padding: 15px; color: #333; font-size: 14px; border-bottom: 1px solid #eee; cursor: pointer; font-weight: 500; display: flex; align-items: center; gap: 10px; }
         .menu-opt:hover { background: #f5f5f5; }
 
-        h1 { font-weight: bold; font-size: 2em; background: none; margin: 0; text-transform: none; text-shadow: 2px 2px 4px #000000, 0 0 10px rgba(0,0,0,0.7); }
-        .city-display { color: rgba(255,255,255,0.8); font-size: 13px; margin-bottom: 15px; font-weight: 500; text-shadow: 0 1px 3px rgba(0,0,0,0.5); cursor: pointer; }
-
         .search-box { width: 100%; margin-bottom: 20px; position: relative; z-index: 10; }
-        input { width: 100%; padding: 12px 20px; font-size: 16px; border-radius: 30px; border: none; outline: none; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
+        input { width: 100%; padding: 12px 20px; font-size: 16px; border-radius: 30px; border: none; outline: none; box-shadow: 0 4px 15px rgba(0,0,0,0.3); text-align: center; background: rgba(255, 255, 255, 0.95); font-weight: 500; }
+        ::placeholder { color: #555; font-weight: bold; opacity: 1; }
 
         #resultados { width: 90%; max-width: 500px; padding-bottom: 50px; display: none; position: relative; z-index: 10; }
         .card { background: rgba(255, 255, 255, 0.95); border-radius: 12px; overflow: hidden; margin-bottom: 15px; color: #333; display: flex; align-items: center; padding: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.2); position: relative; cursor: pointer; height: 90px; }
@@ -93,7 +87,7 @@
         <div class="header-container">
             <div class="header-top">
                 <button id="btnVoltarInicio" class="btn-voltar-home" onclick="clickVoltar()">⬅</button>
-                <h1 id="appTitulo">Guia</h1>
+                <img src="logo.png" class="header-logo" alt="Guia da Cidade" onclick="resetarApp()">
                 <button class="btn-hamburger" onclick="toggleMenu()">☰</button>
                 <div id="mainMenu" class="main-menu-dropdown">
                     <div class="menu-opt" onclick="abrirModalCadastroUser()">👤 Cadastro</div>
@@ -101,8 +95,10 @@
                     <div class="menu-opt" onclick="window.location.href='admin.html'">⚙️ Admin</div>
                 </div>
             </div>
-            <div id="displayCidade" class="city-display" onclick="abrirModalCidades(true)">...</div>
-            <div class="search-box"><input type="text" id="busca" placeholder="🔍 Buscar..." autocomplete="off"></div>
+            
+            <div class="search-box">
+                <input type="text" id="busca" placeholder="Carregando..." autocomplete="off">
+            </div>
         </div>
 
         <div id="painelNavegacao">
@@ -207,7 +203,9 @@
         };
 
         function aplicarCidade(cidade) {
-            document.getElementById('displayCidade').textContent = `📍 ${cidade.nome} - ${cidade.uf}`;
+            const input = document.getElementById('busca');
+            input.placeholder = `📍 ${cidade.nome} - ${cidade.uf}`;
+            
             if(cidade.fundo) document.body.style.backgroundImage = `url('${cidade.fundo}')`;
             else document.body.style.backgroundImage = `url('https://images.unsplash.com/photo-1505142468610-359e7d316be0?q=80&w=3070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D')`;
             const logo = document.getElementById('logoPatra');
@@ -224,11 +222,13 @@
                 const docSnap = await getDoc(doc(db, "config", "geral"));
                 if (docSnap.exists()) {
                     const d = docSnap.data();
-                    if(d.titulo) document.getElementById('appTitulo').textContent = d.titulo;
                     const opAzul = (d.opacAzul !== undefined) ? d.opacAzul / 100 : 0.8;
                     const opPreto = (d.opacPreto !== undefined) ? d.opacPreto / 100 : 0.5;
                     document.getElementById('gradTop').style.background = `linear-gradient(to bottom, rgba(0,0,255, ${opAzul}), transparent)`;
                     document.getElementById('gradBottom').style.background = `linear-gradient(to top, rgba(0,0,0, ${opPreto}), transparent)`;
+                    
+                    if (d.logoHeight) document.querySelector('.header-logo').style.height = d.logoHeight + 'px';
+                    if (d.logoTop) document.querySelector('.header-logo').style.marginTop = d.logoTop + 'px';
                 }
                 const docCat = await getDoc(doc(db, "config", "categorias"));
                 if (docCat.exists()) { estruturaCategorias = docCat.data(); renderizarCategorias(); }
@@ -249,7 +249,17 @@
 
         window.clickVoltar = () => { if (viewState === 'results_sub') { abrirSubcategorias(lastCategory); return; } if (viewState === 'subcats') { voltarParaCategorias(); return; } resetarApp(); };
         window.voltarParaCategorias = () => { document.getElementById('viewSubcategorias').style.display = 'none'; document.getElementById('viewCategorias').style.display = 'block'; document.getElementById('btnVoltarInicio').style.display = 'block'; viewState = 'cats'; };
-        window.resetarApp = () => { document.getElementById('busca').value = ""; document.getElementById('resultados').style.display = 'none'; document.getElementById('painelNavegacao').style.display = 'none'; document.getElementById('btnVoltarInicio').style.display = 'none'; document.getElementById('viewSubcategorias').style.display = 'none'; document.getElementById('viewCategorias').style.display = 'block'; viewState = 'home'; };
+        
+        // CORREÇÃO: MOSTRAR O PAINEL DE NAVEGAÇÃO AO RESETAR
+        window.resetarApp = () => { 
+            document.getElementById('busca').value = ""; 
+            document.getElementById('resultados').style.display = 'none'; 
+            document.getElementById('painelNavegacao').style.display = 'block'; // Mostra o menu principal
+            document.getElementById('btnVoltarInicio').style.display = 'none'; 
+            document.getElementById('viewSubcategorias').style.display = 'none'; 
+            document.getElementById('viewCategorias').style.display = 'block'; 
+            viewState = 'home'; 
+        };
 
         const inputBusca = document.getElementById('busca'); const painelNav = document.getElementById('painelNavegacao'); const divResultados = document.getElementById('resultados');
         inputBusca.addEventListener('click', () => { if(inputBusca.value.trim() === "") { painelNav.style.display = 'block'; divResultados.style.display = 'none'; document.getElementById('btnVoltarInicio').style.display = 'block'; if (viewState !== 'subcats') voltarParaCategorias(); }});
