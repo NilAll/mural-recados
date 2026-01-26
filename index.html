@@ -28,8 +28,7 @@
 
         #appContent { display: none; width: 100%; display: flex; flex-direction: column; align-items: center; position: relative; z-index: 10; }
 
-        /* HEADER (Z-Index alto para ficar acima do overlay) */
-        .header-container { width: 100%; max-width: 500px; text-align: center; margin-top: 20px; padding: 0 10px; position: relative; z-index: 30; }
+        .header-container { width: 100%; max-width: 500px; text-align: center; margin-top: 20px; padding: 0 10px; position: relative; z-index: 20; }
         .header-top { display: flex; align-items: center; justify-content: center; position: relative; margin-bottom: 15px; }
         
         .header-logo { 
@@ -37,7 +36,10 @@
             width: auto; 
             object-fit: contain;
             filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));
+            cursor: pointer;
+            transition: transform 0.1s;
         }
+        .header-logo:active { transform: scale(0.95); }
 
         .btn-voltar-home { position: absolute; left: 0; top: 50%; transform: translateY(-50%); background: none; border: none; color: white; font-size: 24px; cursor: pointer; text-shadow: 0 2px 4px rgba(0,0,0,0.8); display: none; padding: 10px; }
         .btn-hamburger { position: absolute; right: 0; top: 50%; transform: translateY(-50%); background: none; border: none; color: white; font-size: 26px; cursor: pointer; text-shadow: 0 2px 4px rgba(0,0,0,0.8); padding: 10px; }
@@ -65,14 +67,10 @@
         .price-display { font-size: 14px; font-weight: bold; color: #28a745; white-space: nowrap; display: flex; flex-direction: column; align-items: flex-end; line-height: 1; }
         .old-price { text-decoration: line-through; color: #999; font-size: 10px; }
 
-        /* PAINEL NAVEGAÇÃO (Z-Index 25 para ficar acima do overlay mas abaixo do header) */
-        #painelNavegacao { width: 90%; max-width: 500px; display: none; background: rgba(255, 255, 255, 0.95); border-radius: 15px; padding: 20px 20px 60px 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); color: #333; margin-bottom: 20px; position: relative; z-index: 25; }
-        
-        /* OVERLAY CLICAR FORA */
-        .overlay-click-close { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 20; background: rgba(0,0,0,0.0); /* Transparente, mas captura o clique */ }
-
+        #painelNavegacao { width: 90%; max-width: 500px; display: none; background: rgba(255, 255, 255, 0.95); border-radius: 15px; padding: 20px 20px 60px 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); color: #333; margin-bottom: 20px; position: relative; z-index: 10; }
         .cat-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 10px; }
-        .cat-card { display: flex; flex-direction: column; align-items: center; text-align: center; padding: 10px; border-radius: 10px; cursor: pointer; border: 1px solid #eee; }
+        .cat-card { display: flex; flex-direction: column; align-items: center; text-align: center; padding: 10px; border-radius: 10px; cursor: pointer; border: 1px solid #eee; transition: background 0.1s; }
+        .cat-card:active { background: #f0f0f0; }
         .cat-icon { font-size: 30px; margin-bottom: 5px; }
         .subcat-header { display: flex; align-items: center; margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 10px; }
         .btn-voltar-cat { border: none; background: none; font-size: 20px; cursor: pointer; margin-right: 10px; padding: 5px; }
@@ -91,13 +89,13 @@
 <body>
     <div id="gradTop" class="grad-top"></div><div id="gradBottom" class="grad-bottom"></div><img id="logoPatra" class="sponsor-logo" src="">
     
-    <div id="overlayClose" class="overlay-click-close" onclick="resetarApp()"></div>
-
     <div id="appContent">
         <div class="header-container">
             <div class="header-top">
                 <button id="btnVoltarInicio" class="btn-voltar-home" onclick="clickVoltar()">⬅</button>
-                <img src="logo.png" class="header-logo" alt="Guia da Cidade">
+                
+                <img src="logo.png" class="header-logo" alt="Guia da Cidade" onclick="resetarApp()">
+                
                 <button class="btn-hamburger" onclick="toggleMenu()">☰</button>
                 <div id="mainMenu" class="main-menu-dropdown">
                     <div class="menu-opt" onclick="abrirModalCadastroUser()">👤 Cadastro</div>
@@ -112,8 +110,17 @@
         </div>
 
         <div id="painelNavegacao">
-            <div id="viewCategorias"><h3 style="margin-bottom:10px; font-size:16px;">Categorias</h3><div id="gridCategorias" class="cat-grid"></div></div>
-            <div id="viewSubcategorias" style="display: none;"><div class="subcat-header"><button class="btn-voltar-cat" onclick="voltarParaCategorias()">⬅</button><h3 id="tituloCatSelecionada" style="margin:0; font-size:16px;">...</h3></div><div id="listaSubcats" class="subcat-list"></div></div>
+            <div id="viewCategorias">
+                <h3 style="margin-bottom:10px; font-size:16px;">Categorias</h3>
+                <div id="gridCategorias" class="cat-grid"></div>
+            </div>
+            <div id="viewSubcategorias" style="display: none;">
+                <div class="subcat-header">
+                    <button class="btn-voltar-cat" onclick="voltarParaCategorias()">⬅</button>
+                    <h3 id="tituloCatSelecionada" style="margin:0; font-size:16px;">...</h3>
+                </div>
+                <div id="listaSubcats" class="subcat-list"></div>
+            </div>
         </div>
 
         <div id="resultados"></div>
@@ -132,15 +139,10 @@
         <div class="city-modal-content form-user" onclick="event.stopPropagation()">
             <h2 style="margin-top:0; color:#28a745;">Cadastre seu Negócio</h2>
             <p style="color:#666; font-size:13px;">Preencha para receber seus dados de acesso.</p>
-            
-            <select id="cadCidadeSelect">
-                <option value="">Selecione sua Cidade</option>
-            </select>
-
+            <select id="cadCidadeSelect"><option value="">Selecione sua Cidade</option></select>
             <input type="text" id="cadNome" placeholder="Nome Completo">
             <input type="email" id="cadEmail" placeholder="E-mail">
             <input type="password" id="cadSenha" placeholder="Crie uma Senha">
-            
             <button id="btnConfirmarCad" class="btn-cad-user" onclick="realizarCadastroUser()">Confirmar Cadastro</button>
             <button onclick="fecharModalCadastro()" style="margin-top:10px; background:none; border:none; color:#666; text-decoration:underline;">Cancelar</button>
         </div>
@@ -164,36 +166,21 @@
         window.fecharModalCadastro = (e) => { if(!e || e.target.id === 'modalCadastroUser') document.getElementById('modalCadastroUser').style.display = 'none'; };
 
         window.realizarCadastroUser = async () => {
-            const cidadeId = document.getElementById('cadCidadeSelect').value;
-            const nome = document.getElementById('cadNome').value.trim();
-            const email = document.getElementById('cadEmail').value.trim();
-            const senha = document.getElementById('cadSenha').value.trim();
-            const btn = document.getElementById('btnConfirmarCad');
-
-            if(!cidadeId) return alert("Selecione sua cidade!");
-            if(!nome || !email || !senha) return alert("Preencha todos os campos!");
-
-            btn.textContent = "Processando...";
-            btn.disabled = true;
-
+            const cidadeId = document.getElementById('cadCidadeSelect').value; const nome = document.getElementById('cadNome').value.trim();
+            const email = document.getElementById('cadEmail').value.trim(); const senha = document.getElementById('cadSenha').value.trim(); const btn = document.getElementById('btnConfirmarCad');
+            if(!cidadeId) return alert("Selecione sua cidade!"); if(!nome || !email || !senha) return alert("Preencha todos os campos!");
+            btn.textContent = "Processando..."; btn.disabled = true;
             try {
                 await addDoc(collection(db, "users"), { nome: nome, email: email, senha: senha, role: 'owner', cidadeId: cidadeId, dataCadastro: new Date() });
                 const templateParams = { to_name: nome, to_email: email, user_login: email, user_password: senha };
                 await emailjs.send('service_cuesjea', 'template_dftiawx', templateParams);
-                alert("Cadastro realizado! Verifique seu e-mail com os dados de acesso.");
-                window.location.href = "admin.html";
-            } catch(e) {
-                console.error(e);
-                alert("Erro ao cadastrar. Tente novamente.");
-                btn.textContent = "Confirmar Cadastro";
-                btn.disabled = false;
-            }
+                alert("Cadastro realizado! Verifique seu e-mail com os dados de acesso."); window.location.href = "admin.html";
+            } catch(e) { console.error(e); alert("Erro ao cadastrar. Tente novamente."); btn.textContent = "Confirmar Cadastro"; btn.disabled = false; }
         };
 
         async function carregarCidades() {
             const snap = await getDocs(collection(db, "cidades"));
-            const divLista = document.getElementById('listaCidadesSelect');
-            const selectCad = document.getElementById('cadCidadeSelect');
+            const divLista = document.getElementById('listaCidadesSelect'); const selectCad = document.getElementById('cadCidadeSelect');
             divLista.innerHTML = ""; selectCad.innerHTML = '<option value="">Selecione sua Cidade</option>';
             listaCidades = [];
             if(snap.empty) { divLista.innerHTML = "<p>Nenhuma cidade cadastrada.</p>"; return; }
@@ -203,22 +190,13 @@
                 const opt = document.createElement('option'); opt.value = doc.id; opt.textContent = `${cid.nome} - ${cid.uf}`; selectCad.appendChild(opt);
             });
             const cidadeSalva = listaCidades.find(c => c.id === cidadeAtualId);
-            if(!cidadeAtualId || !cidadeSalva) abrirModalCidades(false);
-            else aplicarCidade(cidadeSalva);
+            if(!cidadeAtualId || !cidadeSalva) abrirModalCidades(false); else aplicarCidade(cidadeSalva);
         }
 
-        window.selecionarCidade = (cidade) => {
-            cidadeAtualId = cidade.id; localStorage.setItem("cidade_id", cidade.id); aplicarCidade(cidade);
-            document.getElementById('modalCidades').style.display = 'none'; carregarDadosLocais(); resetarApp();
-        };
-
+        window.selecionarCidade = (cidade) => { cidadeAtualId = cidade.id; localStorage.setItem("cidade_id", cidade.id); aplicarCidade(cidade); document.getElementById('modalCidades').style.display = 'none'; carregarDadosLocais(); resetarApp(); };
         function aplicarCidade(cidade) {
-            // AQUI ESTÁ A MÁGICA: ALTERA O PLACEHOLDER DO INPUT
-            const input = document.getElementById('busca');
-            input.placeholder = `📍 ${cidade.nome} - ${cidade.uf}`;
-            
+            const input = document.getElementById('busca'); input.placeholder = `📍 ${cidade.nome} - ${cidade.uf}`;
             if(cidade.fundo) document.body.style.backgroundImage = `url('${cidade.fundo}')`;
-            else document.body.style.backgroundImage = `url('https://images.unsplash.com/photo-1505142468610-359e7d316be0?q=80&w=3070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D')`;
             const logo = document.getElementById('logoPatra');
             if(cidade.logoPatra) { logo.src = cidade.logoPatra; logo.style.display = 'block'; logo.style.width = (cidade.logoSize || 30) + '%'; logo.style.bottom = (cidade.logoBottom || 15) + '%'; } else { logo.style.display = 'none'; }
             document.getElementById('appContent').style.display = 'flex';
@@ -237,7 +215,6 @@
                     const opPreto = (d.opacPreto !== undefined) ? d.opacPreto / 100 : 0.5;
                     document.getElementById('gradTop').style.background = `linear-gradient(to bottom, rgba(0,0,255, ${opAzul}), transparent)`;
                     document.getElementById('gradBottom').style.background = `linear-gradient(to top, rgba(0,0,0, ${opPreto}), transparent)`;
-                    
                     if (d.logoHeight) document.querySelector('.header-logo').style.height = d.logoHeight + 'px';
                     if (d.logoTop) document.querySelector('.header-logo').style.marginTop = d.logoTop + 'px';
                 }
@@ -258,46 +235,39 @@
         window.toggleMenu = () => { const m = document.getElementById('mainMenu'); m.style.display = (m.style.display==='flex')?'none':'flex'; };
         document.addEventListener('click', e => { if(document.getElementById('mainMenu').style.display==='flex' && !e.target.closest('.btn-hamburger') && !e.target.closest('.main-menu-dropdown')) document.getElementById('mainMenu').style.display='none'; });
 
+        // === NAVEGAÇÃO CORRIGIDA ===
         window.clickVoltar = () => { 
             if (viewState === 'results_sub') { abrirSubcategorias(lastCategory); return; } 
             if (viewState === 'subcats') { voltarParaCategorias(); return; } 
-            // Se estiver apenas com o painel aberto, fecha e volta pro estado inicial
             resetarApp(); 
         };
-        
         window.voltarParaCategorias = () => { 
             document.getElementById('viewSubcategorias').style.display = 'none'; 
             document.getElementById('viewCategorias').style.display = 'block'; 
             document.getElementById('btnVoltarInicio').style.display = 'block'; 
             viewState = 'cats'; 
         };
-        
         window.resetarApp = () => { 
             document.getElementById('busca').value = ""; 
             document.getElementById('resultados').style.display = 'none'; 
-            document.getElementById('painelNavegacao').style.display = 'none'; 
+            document.getElementById('painelNavegacao').style.display = 'none'; // Fecha o painel (MINIMIZA)
             document.getElementById('btnVoltarInicio').style.display = 'none'; 
             document.getElementById('viewSubcategorias').style.display = 'none'; 
             document.getElementById('viewCategorias').style.display = 'block'; 
-            document.getElementById('overlayClose').style.display = 'none'; // Fecha overlay
             viewState = 'home'; 
         };
 
         const inputBusca = document.getElementById('busca'); const painelNav = document.getElementById('painelNavegacao'); const divResultados = document.getElementById('resultados');
-        
-        // AO CLICAR NA BUSCA, ABRE O PAINEL DE CATEGORIAS E O OVERLAY
         inputBusca.addEventListener('click', () => { 
             if(inputBusca.value.trim() === "") { 
-                painelNav.style.display = 'block'; 
+                painelNav.style.display = 'block'; // Abre ao clicar na busca
                 divResultados.style.display = 'none'; 
                 document.getElementById('btnVoltarInicio').style.display = 'block'; 
-                document.getElementById('overlayClose').style.display = 'block'; // Mostra Overlay
                 if (viewState !== 'subcats') voltarParaCategorias(); 
             }
         });
-        
-        inputBusca.addEventListener('keyup', (e) => { const termo = e.target.value.toLowerCase(); if(termo.length > 0) { painelNav.style.display = 'none'; divResultados.style.display = 'block'; document.getElementById('btnVoltarInicio').style.display = 'block'; document.getElementById('overlayClose').style.display = 'none'; viewState = 'results_search'; executarBusca(termo); } else { divResultados.style.display = 'none'; painelNav.style.display = 'block'; document.getElementById('overlayClose').style.display = 'block'; viewState = 'cats'; }});
-        window.pesquisarPorSubcategoria = (termo) => { inputBusca.value = termo; painelNav.style.display = 'none'; divResultados.style.display = 'block'; document.getElementById('overlayClose').style.display = 'none'; viewState = 'results_sub'; executarBusca(termo.toLowerCase()); };
+        inputBusca.addEventListener('keyup', (e) => { const termo = e.target.value.toLowerCase(); if(termo.length > 0) { painelNav.style.display = 'none'; divResultados.style.display = 'block'; document.getElementById('btnVoltarInicio').style.display = 'block'; viewState = 'results_search'; executarBusca(termo); } else { divResultados.style.display = 'none'; painelNav.style.display = 'block'; viewState = 'cats'; }});
+        window.pesquisarPorSubcategoria = (termo) => { inputBusca.value = termo; painelNav.style.display = 'none'; divResultados.style.display = 'block'; viewState = 'results_sub'; executarBusca(termo.toLowerCase()); };
 
         function renderizarCategorias() {
             const grid = document.getElementById('gridCategorias'); grid.innerHTML = "";
