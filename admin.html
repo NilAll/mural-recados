@@ -4,8 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-    <meta http-equiv="Pragma" content="no-cache">
-    <meta http-equiv="Expires" content="0">
     <title>Admin - Gestão</title>
     
     <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
@@ -60,7 +58,10 @@
         .modal-icons { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 10000; display: none; align-items: center; justify-content: center; }
         .modal-icons-content { background: white; width: 90%; max-width: 400px; padding: 25px; border-radius: 12px; text-align: center; }
         #inputCustomIcon { font-size: 40px; text-align: center; padding: 10px; width: 100%; margin-bottom: 20px; }
+        
+        /* Badges de Status na Lista */
         .badge-status { font-size: 10px; padding: 2px 6px; border-radius: 4px; font-weight: bold; margin-left: 5px; }
+        .badge-delivery { background:#e8f5e9; color:#2e7d32; border:1px solid #c8e6c9; }
         
         .palpite-row { display: flex; align-items: center; justify-content: space-between; padding: 10px; border-bottom: 1px solid #eee; }
         .palpite-num { font-size: 20px; font-weight: bold; background: #9c27b0; color: white; padding: 5px 12px; border-radius: 50%; }
@@ -100,7 +101,6 @@
 
     <div class="card" id="painelAdminsLocais">
         <h2>👮 Gestão de Admins Locais</h2>
-        <p style="color:#666; font-size:13px; margin-bottom:15px;">Aqui você visualiza e altera o acesso dos administradores de cada cidade.</p>
         <div id="listaAdminsLocais">Carregando...</div>
     </div>
     
@@ -136,35 +136,37 @@
             <label>🎨 Cores (0-100)</label>
             <div class="form-grid"><div><label>Azul</label><input type="range" id="opacAzul"></div><div><label>Preto</label><input type="range" id="opacPreto"></div></div>
         </div>
-        
         <div class="form-grid">
             <div style="background:#e8f5e9; padding:15px; border-radius:8px; border:1px solid #c8e6c9;">
                 <label style="color:#2e7d32; border-bottom:1px solid #a5d6a7; margin-bottom:10px;">📌 Logo do Topo</label>
-                <label>Tamanho (px):</label>
-                <input id="confHeaderSize" type="number" placeholder="Ex: 50">
-                <label>Distância Topo (px):</label>
-                <input id="confHeaderTop" type="number" placeholder="Ex: 10">
+                <label>Tamanho (px):</label><input id="confHeaderSize" type="number" placeholder="Ex: 50">
+                <label>Distância Topo (px):</label><input id="confHeaderTop" type="number" placeholder="Ex: 10">
             </div>
             <div style="background:#fff3e0; padding:15px; border-radius:8px; border:1px solid #ffe0b2;">
                 <label style="color:#ef6c00; border-bottom:1px solid #ffcc80; margin-bottom:10px;">🤝 Logo Rodapé</label>
-                <label>Tamanho (px):</label>
-                <input id="confSponsorSize" type="number" placeholder="Ex: 60">
-                <label>Distância Rodapé (px):</label>
-                <input id="confSponsorBottom" type="number" placeholder="Ex: 15">
+                <label>Tamanho (px):</label><input id="confSponsorSize" type="number" placeholder="Ex: 60">
+                <label>Distância Rodapé (px):</label><input id="confSponsorBottom" type="number" placeholder="Ex: 15">
             </div>
         </div>
-        
         <button class="btn btn-primary" style="width:100%;" onclick="salvarConfigGlobal()">Salvar Configurações</button>
     </div>
 
     <div class="card" id="painelCadastro" style="display:block;">
         <h2 id="tituloForm">🏪 Cadastrar / Editar Local</h2>
         <div class="form-grid" style="background:#eef; padding:15px; border-radius:8px; margin-bottom:20px;"><div><label style="color:#ff5722;">1. Cidade</label><select id="selCidadeCadastro" style="border:1px solid #ff5722"></select></div><div><label style="color:#007bff;">2. Categoria</label><select id="categoria" style="border:1px solid #007bff;"><option value="">Selecione...</option></select></div><div><label>3. Subcategoria</label><select id="subcategoria" disabled><option value="">...</option></select></div><div><label>4. Setor</label><select id="setor" disabled><option value="">...</option></select></div></div>
+        
         <div class="form-full"><label>Nome do Estabelecimento</label><input id="nome"></div>
+        
+        <div class="form-full">
+            <label>Descrição (Slogan/Resumo)</label>
+            <input id="descricao" maxlength="60" placeholder="Ex: O melhor hotdog da região (Máx 60 letras)">
+        </div>
+
         <div class="form-grid"><div><label>R$ Riscado</label><input id="precoAntigo" placeholder="0,00"></div><div><label>R$ Atual</label><input id="precoAtual" placeholder="0,00"></div></div>
         <div class="form-full"><label>Endereço Completo</label><input id="cidade"></div>
         <div class="form-grid"><div><label>Link Google Maps</label><input id="linkMapa"></div><div><label>Link Imagem (Capa)</label><input id="imagem"></div></div>
         <div class="form-grid"><div><label>WhatsApp</label><input id="contato"></div><div><label>Instagram</label><input id="instagram"></div><div><label>Telefone Fixo</label><input id="telFixo"></div></div>
+        
         <div class="checkbox-group">
             <label style="display:flex; align-items:center; gap:5px; color:#28a745; font-weight:bold;"><input type="checkbox" id="checkDelivery" onclick="verificarTermosDelivery(this)"> 🛵 Ativar Delivery</label>
             <label style="display:flex; align-items:center; gap:5px;"><input type="checkbox" id="checkPubli"> 📢 Banner</label>
@@ -186,7 +188,7 @@
     <div id="modalIconPicker" class="modal-icons"><div class="modal-icons-content"><h3>Ícone</h3><input type="text" id="inputCustomIcon" placeholder="🍕"><div class="btn-row" style="justify-content:center;"><button class="btn btn-success" onclick="salvarIconeCustomizado()">Salvar</button><button class="btn btn-danger" onclick="closeIconPicker()">Cancelar</button></div></div></div>
 
     <script type="module">
-        const VERSAO_ATUAL="4.4"; 
+        const VERSAO_ATUAL="5.0"; 
         if(localStorage.getItem("v_adm")!==VERSAO_ATUAL){localStorage.setItem("v_adm",VERSAO_ATUAL);location.reload(true);}
         
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
@@ -196,11 +198,9 @@
         const db=getFirestore(app); const el=id=>document.getElementById(id);
         let currentUser=null, listaSubs={}, listaSetores={}, customIcons={}, idEditando=null, catEditing=null, idVipEditando=null, idUsuarioEditando=null, cardapio=[];
 
-        // LOGIN
         window.fazerLogin=async()=>{const u=el('inputUsuario').value.trim(),p=el('inputSenha').value; if(!u||!p) return alert("Preencha tudo"); if(u==='master'&&p==='master123'){currentUser={role:'master'};init();return;} try{let q=query(collection(db,"cidades"),where("login","==",u),where("senha","==",p));let s=await getDocs(q);if(!s.empty){currentUser={role:'city',cityId:s.docs[0].id};init();return;} alert("Dados incorretos");}catch(e){alert("Erro conexão");}};
         function init(){
             el('loginScreen').style.display='none';el('headerAdmin').style.display='flex'; const m=currentUser.role==='master'; const c=currentUser.role==='city';
-            // CONTROLE DE VISIBILIDADE
             el('painelCidades').style.display=m?'block':'none';
             el('painelAdminsLocais').style.display=m?'block':'none';
             el('painelUsuarios').style.display=m?'block':'none';
@@ -225,12 +225,35 @@
             onSnapshot(doc(db,"config","icons"),s=>{customIcons=s.exists()?s.data():{};renderCats();});
             onSnapshot(doc(db,"config","geral"),s=>{if(s.exists()){const d=s.data();el('confZapAdmin').value=d.zapAdmin||"";el('confNomeCidade').value=d.titulo||"";el('opacAzul').value=d.opacAzul||80;el('opacPreto').value=d.opacPreto||50;el('confHeaderSize').value=d.headerSize||"";el('confHeaderTop').value=d.headerTop||"";el('confSponsorSize').value=d.sponsorSize||"";el('confSponsorBottom').value=d.sponsorBottom||"";}});
             onSnapshot(collection(db,"vips"),s=>{el('listaVips').innerHTML="";s.forEach(d=>el('listaVips').innerHTML+=`<div class="manager-item"><div><b>${d.data().nome}</b> (${d.data().palavra})<br><small>${d.data().whatsapp||'-'}</small></div><div><button class="btn btn-warning btn-sm" onclick="editVip('${d.id}','${d.data().nome}','${d.data().nasc}','${d.data().email}','${d.data().palavra}','${d.data().whatsapp}')">✏️</button><button class="btn btn-danger btn-sm" onclick="delVip('${d.id}')">X</button></div></div>`);});
+            
             let q=query(collection(db,"guia_cidades")); if(currentUser.role==='city') q=query(collection(db,"guia_cidades"),where("cidadeId","==",currentUser.cityId));
-            onSnapshot(q,s=>{el('lista-locais').innerHTML="";s.forEach(d=>{const item=d.data();let badges="";if(item.temDelivery)badges+=`<span class="badge-status" style="background:#e8f5e9; color:#28a745;">🛵 Delivery</span>`;el('lista-locais').innerHTML+=`<div class="manager-item"><div><b>${item.nome}</b> ${badges}</div><div><button class="btn btn-warning btn-sm" onclick="editLocal('${d.id}','${encodeURIComponent(JSON.stringify(item))}')">✏️</button><button class="btn btn-danger btn-sm" onclick="delLocal('${d.id}')">X</button></div></div>`;});});
+            onSnapshot(q,s=>{
+                el('lista-locais').innerHTML="";
+                s.forEach(d=>{
+                    const item=d.data();
+                    let badges="";
+                    if(item.temDelivery) badges+=`<span class="badge-status badge-delivery">🛵 Delivery</span>`;
+                    let path = item.categoria || "";
+                    if(item.subcategoria) path += " > " + item.subcategoria;
+                    if(item.setor) path += " > " + item.setor;
+
+                    el('lista-locais').innerHTML+=`
+                    <div class="manager-item">
+                        <div>
+                            <b>${item.nome}</b> ${badges}<br>
+                            <small style="color:#666;">${path}</small>
+                        </div>
+                        <div>
+                            <button class="btn btn-warning btn-sm" onclick="editLocal('${d.id}','${encodeURIComponent(JSON.stringify(item))}')">✏️</button>
+                            <button class="btn btn-danger btn-sm" onclick="delLocal('${d.id}')">X</button>
+                        </div>
+                    </div>`;
+                });
+            });
             if(currentUser.role==='master'){onSnapshot(collection(db,"users"),(snap)=>{el('listaUsuarios').innerHTML="";snap.forEach(doc=>{const u=doc.data();el('listaUsuarios').innerHTML+=`<div class="manager-item"><div><b>${u.nome}</b> (${u.email})</div><div><button class="btn btn-warning btn-sm" onclick="prepararEdicaoUsuario('${doc.id}','${u.nome}','${u.email}','${u.senha}','${u.cidadeId||''}')">✏️</button></div></div>`;});});}
         }
 
-        // --- PALPITES (ORDENAÇÃO JS) ---
+        // FUNÇÕES RESTANTES (MANTIDAS)
         function carregarPalpites() {
             if(!currentUser.cityId) return;
             const q = query(collection(db, "vip_palpites"), where("cidadeId", "==", currentUser.cityId));
@@ -251,22 +274,53 @@
                 });
             });
         }
-        window.limparPalpites = async () => { if(!confirm("Apagar todos os palpites desta cidade?")) return; const q = query(collection(db, "vip_palpites"), where("cidadeId", "==", currentUser.cityId)); const snap = await getDocs(q); const batch = writeBatch(db); snap.forEach(doc => batch.delete(doc.ref)); await batch.commit(); alert("Limpo!"); };
-
-        // --- MANUTENÇÃO ---
+        window.limparPalpites = async () => { if(!confirm("Apagar todos?")) return; const q = query(collection(db, "vip_palpites"), where("cidadeId", "==", currentUser.cityId)); const snap = await getDocs(q); const batch = writeBatch(db); snap.forEach(doc => batch.delete(doc.ref)); await batch.commit(); alert("Limpo!"); };
         window.addItemMenu = () => {const nome = el('prodNome').value; const preco = el('prodPreco').value; const img = el('prodImg').value;if(!nome || !preco) return alert("Preencha Nome e Preço");cardapio.push({nome, preco, img}); el('prodNome').value=""; el('prodPreco').value=""; el('prodImg').value="";renderMenu(); atualizarSelectBrindes();};
         function renderMenu() {el('lista-cardapio-preview').innerHTML = cardapio.map((x,i)=>`<div class="menu-row"><div style="display:flex; align-items:center;">${x.img ? `<img src="${x.img}" class="thumb-menu">` : ''}<span>${x.nome} - R$ ${x.preco}</span></div><button class="btn btn-danger btn-sm" onclick="window.removeMenu(${i})">X</button></div>`).join('');}
         window.removeMenu = (i) => { cardapio.splice(i,1); renderMenu(); atualizarSelectBrindes(); };
         function atualizarSelectBrindes() {const sel = el('deliveryBrinde'); const atual = sel.value;sel.innerHTML = '<option value="">Selecione do Menu...</option>';cardapio.forEach(item => { sel.innerHTML += `<option value="${item.nome}">${item.nome}</option>`; });sel.value = atual;}
-        window.salvarOuAtualizar=async()=>{const temDelivery = el('checkDelivery').checked;const d={cidadeId:el('selCidadeCadastro').value, nome:el('nome').value, nomeBusca:el('nome').value.toLowerCase(),categoria:el('categoria').value, subcategoria:el('subcategoria').value, setor:el('setor').value,contato:el('contato').value, instagram:el('instagram').value, imagem:el('imagem').value,preco:parseFloat(el('precoAtual').value)||0, precoAntigo:parseFloat(el('precoAntigo').value)||0,isPartner:el('checkPartner').checked, temDelivery: temDelivery,deliveryBrinde:el('deliveryBrinde').value,cardapio: cardapio,publi:{ativa:el('checkPubli').checked, img:el('imgPubli').value},linkMapa:el('linkMapa').value, telFixo:el('telFixo').value, cidade:el('cidade').value};if(currentUser.role==='owner') d.ownerId = currentUser.userId;if(idEditando) await updateDoc(doc(db,"guia_cidades",idEditando),d); else await addDoc(collection(db,"guia_cidades"),d);alert("Salvo!"); limparForm();};
-        window.editLocal=(id,j)=>{const d=JSON.parse(decodeURIComponent(j)); idEditando=id;el('tituloForm').textContent="✏️ Editando: "+d.nome;el('selCidadeCadastro').value=d.cidadeId; el('nome').value=d.nome; el('cidade').value=d.cidade||"";el('categoria').value=d.categoria; el('categoria').dispatchEvent(new Event('change'));setTimeout(()=>{el('subcategoria').value=d.subcategoria; el('subcategoria').dispatchEvent(new Event('change')); el('setor').value=d.setor;},500);el('imagem').value=d.imagem; el('linkMapa').value=d.linkMapa||""; el('contato').value=d.contato||""; el('telFixo').value=d.telFixo||""; el('instagram').value=d.instagram||"";el('precoAtual').value=d.preco||""; el('precoAntigo').value=d.precoAntigo||"";el('checkPartner').checked=d.isPartner; el('checkPubli').checked=d.publi?.ativa; el('imgPubli').value=d.publi?.img||"";if(d.publi?.ativa) el('boxPubli').style.display='block';el('checkDelivery').checked=d.temDelivery;if(d.temDelivery) el('boxInfoDelivery').style.display='block';cardapio = d.cardapio || []; renderMenu(); atualizarSelectBrindes();el('deliveryBrinde').value=d.deliveryBrinde||"";el('btnSalvar').innerText="Atualizar Dados"; el('btnCancelar').style.display='inline';el('painelCadastro').scrollIntoView({behavior:'smooth'});};
-        window.limparForm=()=>{idEditando=null; el('tituloForm').textContent="🏪 Cadastrar Local"; el('nome').value=""; el('cidade').value=""; el('imagem').value=""; el('btnSalvar').innerText="Cadastrar"; el('btnCancelar').style.display='none';el('checkDelivery').checked=false; el('boxInfoDelivery').style.display='none';cardapio=[]; renderMenu(); atualizarSelectBrindes();};
+        
+        // SALVAR (COM DESCRIÇÃO)
+        window.salvarOuAtualizar=async()=>{
+            const temDelivery = el('checkDelivery').checked;
+            const d={
+                cidadeId:el('selCidadeCadastro').value, nome:el('nome').value, nomeBusca:el('nome').value.toLowerCase(),
+                // NOVO CAMPO SALVO
+                descricao: el('descricao').value,
+                
+                categoria:el('categoria').value, subcategoria:el('subcategoria').value, setor:el('setor').value,
+                contato:el('contato').value, instagram:el('instagram').value, imagem:el('imagem').value,
+                preco:parseFloat(el('precoAtual').value)||0, precoAntigo:parseFloat(el('precoAntigo').value)||0,
+                isPartner:el('checkPartner').checked, temDelivery: temDelivery,
+                deliveryBrinde:el('deliveryBrinde').value,cardapio: cardapio,
+                publi:{ativa:el('checkPubli').checked, img:el('imgPubli').value},
+                linkMapa:el('linkMapa').value, telFixo:el('telFixo').value, cidade:el('cidade').value
+            };
+            if(currentUser.role==='owner') d.ownerId = currentUser.userId;
+            if(idEditando) await updateDoc(doc(db,"guia_cidades",idEditando),d); else await addDoc(collection(db,"guia_cidades"),d);
+            alert("Salvo!"); limparForm();
+        };
+
+        // EDITAR (PREENCHER DESCRIÇÃO)
+        window.editLocal=(id,j)=>{
+            const d=JSON.parse(decodeURIComponent(j)); idEditando=id;
+            el('tituloForm').textContent="✏️ Editando: "+d.nome;
+            el('selCidadeCadastro').value=d.cidadeId; el('nome').value=d.nome; 
+            
+            // NOVO CAMPO CARREGADO
+            el('descricao').value = d.descricao || "";
+            
+            el('cidade').value=d.cidade||""; el('categoria').value=d.categoria; el('categoria').dispatchEvent(new Event('change')); setTimeout(()=>{el('subcategoria').value=d.subcategoria; el('subcategoria').dispatchEvent(new Event('change')); el('setor').value=d.setor;},500); el('imagem').value=d.imagem; el('linkMapa').value=d.linkMapa||""; el('contato').value=d.contato||""; el('telFixo').value=d.telFixo||""; el('instagram').value=d.instagram||""; el('precoAtual').value=d.preco||""; el('precoAntigo').value=d.precoAntigo||""; el('checkPartner').checked=d.isPartner; el('checkPubli').checked=d.publi?.ativa; el('imgPubli').value=d.publi?.img||""; if(d.publi?.ativa) el('boxPubli').style.display='block'; el('checkDelivery').checked=d.temDelivery; if(d.temDelivery) el('boxInfoDelivery').style.display='block'; cardapio = d.cardapio || []; renderMenu(); atualizarSelectBrindes(); el('deliveryBrinde').value=d.deliveryBrinde||""; el('btnSalvar').innerText="Atualizar Dados"; el('btnCancelar').style.display='inline'; el('painelCadastro').scrollIntoView({behavior:'smooth'});
+        };
+
+        window.limparForm=()=>{idEditando=null; el('tituloForm').textContent="🏪 Cadastrar Local"; el('nome').value=""; el('descricao').value=""; el('cidade').value=""; el('imagem').value=""; el('btnSalvar').innerText="Cadastrar"; el('btnCancelar').style.display='none';el('checkDelivery').checked=false; el('boxInfoDelivery').style.display='none';cardapio=[]; renderMenu(); atualizarSelectBrindes();};
         window.delLocal=async(id)=>{if(confirm("Apagar?"))await deleteDoc(doc(db,"guia_cidades",id));};
         window.verificarTermosDelivery = (chk) => { if(chk.checked){el('modalTermos').style.display='flex'; chk.checked=false;} else {el('boxInfoDelivery').style.display='none';} };
         window.aceitarTermos = () => { el('checkDelivery').checked=true; el('boxInfoDelivery').style.display='block'; el('modalTermos').style.display='none'; };
         window.recusarTermos = () => { el('modalTermos').style.display='none'; };
         el('checkPubli').onchange=e=>el('boxPubli').style.display=e.target.checked?'block':'none';
         
+        // ... (RESTO DAS FUNÇÕES DE CONFIG, USUÁRIO E CATEGORIAS MANTIDAS IGUAIS) ...
         function renderCats(){const d=el('listaGestaoCategorias');d.innerHTML="";(listaSubs["_order"]||[]).forEach(c=>{let ic=customIcons[c]||"📂";d.innerHTML+=`<div class="cat-block"><div class="cat-header"><div style="font-weight:bold; font-size:15px;">${ic} ${c}</div><div class="cat-actions"><button class="btn btn-info btn-sm" onclick="openIcon('${c}')">Icon</button><button class="btn btn-warning btn-sm" onclick="editCat('${c}')">✏️</button><button class="btn btn-secondary btn-sm" onclick="toggleSubs('${c}')">Subs</button><button class="btn btn-danger btn-sm" onclick="delCat('${c}')">X</button></div></div><div id="subs-${c}" class="sub-manager-container">${(listaSubs[c]||[]).map((s,i)=>`<div class="sub-item"><div>${s}</div><div><button class="btn btn-secondary btn-sm" style="padding:2px 6px; font-size:10px;" onclick="toggleSetores('${s}')">Setores</button><button class="btn btn-danger btn-sm" style="padding:2px 6px; font-size:10px;" onclick="delSub('${c}',${i})">X</button></div></div><div id="setores-${s}" class="sector-manager-container">${(listaSetores[s]||[]).map((st,sti)=>`<div class="sector-item"><span>${st}</span> <button class="btn btn-danger btn-sm" style="padding:0 4px; font-size:10px;" onclick="delSetor('${s}',${sti})">x</button></div>`).join('')}<div style="display:flex; gap:5px; margin-top:5px;"><input id="new-setor-${s}" class="input-inline" placeholder="Novo Setor"><button class="btn btn-success btn-sm" style="padding:2px 6px;" onclick="addSetor('${s}')">+</button></div></div>`).join('')}<div style="display:flex; gap:5px; margin-top:10px; border-top:1px solid #ddd; padding-top:10px;"><input id="new-sub-${c}" placeholder="Nova Sub" style="flex:1; padding:8px;"><button class="btn btn-success btn-sm" onclick="addSub('${c}')">+ Add</button></div></div></div>`;}); updateSel();}
         window.openIcon=c=>{catEditing=c;el('modalIconPicker').style.display='flex';el('inputCustomIcon').value=customIcons[c]||"";el('inputCustomIcon').focus();};
         window.closeIconPicker=()=>el('modalIconPicker').style.display='none';
